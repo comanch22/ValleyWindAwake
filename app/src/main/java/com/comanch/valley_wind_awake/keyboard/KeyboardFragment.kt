@@ -9,6 +9,7 @@ import android.media.SoundPool
 import android.os.Bundle
 import android.provider.Settings
 import android.text.format.DateFormat
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -269,7 +270,7 @@ class KeyboardFragment : Fragment() {
                 stateViewModel.sets1(it)
                 s1 = it
                 stateViewModel.getNumbersTimer()?.let { s ->
-                    stateViewModel.setNumbersTimer("$it${s[1]}${s[2]}${s[3]}${s[4]}${s[5]}")
+                    stateViewModel.setNumbersTimer("$it${s.substring(1..5)}")
                 }
             }
         }
@@ -280,7 +281,7 @@ class KeyboardFragment : Fragment() {
                 stateViewModel.sets2(it)
                 s2 = it
                 stateViewModel.getNumbersTimer()?.let { s ->
-                    stateViewModel.setNumbersTimer("${s[0]}$it${s[2]}${s[3]}${s[4]}${s[5]}")
+                    stateViewModel.setNumbersTimer("${s[0]}$it${s.substring(2..5)}}")
                 }
             }
         }
@@ -291,7 +292,7 @@ class KeyboardFragment : Fragment() {
                 stateViewModel.sets3(it)
                 s3 = it
                 stateViewModel.getNumbersTimer()?.let { s ->
-                    stateViewModel.setNumbersTimer("${s[0]}${s[1]}$it${s[3]}${s[4]}${s[5]}")
+                    stateViewModel.setNumbersTimer("${s.substring(0..1)}$it${s.substring(3..5)}")
                 }
             }
         }
@@ -302,7 +303,7 @@ class KeyboardFragment : Fragment() {
                 stateViewModel.sets4(it)
                 s4 = it
                 stateViewModel.getNumbersTimer()?.let { s ->
-                    stateViewModel.setNumbersTimer("${s[0]}${s[1]}${s[2]}$it${s[4]}${s[5]}")
+                    stateViewModel.setNumbersTimer("${s.substring(0..2)}$it${s.substring(4..5)}")
                 }
             }
         }

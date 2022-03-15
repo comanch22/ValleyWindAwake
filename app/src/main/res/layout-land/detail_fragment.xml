@@ -21,6 +21,7 @@
             android:text=""
             android:textSize="24sp"
             android:onClick="@{() -> detailViewModel.delaySignal()}"
+            android:contentDescription="@string/delay"
             app:layout_constraintBottom_toTopOf="@id/guideline19"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

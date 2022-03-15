@@ -24,6 +24,7 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/itemLayout"
         android:layout_width="match_parent"
         android:layout_height="96dp"
         android:layout_marginTop="8dp"
@@ -36,7 +37,6 @@
             android:id="@+id/textViewNumberOne"
             android:layout_marginStart="36dp"
             android:gravity="end"
-            android:text="@string/key_one"
             app:layout_constraintBottom_toTopOf="@id/barrier5"
             app:layout_constraintEnd_toStartOf="@id/textViewNumberTwo"
             app:layout_constraintHorizontal_bias="0.5"
@@ -49,7 +49,6 @@
         <TextView
             android:id="@+id/textViewNumberTwo"
             android:gravity="center"
-            android:text="@string/key_two"
             style="@style/front_list_item_numbers"
             app:layout_constraintBottom_toTopOf="@id/barrier5"
             app:layout_constraintEnd_toStartOf="@id/textViewColons"
@@ -73,7 +72,6 @@
         <TextView
             android:id="@+id/textViewNumberThree"
             android:gravity="center"
-            android:text="@string/key_three"
             style="@style/front_list_item_numbers"
             app:layout_constraintBottom_toTopOf="@id/barrier5"
             app:layout_constraintEnd_toStartOf="@+id/textViewNumberFour"
@@ -86,7 +84,6 @@
             android:id="@+id/textViewNumberFour"
             android:layout_marginEnd="4dp"
             android:gravity="start"
-            android:text="@string/key_four"
             style="@style/front_list_item_numbers"
             app:layout_constraintBottom_toTopOf="@id/barrier5"
             app:layout_constraintEnd_toStartOf="@id/ampm"
@@ -220,6 +217,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
+            android:contentDescription=""
             android:saveEnabled="false"
             android:soundEffectsEnabled="false"
             android:onClick="@{() -> switchListener.onSwitch(item)}"

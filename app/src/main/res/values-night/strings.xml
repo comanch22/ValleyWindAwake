@@ -6,7 +6,7 @@
     <string name="noRingtoneSelected">no ringtone selected</string>
 
     <string name="time_separator" translatable="false">:</string>
-    <string name="clear_calendar">clear</string>
+    <string name="clear_calendar">Clear</string>
 
     <!-- settings fragment -->
     <string name="settings_title">Settings</string>
@@ -36,10 +36,10 @@
     <string name="key_eight" translatable="false">8</string>
     <string name="key_nine" translatable="false">9</string>
     <string name="key_zero" translatable="false">0</string>
-    <string name="back">back</string>
+    <string name="frontListToolbar">Heading. Back button on the left</string>
     <string name="save">save</string>
     <!-- ringtone_picker fragment -->
-    <string name="cancel">cancel</string>
+    <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <!-- app menu -->
     <string name="delete_all">delete all</string>

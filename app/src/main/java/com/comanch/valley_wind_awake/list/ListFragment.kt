@@ -1,5 +1,6 @@
 package com.comanch.valley_wind_awake.list
 
+import android.content.res.Resources
 import android.media.AudioAttributes
 import android.media.SoundPool
 import android.os.Bundle
@@ -48,6 +49,7 @@ class ListFragment : Fragment() {
     private var soundMap: HashMap<Int, Int>? = null
     private val maxSoundPoolStreams = 1
     private var isCreated: Boolean = false
+    private var language: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -149,6 +151,11 @@ class ListFragment : Fragment() {
 
         val is24HourFormat = DateFormat.is24HourFormat(requireContext())
 
+        val localeList = Resources.getSystem().configuration.locales
+        if (localeList.size() > 0){
+            language = localeList[0].toString()
+        }
+
         adapter = ListItemAdapter(
             ItemListener { itemId ->
                 listViewModel.onItemClicked(itemId)
@@ -163,7 +170,8 @@ class ListFragment : Fragment() {
             colorOff.data,
             backgroundColor.data,
             is24HourFormat,
-            Calendar.getInstance().timeInMillis
+            Calendar.getInstance().timeInMillis,
+            language
         )
 
         binding.list.adapter = adapter
@@ -201,10 +209,24 @@ class ListFragment : Fragment() {
                     binding.toolbarNearestDate.text = ""
                     binding.toolbarTitle.visibility = View.INVISIBLE
                     binding.toolbarTitle.text = ""
+                    if (language == "ru_RU") {
+                        binding.toolbar.contentDescription = "Заголовок. Слева кнопка назад. "
+                    }else{
+                        binding.toolbar.contentDescription = "Heading. Back button on the left. "
+                    }
                 } else {
                     binding.toolbarTitle.text = resources.getString(R.string.the_nearest_signal)
                     binding.toolbarNearestDate.text = it
                     binding.toolbarTitle.visibility = View.VISIBLE
+                    if (language == "ru_RU") {
+                        binding.toolbar.contentDescription = "Заголовок. Слева кнопка назад. " +
+                                "${binding.toolbarTitle.text}. " +
+                                it
+                    }else{
+                        binding.toolbar.contentDescription = "Heading. Back button on the left. " +
+                                "${binding.toolbarTitle.text}. " +
+                                it
+                    }
                 }
             }
         }

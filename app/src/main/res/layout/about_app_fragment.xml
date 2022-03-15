@@ -25,9 +25,9 @@
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 style="@style/front_list_toolbar"
-                app:layout_constraintBottom_toTopOf="@id/guideline22"
-                app:layout_constraintEnd_toStartOf="@id/guideline23"
-                app:layout_constraintStart_toEndOf="@id/guideline21"
+                app:layout_constraintBottom_toTopOf="@id/aboutApp"
+                app:layout_constraintEnd_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
@@ -35,6 +35,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
+                    android:contentDescription="@string/back_button"
                     android:background="@drawable/ic_baseline_keyboard_arrow_left_36" />
             </androidx.appcompat.widget.Toolbar>
 

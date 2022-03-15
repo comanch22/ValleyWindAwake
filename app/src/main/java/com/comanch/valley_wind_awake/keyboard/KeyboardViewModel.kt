@@ -184,6 +184,18 @@ class KeyboardViewModel(val dataSource: TimeDataDao, private val handle: SavedSt
             }
             Correspondent.FragmentRotation -> {
                 _isRotation.value = LiveDataEvent(false)
+                //
+                _setRingtoneTitle.value = LiveDataEvent(ringtoneTitle)
+                if (_ringtoneUri.isNotEmpty()) {
+                    ringtoneUri = _ringtoneUri
+                } else {
+                    viewModelScope.launch {
+                        val item = dataSource.get(itemId) ?: return@launch
+                        ringtoneUri = item.ringtoneUri
+                    }
+                }
+                localItemId = itemId
+                //
             }
             else -> {
                 localItemId = itemId

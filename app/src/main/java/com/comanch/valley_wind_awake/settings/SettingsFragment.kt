@@ -85,6 +85,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 if (isTouchSoundEnable(soundButtonTap)) {
                     soundButtonTap?.let { id -> playSound(id) }
                 }
+                //it.summary = "вернуться назад"
                 navigateToDestination(SettingsFragmentDirections.actionSettingsFragmentToListFragment())
                 true
             }
@@ -226,8 +227,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val screen = preferenceManager.createPreferenceScreen(context)
         val defaultPreference = PreferenceManager.getDefaultSharedPreferences(context)
 
-        val a = ConfigurationCompat.getLocales(Resources.getSystem().configuration)
-
         val backButton = Preference(context)
         backButton.icon = ResourcesCompat.getDrawable(
             resources,
@@ -236,6 +235,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         )
         backButton.key = PreferenceKeys.backButton
         backButton.title = resources.getString(R.string.settings_title)
+        backButton.summary = resources.getString(R.string.back_button)
         backButton.layoutResource = R.layout.preference_custom_layout
 
         val ringtoneVolumeSelection = Preference(context)
@@ -277,7 +277,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         val isVibrate = SwitchPreference(context)
         isVibrate.key = PreferenceKeys.isVibrate
-        isVibrate.title = "vibration signal"
+        isVibrate.title = resources.getString(R.string.vibration_signal)
         isVibrate.layoutResource = R.layout.switch_custom
 
         screen.addPreference(backButton)

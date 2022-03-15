@@ -4,17 +4,15 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.preference.PreferenceManager
 import com.comanch.valley_wind_awake.IntentKeys
 import com.comanch.valley_wind_awake.MainActivity
 import com.comanch.valley_wind_awake.PreferenceKeys
 import com.comanch.valley_wind_awake.broadcastreceiver.AlarmReceiver
-import com.comanch.valley_wind_awake.dataBase.TimeData
 import com.comanch.valley_wind_awake.dataBase.DataControl
+import com.comanch.valley_wind_awake.dataBase.TimeData
 import java.text.SimpleDateFormat
 import java.util.*
-
 
 class AlarmControl(val context: Context) {
 
@@ -41,6 +39,7 @@ class AlarmControl(val context: Context) {
     private fun createCalendarList(item: TimeData): MutableList<Calendar> {
 
         val calendarList = mutableListOf<Calendar>()
+        setContentDescriptionPart1(item)
         createSeveralCalendars(item, calendarList)
         setNearestDate(item, calendarList)
         return calendarList
@@ -59,6 +58,27 @@ class AlarmControl(val context: Context) {
             item.nearestDateStr12 = SimpleDateFormat(
                 "dd-MM-yyyy hh:mm a", Locale.US
             ).format(calendarList[0].time)
+
+            item.contentDescriptionRu12 +=
+                ". ближайщий сигнал этого будильника. " +
+                        SimpleDateFormat(
+                            "dd-MM-yyyy hh:mm a", Locale("ru", "RU")
+                        ).format(calendarList[0].time)
+            item.contentDescriptionRu24 +=
+                ". ближайщий сигнал этого будильника. " +
+                        SimpleDateFormat(
+                            "dd-MM-yyyy HH:mm", Locale("ru", "RU")
+                        ).format(calendarList[0].time)
+            item.contentDescriptionEn12 +=
+                ". the nearest of this alarm clock. " +
+                        SimpleDateFormat(
+                            "dd-MM-yyyy hh:mm a", Locale.US
+                        ).format(calendarList[0].time)
+            item.contentDescriptionEn24 +=
+                ". the nearest of this alarm clock. " +
+                        SimpleDateFormat(
+                            "dd-MM-yyyy HH:mm", Locale.US
+                        ).format(calendarList[0].time)
             val cal = Calendar.getInstance()
             cal.timeInMillis = item.nearestDate
         }
@@ -69,40 +89,65 @@ class AlarmControl(val context: Context) {
         calendarList: MutableList<Calendar>
     ) {
 
+        setContentDescriptionPart2(item,
+            " отмечены дни недели. ",
+            " the days of the week are marked. ")
+
         var oneInstance = true
 
         if (item.mondayOn) {
             setDayOfWeek(Calendar.MONDAY, item, calendarList)
+            setContentDescriptionPart2(item,
+                " понедельник. ",
+                " monday. ")
             oneInstance = false
         }
 
         if (item.tuesdayOn) {
             setDayOfWeek(Calendar.TUESDAY, item, calendarList)
+            setContentDescriptionPart2(item,
+                " вторник. ",
+                " tuesday. ")
             oneInstance = false
         }
 
         if (item.wednesdayOn) {
             setDayOfWeek(Calendar.WEDNESDAY, item, calendarList)
+            setContentDescriptionPart2(item,
+                " среда. ",
+                " wednesday. ")
             oneInstance = false
         }
 
         if (item.thursdayOn) {
             setDayOfWeek(Calendar.THURSDAY, item, calendarList)
+            setContentDescriptionPart2(item,
+                " четверг. ",
+                " thursday. ")
             oneInstance = false
         }
 
         if (item.fridayOn) {
             setDayOfWeek(Calendar.FRIDAY, item, calendarList)
+            setContentDescriptionPart2(item,
+                " пятница. ",
+                " friday. ")
             oneInstance = false
         }
 
         if (item.saturdayOn) {
             setDayOfWeek(Calendar.SATURDAY, item, calendarList)
+            setContentDescriptionPart2(item,
+                " суббота. ",
+                " saturday. ")
             oneInstance = false
         }
 
         if (item.sundayOn) {
             setDayOfWeek(Calendar.SUNDAY, item, calendarList)
+            setContentDescriptionPart2(item,
+                " воскресенье. ",
+                " sunday. ")
             oneInstance = false
         }
 
@@ -112,12 +157,33 @@ class AlarmControl(val context: Context) {
                 calendar.timeInMillis = item.delayTime
                 calendar.clear(Calendar.MILLISECOND)
                 calendarList.add(calendar)
-               // oneInstance = false
             }
         }
 
         if (item.specialDate > 0L) {
             val calendar = Calendar.getInstance()
+
+            item.contentDescriptionRu12 +=
+                "дополнительно указанная дата срабатывания сигнала. " +
+                        SimpleDateFormat(
+                            "yyyy-MM-dd", Locale("ru", "RU")
+                        ).format(item.specialDate) + ". "
+            item.contentDescriptionRu24 +=
+                "дополнительно указанная дата срабатывания сигнала. " +
+                        SimpleDateFormat(
+                            "yyyy-MM-dd", Locale("ru", "RU")
+                        ).format(item.specialDate) + ". "
+            item.contentDescriptionEn12 +=
+                "additionally, the specified date of the alarm. " +
+                        SimpleDateFormat(
+                            "yyyy-MM-dd", Locale.US
+                        ).format(item.specialDate) + ". "
+            item.contentDescriptionEn24 +=
+                "additionally, the specified date of the alarm. " +
+                        SimpleDateFormat(
+                            "yyyy-MM-dd", Locale.US
+                        ).format(item.specialDate) + ". "
+
             calendar.timeInMillis = item.specialDate
             calendar.clear(Calendar.MILLISECOND)
             if (calendarList.find {
@@ -137,7 +203,7 @@ class AlarmControl(val context: Context) {
             }
             calendarList.add(calendar)
         }
-        Log.e("offAlarm", "item.oneInstance = ${item.oneInstance} calendarList.size = ${calendarList.size}")
+
         item.oneInstance = calendarList.size <= 1 && oneInstance
     }
 
@@ -177,7 +243,6 @@ class AlarmControl(val context: Context) {
                 dataSource.update(item)
             }
             AlarmTypeOperation.OFF -> {
-                Log.e("offAlarm", "item.oneInstance = ${item.oneInstance}")
                 if (item.oneInstance) {
                     item.active = false
                 } else {
@@ -289,5 +354,36 @@ class AlarmControl(val context: Context) {
             intentInfo,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
+    }
+
+    private fun setContentDescriptionPart1(item: TimeData) {
+        item.contentDescriptionRu12 =
+            "будильник из списка. " +
+                    "время будильника ${item.hhmm12[0]}${item.hhmm12[1]} часов " +
+                    "${item.hhmm12[2]}${item.hhmm12[3]} минут " +
+                    "двенадцатичасовой формат" +
+                    "${item.ampm[0]}. ${item.ampm[1]}. " + ". "
+        item.contentDescriptionRu24 =
+            "будильник из списка. " +
+                    "время будильника ${item.hhmm24[0]}${item.hhmm24[1]} часов " +
+                    "${item.hhmm24[2]}${item.hhmm24[3]} минут " + ". "
+        item.contentDescriptionEn12 =
+            "alarm clock from the list. " +
+                    "alarm clock time ${item.hhmm12[0]}${item.hhmm12[1]} hours " +
+                    "${item.hhmm12[2]}${item.hhmm12[3]} minutes " +
+                    "twelve - hour format" +
+                    "${item.ampm[0]}. ${item.ampm[1]}. " + ". "
+        item.contentDescriptionEn24 =
+            "alarm clock from the list. " +
+                    "alarm clock time ${item.hhmm24[0]}${item.hhmm24[1]} hours " +
+                    "${item.hhmm24[2]}${item.hhmm24[3]} minutes " + ". "
+    }
+
+    private fun setContentDescriptionPart2(item: TimeData, strRu: String, strEn: String) {
+
+            item.contentDescriptionRu12 += strRu
+            item.contentDescriptionRu24 += strRu
+            item.contentDescriptionEn12 += strEn
+            item.contentDescriptionEn24 += strEn
     }
 }

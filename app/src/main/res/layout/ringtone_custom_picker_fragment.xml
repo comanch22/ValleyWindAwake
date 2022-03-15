@@ -23,6 +23,7 @@
                 android:id="@+id/arrow_back"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
+                android:contentDescription="@string/back_button"
                 android:background="@drawable/ic_baseline_keyboard_arrow_left_36"
                 android:layout_gravity="start"
                 />

@@ -79,6 +79,18 @@ data class TimeData(
     @ColumnInfo(name = "ringtoneUri")
     var ringtoneUri: String = "",
 
+    @ColumnInfo(name = "contentDescriptionRu12")
+    var contentDescriptionRu12: String = "",
+
+    @ColumnInfo(name = "contentDescriptionEn12")
+    var contentDescriptionEn12: String = "",
+
+    @ColumnInfo(name = "contentDescriptionRu24")
+    var contentDescriptionRu24: String = "",
+
+    @ColumnInfo(name = "contentDescriptionEn24")
+    var contentDescriptionEn24: String = "",
+
     @ColumnInfo(name = "ringtoneTitle")
     var ringtoneTitle: String = "",
 

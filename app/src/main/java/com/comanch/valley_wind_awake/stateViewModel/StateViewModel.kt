@@ -182,7 +182,6 @@ class StateViewModel : ViewModel() {
     }
 
     fun restoreStateForKeyboardFragment() {
-
         _is24HourFormat.value = setIs24HourFormat
         _numbersTimer.value = LiveDataEvent(setNumbersTimer)
         _monday.value = LiveDataEvent(setOnMonday)

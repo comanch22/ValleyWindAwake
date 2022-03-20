@@ -6,11 +6,11 @@ import androidx.lifecycle.ViewModel
 
 class AboutAppViewModel() : ViewModel() {
 
-    private val _cancel = MutableLiveData<Int?>()
-    val cancel: LiveData<Int?>
-        get() = _cancel
+    private val _ossLicense = MutableLiveData<Int?>()
+    val ossLicense: LiveData<Int?>
+        get() = _ossLicense
 
-    fun cancelAbout() {
-        _cancel.value = 1
+    fun ossLicense() {
+        _ossLicense.value = 1
     }
 }

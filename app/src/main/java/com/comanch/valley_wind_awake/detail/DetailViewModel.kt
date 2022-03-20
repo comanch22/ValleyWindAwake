@@ -23,8 +23,8 @@ class DetailViewModel(val database: TimeDataDao) : ViewModel() {
     val offAlarm: LiveData<LiveDataEvent<Int?>>
         get() = _offAlarm
 
-    private val _stopPlay = MutableLiveData<Long?>()
-    val stopPlay: LiveData<Long?>
+    private val _stopPlay = MutableLiveData<LiveDataEvent<Int?>>()
+    val stopPlay:LiveData<LiveDataEvent<Int?>>
         get() = _stopPlay
 
 
@@ -44,7 +44,7 @@ class DetailViewModel(val database: TimeDataDao) : ViewModel() {
 
         viewModelScope.launch {
             delay(mDelay * 60000)
-            _stopPlay.value = 1
+            _stopPlay.value = LiveDataEvent(1)
         }
     }
 

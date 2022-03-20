@@ -60,7 +60,7 @@
     <string name="key_nine" translatable="false">9</string>
     <string name="key_zero" translatable="false">0</string>
     <string name="frontListToolbar">Heading. Back button on the left</string>
-    <string name="back">Back</string>
+    <string name="back">back</string>
     <string name="save">Save</string>
     <string name="open_calendar">open the calendar to select a date</string>
     <string name="choose_ringtone">choose a ringtone</string>

@@ -422,7 +422,7 @@ class KeyboardFragment : Fragment() {
                                 ampm,
                                 dateFormatter.format12from24(),
                                 it.substring(0, 4),
-                                dateFormatter.format12from24()!!)
+                                dateFormatter.format12from24())
                         } else {
                             setUpDateTimeView(
                                 ampm,
@@ -437,7 +437,7 @@ class KeyboardFragment : Fragment() {
                                 ampm,
                                 it.substring(0, 4),
                                 dateFormatter.format24from12(),
-                                dateFormatter.format24from12()!!
+                                dateFormatter.format24from12()
                             )
                         } else {
                             setUpDateTimeView(
@@ -452,17 +452,17 @@ class KeyboardFragment : Fragment() {
                     if (is24HourFormat != true) {
                         setUpDateTimeView(
                             dateFormatter.getAmPm24(),
-                            dateFormatter.format12from24()!!,
+                            dateFormatter.format12from24(),
                             it.substring(0, 4),
-                            dateFormatter.format12from24()!!
+                            dateFormatter.format12from24()
                         )
                         isPaused = false
                     } else {
                         setUpDateTimeView(
                             ampm,
-                            dateFormatter.format24from12()!!,
+                            dateFormatter.format24from12(),
                             it.substring(0, 4),
-                            dateFormatter.format24from12()!!
+                            dateFormatter.format24from12()
                         )
                         isPaused = false
                     }

@@ -3,7 +3,7 @@
     <string name="app_name">Valley wind awake</string>
     <string name="noRingtoneSelected">рингтон не выбран</string>
     <string name="noAccessRights">нет прав доступа</string>
-    <string name="clear_calendar">Очистить</string>
+    <string name="clear_calendar">очистить</string>
     <string name="settings_title">Настройки</string>
     <string name="settings_ringtone_choice">громкость музыки и мелодия</string>
     <string name="settings_key_sound">звук клавиш</string>
@@ -25,9 +25,9 @@
     <string name="SaturdayCD">суббота</string>
     <string name="SundayCD">воскресенье</string>
     <string name="frontListToolbar">Заголовок. Слева кнопка назад</string>
-    <string name="save">Сохранить</string>
-    <string name="cancel">Закрыть</string>
-    <string name="ok">Выбрать</string>
+    <string name="save">сохранить</string>
+    <string name="cancel">закрыть</string>
+    <string name="ok">выбрать</string>
     <string name="delete_all">удалить все</string>
     <string name="settings">настройки</string>
     <string name="about_app">о приложении</string>
@@ -87,7 +87,7 @@
     <string name="turnOffDeleteMode">выключить режим удаления будильников</string>
     <string name="exit">выйти из приложения в главный экран</string>
     <string name="alarm">будильник из списка</string>
-    <string name="back">Назад</string>
+    <string name="back">назад</string>
     <string name="vibration_signal">вибросигнал</string>
     <string name="back_button">вернуться назад</string>
     <string name="open_calendar">открыть календарь для выбора даты</string>

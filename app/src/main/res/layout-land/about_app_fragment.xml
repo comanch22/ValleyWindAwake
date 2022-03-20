@@ -29,7 +29,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <TextView
-                    android:id="@+id/arrow_back"
+                    android:id="@+id/arrow_back_about_app"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start"
@@ -60,7 +60,7 @@
                 android:layout_marginEnd="16dp"
                 android:background="@drawable/rectangle_for_license_button"
                 android:gravity="center"
-                android:onClick="@{() -> aboutAppViewModel.cancelAbout()}"
+                android:onClick="@{() -> aboutAppViewModel.ossLicense()}"
                 android:padding="16dp"
                 android:text="@string/oss_license"
                 android:textColor="?attr/colorSecondary"

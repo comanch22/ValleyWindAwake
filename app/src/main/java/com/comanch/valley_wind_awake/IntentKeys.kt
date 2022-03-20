@@ -9,7 +9,6 @@ class IntentKeys {
         const val ringtoneUri = "ringtoneUri"
         const val playAction = "actionPLAY"
         const val stopAction = "actionSTOP"
-        const val stopActionByTimer = "actionStopByTimer"
         const val offAlarmFromTimer = "offAlarmFromTimer"
         const val offAlarm = "offAlarm"
         const val pauseAlarm = "pauseAlarm"

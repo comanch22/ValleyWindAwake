@@ -46,13 +46,12 @@ class AboutAppFragment : Fragment() {
         binding.aboutAppViewModel = aboutAppViewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        aboutAppViewModel.cancel.observe(viewLifecycleOwner) {
+        aboutAppViewModel.ossLicense.observe(viewLifecycleOwner) {
             startActivity(Intent(context, OssLicensesMenuActivity::class.java))
         }
 
-        binding.arrowBack.setOnClickListener {
-            this.findNavController()
-                .navigate(AboutAppFragmentDirections.actionAboutAppFragmentToListFragment())
+        binding.arrowBackAboutApp.setOnClickListener {
+            navigateToDestination(AboutAppFragmentDirections.actionAboutAppFragmentToListFragment())
         }
         return binding.root
     }

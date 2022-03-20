@@ -6,7 +6,7 @@
     <string name="noRingtoneSelected">no ringtone selected</string>
 
     <string name="time_separator" translatable="false">:</string>
-    <string name="clear_calendar">Clear</string>
+    <string name="clear_calendar">clear</string>
 
     <!-- settings fragment -->
     <string name="settings_title">Settings</string>

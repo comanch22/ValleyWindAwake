@@ -94,8 +94,12 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
     testImplementation "io.mockk:mockk:$mockkVersion"
-    testImplementation"androidx.arch.core:core-testing:$archCoreVersion"
+    testImplementation "androidx.arch.core:core-testing:$archCoreVersion"
+    testImplementation "androidx.test.ext:junit:$extJunitVersion"
+    testImplementation "androidx.test:runner:$testRunnerVersion"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$kotlinx_coroutines_android_version"
 
+    androidTestImplementation "androidx.test:runner:$testRunnerVersion"
     androidTestImplementation "androidx.test.espresso:espresso-intents:3.4.0"
     androidTestImplementation "com.linkedin.dexmaker:dexmaker-mockito:$dexMakerVersion"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"

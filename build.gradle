@@ -26,6 +26,7 @@ buildscript {
         archCoreVersion = "2.1.0"
         dexMakerVersion = "2.28.1"
         espressoVersion = "3.4.0"
+        testRunnerVersion = "1.4.0"
     }
 
     repositories {

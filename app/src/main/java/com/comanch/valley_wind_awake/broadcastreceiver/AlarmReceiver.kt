@@ -22,10 +22,11 @@ class AlarmReceiver : BroadcastReceiver() {
         if (intent != null) {
             when (intent.action) {
 
-                IntentKeys.reboot -> {
+                "android.intent.action.BOOT_COMPLETED" -> {
                     restartAlarms(context?.applicationContext)
                 }
                 IntentKeys.SetAlarm -> {
+
                     startRingtoneService(
                         context?.applicationContext,
                         intent.getLongExtra(IntentKeys.timeId, -1),
@@ -34,6 +35,7 @@ class AlarmReceiver : BroadcastReceiver() {
                     )
                 }
                 IntentKeys.offAlarm -> {
+
                     intent.getStringExtra(IntentKeys.timeId)?.let { offAlarm(context, it) }
                     if (intent.getBooleanExtra("notification", false)){
                         if (context != null) {
@@ -42,13 +44,16 @@ class AlarmReceiver : BroadcastReceiver() {
                     }
                 }
                 IntentKeys.offDuplicateSignal -> {
+
                     intent.getStringExtra(IntentKeys.timeId)
                         ?.let { offDuplicateSignal(context, it) }
                 }
                 IntentKeys.offAlarmFromTimer -> {
+
                     intent.getStringExtra(IntentKeys.timeId)?.let { offAlarm(context, it) }
                 }
                 IntentKeys.pauseAlarm -> {
+
                     pauseAlarmFromNotification(context, intent.getStringExtra(IntentKeys.timeId) ?: "")
                 }
             }

@@ -40,7 +40,7 @@
 
         <receiver
             android:name="com.comanch.valley_wind_awake.broadcastreceiver.AlarmReceiver"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>

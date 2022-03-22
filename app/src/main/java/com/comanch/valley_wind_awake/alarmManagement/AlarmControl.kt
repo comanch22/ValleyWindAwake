@@ -27,11 +27,8 @@ class AlarmControl(val context: Context) {
 
         val alarmList = dataSource.getListItems()
         alarmList?.forEach {
-            it.active = true
-            dataSource.update(it)
-            val updateItem = dataSource.get(it.timeId)
-            if (updateItem != null) {
-                onAlarm(updateItem)
+            if(it.active) {
+                    onAlarm(it, true)
             }
         }
     }
@@ -285,9 +282,10 @@ class AlarmControl(val context: Context) {
         return "success"
     }
 
-    private fun onAlarm(item: TimeData) {
+    private fun onAlarm(item: TimeData, isRestart: Boolean = false) {
 
         val calendarList = createCalendarList(item)
+
         if (calendarList.size > 0) {
             val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             var count = 1
@@ -295,7 +293,11 @@ class AlarmControl(val context: Context) {
             calendarList.forEach {
                 val requestCode = "${item.requestCode}$count".toInt()
                 val requestCodeInfo = "${item.requestCode}$count$count".toInt()
-                val pendingIntent = createPendingIntent(requestCode)
+                val pendingIntent = if (isRestart){
+                    createPendingIntent(requestCode, item)
+                }else {
+                    createPendingIntent(requestCode)
+                }
                 val pendingIntentInfo = createPendingIntentInfo(requestCodeInfo)
                 val alarmInfo = AlarmManager.AlarmClockInfo(it.timeInMillis, pendingIntentInfo)
                 am.setAlarmClock(alarmInfo, pendingIntent)
@@ -328,13 +330,14 @@ class AlarmControl(val context: Context) {
         item.delayTime = Calendar.getInstance().timeInMillis + defaultPreference.toInt() * 60000
     }
 
-    private fun createPendingIntent(requestCode: Int): PendingIntent {
+    private fun createPendingIntent(requestCode: Int, item: TimeData? = null): PendingIntent {
 
+        val timeDataLocal = item ?: timeData
         val intent = Intent(context, AlarmReceiver::class.java)
         intent.action = IntentKeys.SetAlarm
-        intent.putExtra(IntentKeys.timeId, timeData?.timeId)
-        intent.putExtra(IntentKeys.ringtoneUri, timeData?.ringtoneUri)
-        intent.putExtra(IntentKeys.timeStr, "${timeData?.s1}${timeData?.s2}${timeData?.s3}${timeData?.s4}")
+        intent.putExtra(IntentKeys.timeId, timeDataLocal?.timeId)
+        intent.putExtra(IntentKeys.ringtoneUri, timeDataLocal?.ringtoneUri)
+        intent.putExtra(IntentKeys.timeStr, "${timeDataLocal?.s1}${timeDataLocal?.s2}${timeDataLocal?.s3}${timeDataLocal?.s4}")
         intent.putExtra(IntentKeys.Alarm_R, true)
         return PendingIntent.getBroadcast(
             context,

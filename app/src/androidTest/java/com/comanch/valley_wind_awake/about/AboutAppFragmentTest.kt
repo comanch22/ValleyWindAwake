@@ -28,9 +28,15 @@ import org.junit.runner.RunWith
 class AboutAppFragmentTest {
 
     private lateinit var aboutAppScenario: FragmentScenario<AboutAppFragment>
+    private val navController by lazy { TestNavHostController(
+        ApplicationProvider.getApplicationContext()
+    ) }
 
     @Before
     fun init() {
+
+        aboutAppScenario =
+            launchFragmentInContainer(Bundle(), R.style.Theme_MyAlarmClock)
         Intents.init()
     }
 
@@ -41,14 +47,7 @@ class AboutAppFragmentTest {
     }
 
     @Test
-    fun aboutAppFragment_DisplayedInUi() {
-
-        val navController = TestNavHostController(
-            ApplicationProvider.getApplicationContext()
-        )
-
-        aboutAppScenario =
-            launchFragmentInContainer(Bundle(), R.style.Theme_MyAlarmClock)
+    fun aboutAppFragment_arrow_back() {
 
         aboutAppScenario.onFragment { fragment ->
 
@@ -59,9 +58,10 @@ class AboutAppFragmentTest {
 
         onView(withId(R.id.arrow_back_about_app)).perform(click())
         assertEquals(navController.currentDestination?.id, R.id.listFragment)
+    }
 
-        aboutAppScenario =
-            launchFragmentInContainer(Bundle(), R.style.Theme_MyAlarmClock)
+    @Test
+    fun aboutAppFragment_pressBack(){
 
         aboutAppScenario.onFragment { fragment ->
 
@@ -72,9 +72,10 @@ class AboutAppFragmentTest {
 
         pressBack()
         assertEquals(navController.currentDestination?.id, R.id.listFragment)
+    }
 
-        aboutAppScenario =
-            launchFragmentInContainer(Bundle(), R.style.Theme_MyAlarmClock)
+    @Test
+    fun aboutAppFragment_oss_license_click(){
 
         aboutAppScenario.onFragment { fragment ->
 

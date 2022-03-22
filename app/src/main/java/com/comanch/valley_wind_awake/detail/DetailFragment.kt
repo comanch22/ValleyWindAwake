@@ -41,22 +41,13 @@ class DetailFragment : Fragment() {
                 this, viewModelFactory
             )[DetailViewModel::class.java]
 
-        val pauseDurationPreference = context?.let {
-            PreferenceManager.getDefaultSharedPreferences(it)
-                .getString(PreferenceKeys.pauseDuration, "5")
-        } ?: "5"
-        val text = "${resources.getString(R.string.delay_signal)} $pauseDurationPreference ${
-            resources.getString(R.string.min)
-        }"
-        binding.delaySignal.text = text
+        val pauseDurationPreference = getPauseDurationPreference()
+        val signalDurationPreference = getSignalDurationPreference()
 
+        binding.delaySignal.text = setDelaySignalText(pauseDurationPreference)
         binding.detailViewModel = detailViewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        val signalDurationPreference = context?.let {
-            PreferenceManager.getDefaultSharedPreferences(it)
-                .getString(PreferenceKeys.signalDuration, "2")
-        } ?: "2"
         detailViewModel.startDelay(signalDurationPreference.toLong())
 
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -72,20 +63,14 @@ class DetailFragment : Fragment() {
 
         detailViewModel.setPause.observe(viewLifecycleOwner) { content ->
             content.getContentIfNotHandled()?.let {
-                val offIntent = Intent(context, AlarmReceiver::class.java).apply {
-                    action = IntentKeys.pauseAlarm
-                    putExtra(IntentKeys.timeId, (args.itemId).toString())
-                }
-                context?.sendBroadcast(offIntent)
+                val pauseIntent = createIntent(IntentKeys.pauseAlarm, args.itemId)
+                context?.sendBroadcast(pauseIntent)
             }
         }
 
         detailViewModel.offAlarm.observe(viewLifecycleOwner) { content ->
             content.getContentIfNotHandled()?.let {
-                val offIntent = Intent(context, AlarmReceiver::class.java).apply {
-                    action = IntentKeys.offAlarm
-                    putExtra(IntentKeys.timeId, (args.itemId).toString())
-                }
+                val offIntent = createIntent(IntentKeys.offAlarm, args.itemId)
                 context?.sendBroadcast(offIntent)
             }
         }
@@ -100,8 +85,17 @@ class DetailFragment : Fragment() {
     }
 
     override fun onPause() {
+
         activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onPause()
+    }
+
+    fun createIntent(actionKey: String, timeId: Long): Intent{
+
+       return Intent(context, AlarmReceiver::class.java).apply {
+            action = actionKey
+            putExtra(IntentKeys.timeId, timeId.toString())
+        }
     }
 
     private fun stopPlayRingtone() {
@@ -111,4 +105,26 @@ class DetailFragment : Fragment() {
         context?.startService(intent)
     }
 
+    fun getPauseDurationPreference(): String{
+
+        return context?.let {
+            PreferenceManager.getDefaultSharedPreferences(it)
+                .getString(PreferenceKeys.pauseDuration, "5")
+        } ?: "5"
+    }
+
+    fun getSignalDurationPreference(): String{
+
+        return context?.let {
+            PreferenceManager.getDefaultSharedPreferences(it)
+                .getString(PreferenceKeys.signalDuration, "2")
+        } ?: "2"
+    }
+
+    private fun setDelaySignalText(pauseDuration: String): String {
+
+        return "${resources.getString(R.string.delay_signal)} $pauseDuration ${
+            resources.getString(R.string.min)
+        }"
+    }
 }

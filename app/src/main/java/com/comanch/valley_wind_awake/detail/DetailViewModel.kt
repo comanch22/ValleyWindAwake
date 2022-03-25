@@ -6,10 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.comanch.valley_wind_awake.LiveDataEvent
 import com.comanch.valley_wind_awake.dataBase.TimeDataDao
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class DetailViewModel(val database: TimeDataDao) : ViewModel() {
+@HiltViewModel
+class DetailViewModel @Inject constructor(val database: TimeDataDao) : ViewModel() {
 
     private val _navigateToList = MutableLiveData<LiveDataEvent<Int?>>()
     val navigateToList: LiveData<LiveDataEvent<Int?>>

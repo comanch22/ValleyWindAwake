@@ -4,6 +4,7 @@ plugins {
     id 'androidx.navigation.safeargs'
     id 'kotlin-kapt'
     id 'com.google.android.gms.oss-licenses-plugin'
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -17,7 +18,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.comanch.valley_wind_awake.CustomTestRunner"
     }
 
     buildFeatures {
@@ -25,9 +26,16 @@ android {
     }
 
     buildTypes {
-        ValleyWindAwake {
+        debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            testProguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguardTest-rules.pro'
+        }
+        ValleyWindAwake {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            testProguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguardTest-rules.pro'
         }
     }
     compileOptions {
@@ -49,6 +57,14 @@ dependencies {
     implementation "androidx.core:core-ktx:$ktxVersion"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "androidx.legacy:legacy-support-v4:$legacy_support_v4_version"
+
+    // hilt
+    implementation("com.google.dagger:hilt-android:2.40")
+    kapt("com.google.dagger:hilt-android-compiler:2.40")
+
+    // Hilt testing
+    androidTestImplementation "com.google.dagger:hilt-android-testing:2.40"
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:2.40"
 
     // Navigation
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
@@ -115,6 +131,9 @@ dependencies {
 
 }
 
+kapt {
+    correctErrorTypes = true
+}
 
 
 

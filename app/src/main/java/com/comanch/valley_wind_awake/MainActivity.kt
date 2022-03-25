@@ -12,7 +12,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
 import com.comanch.valley_wind_awake.list.ListFragmentDirections
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private val channelId = "myAlarm_Channel_Id"

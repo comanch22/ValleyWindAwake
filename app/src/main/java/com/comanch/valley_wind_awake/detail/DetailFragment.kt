@@ -1,7 +1,6 @@
 package com.comanch.valley_wind_awake.detail
 
 import android.content.Intent
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -9,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.preference.PreferenceManager
@@ -17,9 +17,10 @@ import com.comanch.valley_wind_awake.PreferenceKeys
 import com.comanch.valley_wind_awake.R
 import com.comanch.valley_wind_awake.alarmManagement.RingtoneService
 import com.comanch.valley_wind_awake.broadcastreceiver.AlarmReceiver
-import com.comanch.valley_wind_awake.dataBase.DataControl
 import com.comanch.valley_wind_awake.databinding.DetailFragmentBinding
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class DetailFragment : Fragment() {
 
     private val args: DetailFragmentArgs by navArgs()
@@ -32,15 +33,7 @@ class DetailFragment : Fragment() {
             inflater, R.layout.detail_fragment, container, false
         )
 
-        val application = requireNotNull(this.activity).application
-        val dataSource = DataControl.getInstance(application).timeDatabaseDao
-        val viewModelFactory =
-            DetailViewModelFactory(dataSource)
-        val detailViewModel =
-            ViewModelProvider(
-                this, viewModelFactory
-            )[DetailViewModel::class.java]
-
+        val detailViewModel: DetailViewModel by viewModels()
         val pauseDurationPreference = getPauseDurationPreference()
         val signalDurationPreference = getSignalDurationPreference()
 
@@ -63,14 +56,14 @@ class DetailFragment : Fragment() {
 
         detailViewModel.setPause.observe(viewLifecycleOwner) { content ->
             content.getContentIfNotHandled()?.let {
-                val pauseIntent = createIntent(IntentKeys.pauseAlarm, args.itemId)
+                val pauseIntent = createIntentAlarmReceiver(IntentKeys.pauseAlarm, args.itemId)
                 context?.sendBroadcast(pauseIntent)
             }
         }
 
         detailViewModel.offAlarm.observe(viewLifecycleOwner) { content ->
             content.getContentIfNotHandled()?.let {
-                val offIntent = createIntent(IntentKeys.offAlarm, args.itemId)
+                val offIntent = createIntentAlarmReceiver(IntentKeys.offAlarm, args.itemId)
                 context?.sendBroadcast(offIntent)
             }
         }
@@ -90,19 +83,24 @@ class DetailFragment : Fragment() {
         super.onPause()
     }
 
-    fun createIntent(actionKey: String, timeId: Long): Intent{
+    private fun stopPlayRingtone() {
 
-       return Intent(context, AlarmReceiver::class.java).apply {
+        context?.startService(createIntentRingtoneService(IntentKeys.stopAction))
+    }
+
+    fun createIntentRingtoneService(actionKey: String): Intent{
+
+        return Intent(requireContext(), RingtoneService::class.java).apply {
             action = actionKey
-            putExtra(IntentKeys.timeId, timeId.toString())
         }
     }
 
-    private fun stopPlayRingtone() {
-        val intent = Intent(context?.applicationContext, RingtoneService::class.java).apply {
-            action = IntentKeys.stopAction
+    fun createIntentAlarmReceiver(actionKey: String, timeId: Long): Intent{
+
+        return Intent(context, AlarmReceiver::class.java).apply {
+            action = actionKey
+            putExtra(IntentKeys.timeId, timeId.toString())
         }
-        context?.startService(intent)
     }
 
     fun getPauseDurationPreference(): String{

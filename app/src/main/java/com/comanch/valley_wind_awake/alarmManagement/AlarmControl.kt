@@ -5,9 +5,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.preference.PreferenceManager
-import com.comanch.valley_wind_awake.IntentKeys
+import com.comanch.valley_wind_awake.stringKeys.IntentKeys
 import com.comanch.valley_wind_awake.MainActivity
-import com.comanch.valley_wind_awake.PreferenceKeys
+import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
 import com.comanch.valley_wind_awake.broadcastreceiver.AlarmReceiver
 import com.comanch.valley_wind_awake.dataBase.DataControl
 import com.comanch.valley_wind_awake.dataBase.TimeData

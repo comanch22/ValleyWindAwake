@@ -25,9 +25,9 @@ import android.util.Log
 import android.util.TypedValue
 import androidx.core.app.NotificationCompat
 import androidx.preference.PreferenceManager
-import com.comanch.valley_wind_awake.IntentKeys
+import com.comanch.valley_wind_awake.stringKeys.IntentKeys
 import com.comanch.valley_wind_awake.MainActivity
-import com.comanch.valley_wind_awake.PreferenceKeys
+import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
 import com.comanch.valley_wind_awake.R
 import com.comanch.valley_wind_awake.broadcastreceiver.AlarmReceiver
 import java.util.*

@@ -11,15 +11,15 @@
 
         <variable
             name="clickListener"
-            type="com.comanch.valley_wind_awake.list.ItemListener" />
+            type="com.comanch.valley_wind_awake.frontListFragment.ItemListener" />
 
         <variable
             name="switchListener"
-            type="com.comanch.valley_wind_awake.list.SwitchListener" />
+            type="com.comanch.valley_wind_awake.frontListFragment.SwitchListener" />
 
         <variable
             name="deleteListener"
-            type="com.comanch.valley_wind_awake.list.DeleteListener" />
+            type="com.comanch.valley_wind_awake.frontListFragment.DeleteListener" />
 
     </data>
 

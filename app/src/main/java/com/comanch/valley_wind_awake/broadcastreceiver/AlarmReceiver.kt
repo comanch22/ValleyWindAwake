@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationManagerCompat
-import com.comanch.valley_wind_awake.IntentKeys
+import com.comanch.valley_wind_awake.stringKeys.IntentKeys
 import com.comanch.valley_wind_awake.alarmManagement.AlarmControl
 import com.comanch.valley_wind_awake.alarmManagement.AlarmTypeOperation
 import com.comanch.valley_wind_awake.alarmManagement.RingtoneService

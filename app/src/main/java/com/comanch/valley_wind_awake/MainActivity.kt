@@ -11,7 +11,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.findNavController
 import androidx.preference.PreferenceManager
-import com.comanch.valley_wind_awake.list.ListFragmentDirections
+import com.comanch.valley_wind_awake.stringKeys.AppStyleKey
+import com.comanch.valley_wind_awake.stringKeys.IntentKeys
+import com.comanch.valley_wind_awake.frontListFragment.ListFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

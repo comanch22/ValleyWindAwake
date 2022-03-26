@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/listFragment"
-        android:name="com.comanch.valley_wind_awake.list.ListFragment"
+        android:name="com.comanch.valley_wind_awake.frontListFragment.ListFragment"
         android:label="ListFragment">
         <action
             android:id="@+id/action_listFragment_to_detailFragment"
@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/detailFragment"
-        android:name="com.comanch.valley_wind_awake.detail.DetailFragment"
+        android:name="com.comanch.valley_wind_awake.alarmFragment.DetailFragment"
         android:label="DetailFragment" >
         <argument
             android:name="itemId"
@@ -46,7 +46,7 @@
     </fragment>
     <fragment
         android:id="@+id/keyboardFragment"
-        android:name="com.comanch.valley_wind_awake.keyboard.KeyboardFragment"
+        android:name="com.comanch.valley_wind_awake.keyboardFragment.KeyboardFragment"
         android:label="keyboard_fragment"
         tools:layout="@layout/keyboard_fragment" >
         <action
@@ -65,7 +65,7 @@
             app:argType="long" />
         <argument
             android:name="correspondent"
-            app:argType="com.comanch.valley_wind_awake.keyboard.Correspondent" />
+            app:argType="com.comanch.valley_wind_awake.keyboardFragment.Correspondent" />
         <argument
             android:name="ringtoneUri"
             app:argType="string" />
@@ -75,7 +75,7 @@
     </fragment>
     <fragment
         android:id="@+id/ringtonePickerFragment"
-        android:name="com.comanch.valley_wind_awake.ringtoneManagement.ringtone_picker.RingtonePickerFragment"
+        android:name="com.comanch.valley_wind_awake.ringtonePickerFragment.RingtonePickerFragment"
         android:label="RingtonePickerFragment" >
         <action
             android:id="@+id/action_ringtonePickerFragment_to_keyboardFragment"
@@ -94,7 +94,7 @@
             app:argType="string" />
         <argument
             android:name="correspondent"
-            app:argType="com.comanch.valley_wind_awake.keyboard.Correspondent" />
+            app:argType="com.comanch.valley_wind_awake.keyboardFragment.Correspondent" />
         <action
             android:id="@+id/action_ringtonePickerFragment_to_settingsFragment"
             app:destination="@id/settingsFragment"
@@ -103,7 +103,7 @@
     </fragment>
     <fragment
         android:id="@+id/ringtoneCustomPickerFragment"
-        android:name="com.comanch.valley_wind_awake.ringtoneManagement.custom_ringtone_picker.RingtoneCustomPickerFragment"
+        android:name="com.comanch.valley_wind_awake.ringtonePickerCustomFragment.RingtoneCustomPickerFragment"
         android:label="RingtoneCustomPickerFragment" >
         <action
             android:id="@+id/action_ringtoneCustomPickerFragment_to_ringtonePickerFragment"
@@ -119,7 +119,7 @@
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.comanch.valley_wind_awake.settings.SettingsFragment"
+        android:name="com.comanch.valley_wind_awake.settingsFragment.SettingsFragment"
         android:label="SettingsFragment" >
         <action
             android:id="@+id/action_settingsFragment_to_listFragment"
@@ -134,7 +134,7 @@
     </fragment>
     <fragment
         android:id="@+id/aboutAppFragment"
-        android:name="com.comanch.valley_wind_awake.about.AboutAppFragment"
+        android:name="com.comanch.valley_wind_awake.aboutFragment.AboutAppFragment"
         android:label="AboutAppFragment" >
         <action
             android:id="@+id/action_aboutAppFragment_to_listFragment"

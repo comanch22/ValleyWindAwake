@@ -10,7 +10,7 @@
             type="com.comanch.valley_wind_awake.dataBase.RingtoneData"/>
         <variable
             name="clickListener"
-            type="com.comanch.valley_wind_awake.ringtoneManagement.ringtone_picker.ItemListener" />
+            type="com.comanch.valley_wind_awake.ringtonePickerFragment.ItemListener" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

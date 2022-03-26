@@ -7,14 +7,14 @@
     <data>
         <variable
             name="detailViewModel"
-            type="com.comanch.valley_wind_awake.detail.DetailViewModel" />
+            type="com.comanch.valley_wind_awake.alarmFragment.DetailViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/rectangle_detail"
-        tools:context="detail.DetailFragment">
+        tools:context="alarmFragment.DetailFragment">
 
         <TextView
             android:id="@+id/delay_signal"

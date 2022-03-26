@@ -5,7 +5,7 @@
     <data>
         <variable
             name="RingtoneCustomPickerViewModel"
-            type="com.comanch.valley_wind_awake.ringtoneManagement.custom_ringtone_picker.RingtoneCustomPickerViewModel" />
+            type="com.comanch.valley_wind_awake.ringtonePickerCustomFragment.RingtoneCustomPickerViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -17,6 +17,12 @@ class DefaultPreference @Inject constructor(val preference: SharedPreferences) {
             PreferenceKeys.pauseDuration -> {
                 preference.getString(PreferenceKeys.pauseDuration, "5")
             }
+            PreferenceKeys.defaultRingtoneUri -> {
+                preference.getString(PreferenceKeys.defaultRingtoneUri, "")
+            }
+            PreferenceKeys.defaultRingtoneTitle -> {
+                preference.getString(PreferenceKeys.defaultRingtoneTitle, "")
+            }
             else -> {
                 null
             }

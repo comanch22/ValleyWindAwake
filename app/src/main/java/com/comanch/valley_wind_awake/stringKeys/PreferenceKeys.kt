@@ -6,6 +6,7 @@ class PreferenceKeys {
 
         const val backButton = "backButton"
         const val defaultRingtoneUri = "defaultRingtoneUri"
+        const val defaultRingtoneTitle = "defaultRingtoneTitle"
         const val signalDuration = "signalDuration"
         const val pauseDuration = "pauseDuration"
         const val isVibrate = "isVibrate"

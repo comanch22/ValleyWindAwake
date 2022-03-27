@@ -83,7 +83,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 if (isTouchSoundEnable(soundButtonTap)) {
                     soundButtonTap?.let { id -> playSound(id) }
                 }
-                //it.summary = "вернуться назад"
                 navigateToDestination(SettingsFragmentDirections.actionSettingsFragmentToListFragment())
                 true
             }
@@ -228,7 +227,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val backButton = Preference(context)
         backButton.icon = ResourcesCompat.getDrawable(
             resources,
-            R.drawable.ic_baseline_keyboard_arrow_left_24,
+            R.drawable.ic_baseline_keyboard_arrow_left_36,
             context.theme
         )
         backButton.key = PreferenceKeys.backButton

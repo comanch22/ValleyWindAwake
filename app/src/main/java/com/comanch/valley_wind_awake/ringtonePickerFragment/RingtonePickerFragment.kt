@@ -326,7 +326,7 @@ class RingtonePickerFragment : Fragment() {
             content.getContentIfNotHandled()?.let { ringtoneTitle ->
                 if (ringtoneTitle != "" && args.correspondent == Correspondent.SettingsFragment) {
                     with(preferenceDefaultRingtone?.edit()) {
-                        this?.putString("defaultRingtoneTitle", ringtoneTitle)
+                        this?.putString(PreferenceKeys.defaultRingtoneTitle, ringtoneTitle)
                         this?.apply()
                     }
                 }

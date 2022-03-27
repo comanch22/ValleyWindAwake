@@ -46,6 +46,7 @@
         <item name="popupTheme">@style/PopupThemeBlue</item>
         <item name="android:dayOfWeekTextAppearance">@style/MyDayOfWeekTextAppearanceBlue</item>
         <item name="android:datePickerDialogTheme">@style/MyDatePickerDialogThemeBlue</item>
+        <item name="android:soundEffectsEnabled">false</item>
 
     </style>
 
@@ -133,7 +134,7 @@
         <item name="popupTheme">@style/PopupThemeGreen</item>
         <item name="android:dayOfWeekTextAppearance">@style/MyDayOfWeekTextAppearanceGreen</item>
         <item name="android:datePickerDialogTheme">@style/MyDatePickerDialogThemeGreen</item>
-
+        <item name="android:soundEffectsEnabled">false</item>
     </style>
 
     <style name="PopupThemeGreen" parent="Theme.AppCompat">
@@ -221,6 +222,7 @@
         <item name="android:dayOfWeekTextAppearance">@style/MyDayOfWeekTextAppearanceGray</item>
         <item name="android:datePickerDialogTheme">@style/MyDatePickerDialogThemeGray</item>
         <item name="android:actionOverflowButtonStyle">@style/ActionButtonOverflowGray</item>
+        <item name="android:soundEffectsEnabled">false</item>
     </style>
 
     <style name="ActionButtonOverflowGray" parent="Widget.AppCompat.ActionButton.Overflow">

@@ -7,17 +7,18 @@ import androidx.lifecycle.viewModelScope
 import com.comanch.valley_wind_awake.LiveDataEvent
 import com.comanch.valley_wind_awake.dataBase.TimeData
 import com.comanch.valley_wind_awake.dataBase.TimeDataDao
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 
-class ListViewModel(
-    val dataSource: TimeDataDao,
-    private val defaultRingtoneUri: String,
-    private val defaultRingtoneTitle: String
-) : ViewModel() {
+@HiltViewModel
+class ListViewModel @Inject constructor(val database: TimeDataDao) : ViewModel() {
 
-    val items = dataSource.getAllItems()
+    lateinit var defaultRingtoneUri: String
+    lateinit var defaultRingtoneTitle: String
 
+    val items = database.getAllItems()
     private var isDeleteMode = false
 
     private val _navigateToKeyboardFragment = MutableLiveData<LiveDataEvent<Long?>>()
@@ -47,7 +48,7 @@ class ListViewModel(
     fun setNearestDate(is24HourFormat: Boolean) {
 
         viewModelScope.launch {
-            val listItems = dataSource.getListItems()
+            val listItems = database.getListItems()
             listItems?.sortedBy {
                 it.nearestDate
             }
@@ -77,21 +78,21 @@ class ListViewModel(
             val item = TimeData()
             item.ringtoneUri = defaultRingtoneUri
             item.ringtoneTitle = defaultRingtoneTitle
-            dataSource.insert(item)
+            database.insert(item)
         }
     }
 
     fun clear() {
 
         viewModelScope.launch {
-            _deleteAllItems.value = dataSource.getListItems()
+            _deleteAllItems.value = database.getListItems()
         }
     }
 
     fun deleteAll() {
 
         viewModelScope.launch {
-            dataSource.clear()
+            database.clear()
         }
 
     }
@@ -110,7 +111,7 @@ class ListViewModel(
     fun offAlarmDeleteItem(itemId: Long) {
 
         viewModelScope.launch {
-            val item = dataSource.get(itemId) ?: return@launch
+            val item = database.get(itemId) ?: return@launch
             _offAlarm.value = item
         }
     }
@@ -118,7 +119,7 @@ class ListViewModel(
     fun deleteItem(item: TimeData) {
 
         viewModelScope.launch {
-            dataSource.delete(item)
+            database.delete(item)
         }
     }
 
@@ -133,7 +134,7 @@ class ListViewModel(
     fun showDiffTimeToast(timeId: Long) {
 
         viewModelScope.launch {
-            val item = dataSource.get(timeId) ?: return@launch
+            val item = database.get(timeId) ?: return@launch
             _timeToast.value = LiveDataEvent(item)
         }
     }

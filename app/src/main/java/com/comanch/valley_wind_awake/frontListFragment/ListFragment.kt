@@ -1,80 +1,62 @@
 package com.comanch.valley_wind_awake.frontListFragment
 
 import android.content.res.Resources
-import android.media.AudioAttributes
-import android.media.SoundPool
 import android.os.Bundle
 import android.provider.Settings
 import android.text.format.DateFormat
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
-import androidx.preference.PreferenceManager
 import com.comanch.valley_wind_awake.*
 import com.comanch.valley_wind_awake.stringKeys.FragmentResultKey
 import com.comanch.valley_wind_awake.stringKeys.OperationKey
 import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
 import com.comanch.valley_wind_awake.alarmManagement.AlarmControl
 import com.comanch.valley_wind_awake.alarmManagement.AlarmTypeOperation
-import com.comanch.valley_wind_awake.dataBase.DataControl
 import com.comanch.valley_wind_awake.databinding.FrontListFragmentBinding
 import com.comanch.valley_wind_awake.dialogFragments.DialogDeleteAllAlarms
 import com.comanch.valley_wind_awake.keyboardFragment.Correspondent
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
+import javax.inject.Inject
 
 
+@AndroidEntryPoint
 class ListFragment : Fragment() {
 
+    private val listViewModel: ListViewModel by viewModels()
+
+    @Inject
+    lateinit var preferences: DefaultPreference
+
+    @Inject
+    lateinit var soundPoolContainer: SoundPoolForFragments
+
+    @Inject
+    lateinit var navigation: NavigationBetweenFragments
+
+    private val language: String? by lazy { setLanguage() }
     private var adapter: ListItemAdapter? = null
-    private lateinit var listViewModel: ListViewModel
     private var deleteModeOn = false
-    private var defaultRingtoneUri: String = ""
-    private var defaultRingtoneTitle: String = ""
-    private var isTouchSoundsEnabledSystem: Boolean = false
-    private var soundPool: SoundPool? = null
-    private var soundCancel: Int? = null
-    private var soundStart: Int? = null
-    private var soundButtonTap: Int? = null
-    private var soundUiTap: Int? = null
-    private var soundStateUp: Int? = null
-    private var soundStateDown: Int? = null
-    private var soundNavigation: Int? = null
-    private var soundMap: HashMap<Int, Int>? = null
-    private val maxSoundPoolStreams = 1
-    private var isCreated: Boolean = false
-    private var language: String? = null
+    private var isTouchSoundsEnabledSystem = false
+    private var isCreated = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val defaultPreference = context?.let { PreferenceManager.getDefaultSharedPreferences(it) }
-        defaultRingtoneUri = defaultPreference?.getString(PreferenceKeys.defaultRingtoneUri, "") ?: ""
-        defaultRingtoneTitle = defaultPreference?.getString("defaultRingtoneTitle", "") ?: ""
-
-        soundMap = hashMapOf()
-        soundPool = SoundPool.Builder()
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
-            ).setMaxStreams(maxSoundPoolStreams)
-            .build()
-
-        soundPool?.setOnLoadCompleteListener { _, sampleId, status ->
-            soundMap?.put(sampleId, status)
+        soundPoolContainer.soundPool.setOnLoadCompleteListener { _, sampleId, status ->
+            soundPoolContainer.soundMap[sampleId] = status
         }
-
     }
 
     override fun onCreateView(
@@ -87,15 +69,8 @@ class ListFragment : Fragment() {
         )
 
         binding.list.setHasFixedSize(true)
-
-        val application = requireNotNull(this.activity).application
-        val dataSource = DataControl.getInstance(application).timeDatabaseDao
-        val viewModelFactory =
-            ListViewModelFactory(dataSource, defaultRingtoneUri, defaultRingtoneTitle)
-        listViewModel =
-            ViewModelProvider(
-                this, viewModelFactory
-            )[ListViewModel::class.java]
+        listViewModel.defaultRingtoneUri = getDefaultRingtoneUri()
+        listViewModel.defaultRingtoneTitle = getDefaultRingtoneTitle()
         binding.listViewModel = listViewModel
 
         setFragmentResultListener(FragmentResultKey.deleteAllItemsKey) { _, bundle ->
@@ -107,56 +82,8 @@ class ListFragment : Fragment() {
         }
 
         binding.toolbar.inflateMenu(R.menu.app_menu)
-
         binding.toolbar.setOnMenuItemClickListener {
-            when (it.itemId) {
-                R.id.action_done -> {
-                    if (isTouchSoundEnable(soundButtonTap)) {
-                        soundButtonTap?.let { id -> playSound(id) }
-                    }
-
-                    val dialogPicker = DialogDeleteAllAlarms()
-                    parentFragmentManager.let { fragmentM ->
-                        dialogPicker.show(fragmentM, "dialogPicker")
-                    }
-                    true
-                }
-                R.id.action_settings -> {
-                    if (isTouchSoundEnable(soundNavigation)) {
-                        soundNavigation?.let { id -> playSound(id) }
-                    }
-                    this.findNavController().navigate(
-                        ListFragmentDirections.actionListFragmentToSettingsFragment()
-                    )
-                    true
-                }
-                R.id.about_app -> {
-                    if (isTouchSoundEnable(soundNavigation)) {
-                        soundNavigation?.let { id -> playSound(id) }
-                    }
-                    this.findNavController().navigate(
-                        ListFragmentDirections.actionListFragmentToAboutAppFragment()
-                    )
-                    true
-                }
-                else -> false
-            }
-        }
-
-        val colorOn = TypedValue()
-        requireContext().theme.resolveAttribute(R.attr.colorSecondary, colorOn, true)
-
-        val colorOff = TypedValue()
-        requireContext().theme.resolveAttribute(R.attr.colorAccent, colorOff, true)
-
-        val backgroundColor = TypedValue()
-        requireContext().theme.resolveAttribute(R.attr.colorPrimaryVariant, backgroundColor, true)
-
-        val is24HourFormat = DateFormat.is24HourFormat(requireContext())
-
-        val localeList = Resources.getSystem().configuration.locales
-        if (localeList.size() > 0){
-            language = localeList[0].toString()
+            menuNavigation(it)
         }
 
         adapter = ListItemAdapter(
@@ -169,10 +96,10 @@ class ListFragment : Fragment() {
             DeleteListener { itemId ->
                 listViewModel.offAlarmDeleteItem(itemId)
             },
-            colorOn.data,
-            colorOff.data,
-            backgroundColor.data,
-            is24HourFormat,
+            resolveColor(R.attr.colorSecondary).data,
+            resolveColor(R.attr.colorAccent).data,
+            resolveColor(R.attr.colorPrimaryVariant).data,
+            is24HourFormat(),
             Calendar.getInstance().timeInMillis,
             language
         )
@@ -202,8 +129,8 @@ class ListFragment : Fragment() {
                 delay(200)
                 binding.list.smoothScrollToPosition(0)
             }
-            setTouchSound()
-            listViewModel.setNearestDate(DateFormat.is24HourFormat(requireContext()))
+            soundPoolContainer.setTouchSound()
+            listViewModel.setNearestDate(is24HourFormat())
         }
 
         listViewModel.nearestDate.observe(viewLifecycleOwner) { str ->
@@ -214,7 +141,7 @@ class ListFragment : Fragment() {
                     binding.toolbarTitle.text = ""
                     if (language == "ru_RU") {
                         binding.toolbar.contentDescription = "Заголовок. Слева кнопка назад. "
-                    }else{
+                    } else {
                         binding.toolbar.contentDescription = "Heading. Back button on the left. "
                     }
                 } else {
@@ -225,7 +152,7 @@ class ListFragment : Fragment() {
                         binding.toolbar.contentDescription = "Заголовок. Слева кнопка назад. " +
                                 "${binding.toolbarTitle.text}. " +
                                 it
-                    }else{
+                    } else {
                         binding.toolbar.contentDescription = "Heading. Back button on the left. " +
                                 "${binding.toolbarTitle.text}. " +
                                 it
@@ -237,10 +164,10 @@ class ListFragment : Fragment() {
         listViewModel.navigateToKeyboardFragment.observe(viewLifecycleOwner) { itemId ->
 
             itemId?.getContentIfNotHandled()?.let {
-                if (isTouchSoundEnable(soundStart)) {
-                    soundStart?.let { id -> playSound(id) }
-                }
-                this.findNavController().navigate(
+
+                soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundStart)
+                navigation.navigateToDestination(
+                    this,
                     ListFragmentDirections.actionListFragmentToKeyboardFragment(
                         it,
                         Correspondent.ListFragment,
@@ -271,9 +198,8 @@ class ListFragment : Fragment() {
         }
 
         listViewModel.offAlarm.observe(viewLifecycleOwner) {
-            if (isTouchSoundEnable(soundUiTap)) {
-                soundUiTap?.let { id -> playSound(id) }
-            }
+
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundUiTap)
             it?.let {
                 lifecycleScope.launch {
                     context?.applicationContext.let { appContext ->
@@ -290,13 +216,9 @@ class ListFragment : Fragment() {
         listViewModel.itemActive.observe(viewLifecycleOwner) { timeData ->
             timeData?.let {
                 if (timeData.active) {
-                    if (isTouchSoundEnable(soundStateDown)) {
-                        soundStateDown?.let { id -> playSound(id) }
-                    }
+                    soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundStateDown)
                 } else {
-                    if (isTouchSoundEnable(soundStateUp)) {
-                        soundStateUp?.let { id -> playSound(id) }
-                    }
+                    soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundStateUp)
                 }
 
                 lifecycleScope.launch {
@@ -351,9 +273,8 @@ class ListFragment : Fragment() {
 
         binding.ButtonDelete.setOnClickListener {
 
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
+
             if (deleteModeOn) {
                 binding.ButtonDone.visibility = View.INVISIBLE
                 binding.toolbar.visibility = View.VISIBLE
@@ -373,9 +294,8 @@ class ListFragment : Fragment() {
 
         binding.ButtonDone.setOnClickListener {
 
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
+
             binding.ButtonDone.visibility = View.INVISIBLE
             binding.toolbar.visibility = View.VISIBLE
             binding.ButtonDelete.visibility = View.VISIBLE
@@ -387,16 +307,13 @@ class ListFragment : Fragment() {
 
         binding.ButtonPlus.setOnClickListener {
 
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             listViewModel.insertItem()
         }
 
         binding.arrowBack.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             activity?.finish()
         }
         return binding.root
@@ -406,10 +323,9 @@ class ListFragment : Fragment() {
 
         super.onStart()
         if (isCreated) {
-            val currentIs24HourFormat = DateFormat.is24HourFormat(requireContext())
-            adapter?.setIs24HourFormat(currentIs24HourFormat)
+            adapter?.setIs24HourFormat(is24HourFormat())
             adapter?.refreshList()
-            listViewModel.setNearestDate(currentIs24HourFormat)
+            listViewModel.setNearestDate(is24HourFormat())
         } else {
             isCreated = true
         }
@@ -430,30 +346,78 @@ class ListFragment : Fragment() {
         super.onSaveInstanceState(outState)
     }
 
-    private fun playSound(id: Int) {
-        soundPool?.play(id, 1F, 1F, 1, 0, 1F)
+    private fun menuNavigation(it: MenuItem) = when (it.itemId) {
+        R.id.action_done -> {
+
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
+            val dialogPicker = DialogDeleteAllAlarms()
+            parentFragmentManager.let { fragmentM ->
+                dialogPicker.show(fragmentM, "dialogPicker")
+            }
+            true
+        }
+        R.id.action_settings -> {
+
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
+            navigation.navigateToDestination(
+                this,
+                ListFragmentDirections.actionListFragmentToSettingsFragment()
+            )
+            true
+        }
+        R.id.about_app -> {
+
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
+            navigation.navigateToDestination(
+                this,
+                ListFragmentDirections.actionListFragmentToAboutAppFragment()
+            )
+            true
+        }
+        else -> false
     }
 
-    private fun setTouchSound() {
+    fun is24HourFormat() = DateFormat.is24HourFormat(requireContext())
 
-        isTouchSoundsEnabledSystem = Settings.System.getInt(
-            activity?.contentResolver,
-            Settings.System.SOUND_EFFECTS_ENABLED, 1
-        ) != 0
+    fun setLanguage(): String? {
 
-        soundCancel = soundPool?.load(context, R.raw.navigation_cancel, 1)
-        soundStart = soundPool?.load(context, R.raw.navigation_forward_selection, 1)
-        soundButtonTap = soundPool?.load(context, R.raw.navigation_forward_selection_minimal, 1)
-        soundUiTap = soundPool?.load(context, R.raw.ui_refresh_feed, 1)
-        soundNavigation = soundPool?.load(context, R.raw.navigation_transition_right, 1)
-        soundStateUp = soundPool?.load(context, R.raw.state_change_confirm_up, 1)
-        soundStateDown = soundPool?.load(context, R.raw.state_change_confirm_down, 1)
+        val localeList = Resources.getSystem().configuration.locales
+        return  if (localeList.size() > 0) {
+            localeList[0].toString()
+        }else{
+            null
+        }
     }
 
-    private fun isTouchSoundEnable(soundId: Int?): Boolean {
+    fun resolveColor(attr: Int): TypedValue {
 
-        return soundMap?.get(soundId) == 0
-                && isTouchSoundsEnabledSystem
+        val color = TypedValue()
+        when (attr) {
+
+            R.attr.colorAccent -> {
+                requireContext().theme.resolveAttribute(attr, color, true)
+            }
+            R.attr.colorSecondary -> {
+                requireContext().theme.resolveAttribute(attr, color, true)
+            }
+            R.attr.colorPrimaryVariant -> {
+                requireContext().theme.resolveAttribute(attr, color, true)
+            }
+        }
+
+        return color
+    }
+
+    fun getDefaultRingtoneUri(): String {
+
+        preferences.key = PreferenceKeys.defaultRingtoneUri
+        return preferences.getPreference() ?: ""
+    }
+
+    fun getDefaultRingtoneTitle(): String {
+
+        preferences.key = PreferenceKeys.defaultRingtoneTitle
+        return preferences.getPreference() ?: ""
     }
 }
 

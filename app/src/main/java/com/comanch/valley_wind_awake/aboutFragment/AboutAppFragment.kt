@@ -31,9 +31,6 @@ class AboutAppFragment : Fragment() {
     @Inject
     lateinit var soundPoolContainer: SoundPoolForFragments
 
-    private var isTouchSoundsEnabledSystem: Boolean = false
-    private val soundMap: HashMap<Int, Int> by lazy { hashMapOf() }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

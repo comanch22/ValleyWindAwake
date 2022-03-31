@@ -34,7 +34,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ListFragment : Fragment() {
 
-    private val listViewModel: ListViewModel by viewModels()
+    val listViewModel: ListViewModel by viewModels()
 
     @Inject
     lateinit var preferences: DefaultPreference
@@ -101,23 +101,16 @@ class ListFragment : Fragment() {
             resolveColor(R.attr.colorPrimaryVariant).data,
             is24HourFormat(),
             Calendar.getInstance().timeInMillis,
-            language
+            language,
+            R.drawable.ic_baseline_alarm_on_64,
+            R.drawable.ic_baseline_alarm_on_48
         )
 
         binding.list.adapter = adapter
         binding.lifecycleOwner = viewLifecycleOwner
+
         deleteModeOn = savedInstanceState?.getBoolean("deleteModeOn", false) == true
-        if (!deleteModeOn) {
-            binding.ButtonDone.visibility = View.INVISIBLE
-            binding.toolbar.visibility = View.VISIBLE
-            binding.ButtonDelete.visibility = View.VISIBLE
-            binding.ButtonPlus.visibility = View.VISIBLE
-        } else {
-            binding.ButtonDone.visibility = View.VISIBLE
-            binding.toolbar.visibility = View.INVISIBLE
-            binding.ButtonDelete.visibility = View.INVISIBLE
-            binding.ButtonPlus.visibility = View.INVISIBLE
-        }
+        setButtonsVisible(binding)
         adapter?.setDeleteMode(deleteModeOn)
         listViewModel.setDeleteItemsMode(deleteModeOn)
 
@@ -136,33 +129,18 @@ class ListFragment : Fragment() {
         listViewModel.nearestDate.observe(viewLifecycleOwner) { str ->
             str?.let {
                 if (it.isEmpty()) {
-                    binding.toolbarNearestDate.text = ""
                     binding.toolbarTitle.visibility = View.INVISIBLE
                     binding.toolbarTitle.text = ""
-                    if (language == "ru_RU") {
-                        binding.toolbar.contentDescription = "Заголовок. Слева кнопка назад. "
-                    } else {
-                        binding.toolbar.contentDescription = "Heading. Back button on the left. "
-                    }
                 } else {
                     binding.toolbarTitle.text = resources.getString(R.string.the_nearest_signal)
-                    binding.toolbarNearestDate.text = it
                     binding.toolbarTitle.visibility = View.VISIBLE
-                    if (language == "ru_RU") {
-                        binding.toolbar.contentDescription = "Заголовок. Слева кнопка назад. " +
-                                "${binding.toolbarTitle.text}. " +
-                                it
-                    } else {
-                        binding.toolbar.contentDescription = "Heading. Back button on the left. " +
-                                "${binding.toolbarTitle.text}. " +
-                                it
-                    }
                 }
+                binding.toolbarNearestDate.text = it
+                setToolbarContentDescription(binding)
             }
         }
 
         listViewModel.navigateToKeyboardFragment.observe(viewLifecycleOwner) { itemId ->
-
             itemId?.getContentIfNotHandled()?.let {
 
                 soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundStart)
@@ -184,10 +162,8 @@ class ListFragment : Fragment() {
                     context?.applicationContext.let { appContext ->
                         if (appContext != null) {
                             it.forEach {
-                                if (AlarmControl(appContext, it)
-                                        .schedulerAlarm(AlarmTypeOperation.DELETE).isNotEmpty()
-                                ) {
-                                }
+                                AlarmControl(appContext, it)
+                                    .schedulerAlarm(AlarmTypeOperation.DELETE).isNotEmpty()
                             }
                             listViewModel.deleteAll()
                             listViewModel.resetDeleteAllItems()
@@ -274,20 +250,7 @@ class ListFragment : Fragment() {
         binding.ButtonDelete.setOnClickListener {
 
             soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
-
-            if (deleteModeOn) {
-                binding.ButtonDone.visibility = View.INVISIBLE
-                binding.toolbar.visibility = View.VISIBLE
-                binding.ButtonDelete.visibility = View.VISIBLE
-                binding.ButtonPlus.visibility = View.VISIBLE
-                deleteModeOn = false
-            } else {
-                binding.ButtonDone.visibility = View.VISIBLE
-                binding.toolbar.visibility = View.INVISIBLE
-                binding.ButtonDelete.visibility = View.INVISIBLE
-                binding.ButtonPlus.visibility = View.INVISIBLE
-                deleteModeOn = true
-            }
+            setVisibleFromButtonDelete(binding)
             adapter?.setDeleteMode(deleteModeOn)
             listViewModel.setDeleteItemsMode(deleteModeOn)
         }
@@ -296,11 +259,7 @@ class ListFragment : Fragment() {
 
             soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
 
-            binding.ButtonDone.visibility = View.INVISIBLE
-            binding.toolbar.visibility = View.VISIBLE
-            binding.ButtonDelete.visibility = View.VISIBLE
-            binding.ButtonPlus.visibility = View.VISIBLE
-            deleteModeOn = false
+            setVisibleFromButtonDone(binding)
             adapter?.setDeleteMode(deleteModeOn)
             listViewModel.setDeleteItemsMode(deleteModeOn)
         }
@@ -319,8 +278,53 @@ class ListFragment : Fragment() {
         return binding.root
     }
 
-    override fun onStart() {
+    private fun setVisibleFromButtonDone(binding: FrontListFragmentBinding) {
+        binding.ButtonDone.visibility = View.INVISIBLE
+        binding.toolbar.visibility = View.VISIBLE
+        binding.ButtonDelete.visibility = View.VISIBLE
+        binding.ButtonPlus.visibility = View.VISIBLE
+        deleteModeOn = false
+    }
 
+    private fun setVisibleFromButtonDelete(binding: FrontListFragmentBinding) {
+        if (deleteModeOn) {
+            binding.ButtonDone.visibility = View.INVISIBLE
+            binding.toolbar.visibility = View.VISIBLE
+            binding.ButtonDelete.visibility = View.VISIBLE
+            binding.ButtonPlus.visibility = View.VISIBLE
+            deleteModeOn = false
+        } else {
+            binding.ButtonDone.visibility = View.VISIBLE
+            binding.toolbar.visibility = View.INVISIBLE
+            binding.ButtonDelete.visibility = View.INVISIBLE
+            binding.ButtonPlus.visibility = View.INVISIBLE
+            deleteModeOn = true
+        }
+    }
+
+    private fun setToolbarContentDescription(binding: FrontListFragmentBinding) {
+        if (language == "ru_RU") {
+            binding.toolbar.contentDescription = "Заголовок. Слева кнопка назад. "
+        } else {
+            binding.toolbar.contentDescription = "Heading. Back button on the left. "
+        }
+    }
+
+    private fun setButtonsVisible(binding: FrontListFragmentBinding) {
+        if (!deleteModeOn) {
+            binding.ButtonDone.visibility = View.INVISIBLE
+            binding.toolbar.visibility = View.VISIBLE
+            binding.ButtonDelete.visibility = View.VISIBLE
+            binding.ButtonPlus.visibility = View.VISIBLE
+        } else {
+            binding.ButtonDone.visibility = View.VISIBLE
+            binding.toolbar.visibility = View.INVISIBLE
+            binding.ButtonDelete.visibility = View.INVISIBLE
+            binding.ButtonPlus.visibility = View.INVISIBLE
+        }
+    }
+
+    override fun onStart() {
         super.onStart()
         if (isCreated) {
             adapter?.setIs24HourFormat(is24HourFormat())
@@ -332,7 +336,6 @@ class ListFragment : Fragment() {
     }
 
     override fun onResume() {
-
         super.onResume()
         isTouchSoundsEnabledSystem = Settings.System.getInt(
             activity?.contentResolver,
@@ -341,14 +344,12 @@ class ListFragment : Fragment() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-
         outState.putBoolean("deleteModeOn", deleteModeOn)
         super.onSaveInstanceState(outState)
     }
 
     private fun menuNavigation(it: MenuItem) = when (it.itemId) {
         R.id.action_done -> {
-
             soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             val dialogPicker = DialogDeleteAllAlarms()
             parentFragmentManager.let { fragmentM ->
@@ -357,7 +358,6 @@ class ListFragment : Fragment() {
             true
         }
         R.id.action_settings -> {
-
             soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             navigation.navigateToDestination(
                 this,
@@ -366,7 +366,6 @@ class ListFragment : Fragment() {
             true
         }
         R.id.about_app -> {
-
             soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             navigation.navigateToDestination(
                 this,
@@ -382,9 +381,9 @@ class ListFragment : Fragment() {
     fun setLanguage(): String? {
 
         val localeList = Resources.getSystem().configuration.locales
-        return  if (localeList.size() > 0) {
+        return if (localeList.size() > 0) {
             localeList[0].toString()
-        }else{
+        } else {
             null
         }
     }
@@ -393,7 +392,6 @@ class ListFragment : Fragment() {
 
         val color = TypedValue()
         when (attr) {
-
             R.attr.colorAccent -> {
                 requireContext().theme.resolveAttribute(attr, color, true)
             }
@@ -409,13 +407,11 @@ class ListFragment : Fragment() {
     }
 
     fun getDefaultRingtoneUri(): String {
-
         preferences.key = PreferenceKeys.defaultRingtoneUri
         return preferences.getPreference() ?: ""
     }
 
     fun getDefaultRingtoneTitle(): String {
-
         preferences.key = PreferenceKeys.defaultRingtoneTitle
         return preferences.getPreference() ?: ""
     }

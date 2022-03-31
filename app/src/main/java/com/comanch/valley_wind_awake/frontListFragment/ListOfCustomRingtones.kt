@@ -64,7 +64,6 @@ class ListOfCustomRingtones(context: Context) {
     }
 
     fun getListOfRingtones(): List<RingtoneData>{
-
         createListOfRingtones()
         return list
     }

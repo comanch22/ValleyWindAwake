@@ -35,7 +35,9 @@ class ListItemAdapter(
     private val backgroundColor: Int,
     private var is24HourFormat: Boolean,
     private val timeInstance: Long,
-    private val language: String?
+    private val language: String?,
+    private val drawableAlarm64: Int,
+    private val drawableAlarm48: Int
 
 ) : ListAdapter<DataItem, RecyclerView.ViewHolder>(
     SleepNightDiffCallback()
@@ -93,7 +95,9 @@ class ListItemAdapter(
                     backgroundColor,
                     is24HourFormat,
                     timeInstance,
-                    language
+                    language,
+                    drawableAlarm64,
+                    drawableAlarm48
                 )
             }
         }
@@ -101,9 +105,6 @@ class ListItemAdapter(
 
     class ViewHolder private constructor(val binding: FrontListItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-
-        private val drawableAlarm64 = R.drawable.ic_baseline_alarm_on_64
-        private val drawableAlarm48 = R.drawable.ic_baseline_alarm_on_48
 
         companion object {
             fun from(parent: ViewGroup): ViewHolder {
@@ -126,32 +127,34 @@ class ListItemAdapter(
             backgroundColor: Int,
             is24HourFormat: Boolean,
             timeInstance: Long,
-            language: String?
+            language: String?,
+            drawableAlarm64: Int,
+            drawableAlarm48: Int
         ) {
 
             binding.item = item
-            if (item.delayTime > 0L && item.delayTime > timeInstance) {
-                binding.isDelayed.visibility = View.VISIBLE
-                setContentDescription(item, language, is24HourFormat, true)
-            } else {
-                binding.isDelayed.visibility = View.INVISIBLE
-                setContentDescription(item, language, is24HourFormat, false)
-            }
+
+            val mapView = mapOf(
+                binding.textViewMonday to item.mondayOn,
+                binding.textViewTuesday to item.tuesdayOn,
+                binding.textViewWednesday to item.wednesdayOn,
+                binding.textViewThursday to item.thursdayOn,
+                binding.textViewFriday to item.fridayOn,
+                binding.textViewSaturday to item.saturdayOn,
+                binding.textViewSunday to item.sundayOn
+            )
+
+            setItemLayoutContentDescription(
+                item,
+                language,
+                is24HourFormat,
+                (item.delayTime > 0L && item.delayTime > timeInstance),
+                isDeleteMode)
 
             if (is24HourFormat) {
-                val hhmm = item.hhmm24
-                binding.textViewNumberOne.text = hhmm[0].toString()
-                binding.textViewNumberTwo.text = hhmm[1].toString()
-                binding.textViewNumberThree.text = hhmm[2].toString()
-                binding.textViewNumberFour.text = hhmm[3].toString()
-                binding.ampm.visibility = View.INVISIBLE
+                setTimeOnView(item, item.hhmm24)
             } else {
-                val hhmm = item.hhmm12
-                binding.textViewNumberOne.text = hhmm[0].toString()
-                binding.textViewNumberTwo.text = hhmm[1].toString()
-                binding.textViewNumberThree.text = hhmm[2].toString()
-                binding.textViewNumberFour.text = hhmm[3].toString()
-                binding.ampm.visibility = View.VISIBLE
+                setTimeOnView(item, item.hhmm12)
                 binding.ampm.text = item.ampm
             }
 
@@ -159,130 +162,75 @@ class ListItemAdapter(
                 binding.selectedDate.text = item.specialDateStr.substring(0, 10)
             }
 
-            setBackgroundDays(
-                binding.textViewMonday,
-                item.mondayOn,
+            SetBackgroundDays(
                 colorOn,
                 colorOff,
-                backgroundColor
-            )
-            setBackgroundDays(
-                binding.textViewTuesday,
-                item.tuesdayOn,
-                colorOn,
-                colorOff,
-                backgroundColor
-            )
-            setBackgroundDays(
-                binding.textViewWednesday,
-                item.wednesdayOn,
-                colorOn,
-                colorOff,
-                backgroundColor
-            )
-            setBackgroundDays(
-                binding.textViewThursday,
-                item.thursdayOn,
-                colorOn,
-                colorOff,
-                backgroundColor
-            )
-            setBackgroundDays(
-                binding.textViewFriday,
-                item.fridayOn,
-                colorOn,
-                colorOff,
-                backgroundColor
-            )
-            setBackgroundDays(
-                binding.textViewSaturday,
-                item.saturdayOn,
-                colorOn,
-                colorOff,
-                backgroundColor
-            )
-            setBackgroundDays(
-                binding.textViewSunday,
-                item.sundayOn,
-                colorOn,
-                colorOff,
-                backgroundColor
-            )
+                backgroundColor,
+                mapView
+            ).setBackgroundDays()
 
-            if (isDeleteMode) {
-                binding.switchActive.visibility = View.GONE
-                binding.deleteItem.visibility = View.VISIBLE
-                if (language == "ru_RU") {
-                    binding.itemLayout.contentDescription = " Включен режим удаления будильников. Будильник из списка в режиме выбора для удаления. " +
-                            " Время будильника. " +
-                            "${binding.textViewNumberOne.text}${binding.textViewNumberTwo.text} часов" +
-                            "${binding.textViewNumberThree.text}${binding.textViewNumberFour.text} минут"
-                } else {
-                    binding.itemLayout.contentDescription =
-                        " Alarm removal mode is enabled. Alarm clock from the list in the selection mode for deletion." +
-                                " Alarm clock time. " +
-                                "${binding.textViewNumberOne.text}${binding.textViewNumberTwo.text} hours" +
-                                "${binding.textViewNumberThree.text}${binding.textViewNumberFour.text} minutes"
-                }
-
-            } else {
-                binding.deleteItem.visibility = View.GONE
-                binding.switchActive.visibility = View.VISIBLE
-                if (item.active) {
-                    binding.switchActive.setBackgroundResource(drawableAlarm64)
-                    if (language == "ru_RU") {
-                        binding.switchActive.contentDescription = " будильник включен. "
-                    } else {
-                        binding.switchActive.contentDescription = " the alarm is on. "
-                    }
-                } else {
-                    binding.switchActive.setBackgroundResource(drawableAlarm48)
-                    if (language == "ru_RU") {
-                        binding.switchActive.contentDescription = " будильник выключен. "
-                    } else {
-                        binding.switchActive.contentDescription = " the alarm is off. "
-                    }
-                }
-            }
+            setElementsVisible(
+                isDeleteMode,
+                item,
+                drawableAlarm64,
+                drawableAlarm48,
+                is24HourFormat,
+                timeInstance
+            )
 
             binding.clickListener = clickListener
             binding.switchListener = switchListener
             binding.deleteListener = deleteListener
         }
 
-        private fun setBackgroundDays(
-            view: TextView,
-            on: Boolean,
-            colorOn: Int,
-            colorOff: Int,
-            backgroundColor: Int
-        ): Boolean {
-            return if (on) {
-                setBackgroundDaysOn(view, colorOn)
-                true
+        private fun setElementsVisible(
+            isDeleteMode: Boolean,
+            item: TimeData,
+            drawableAlarm64: Int,
+            drawableAlarm48: Int,
+            is24HourFormat: Boolean,
+            timeInstance: Long
+        ) {
+            if (isDeleteMode) {
+                binding.switchActive.visibility = View.GONE
+                binding.deleteItem.visibility = View.VISIBLE
             } else {
-                setBackgroundDaysOff(view, colorOff, backgroundColor)
-                false
+                binding.deleteItem.visibility = View.GONE
+                binding.switchActive.visibility = View.VISIBLE
+                if (item.active) {
+                    binding.switchActive.setBackgroundResource(drawableAlarm64)
+                } else {
+                    binding.switchActive.setBackgroundResource(drawableAlarm48)
+                }
+            }
+            if (is24HourFormat) {
+                binding.ampm.visibility = View.INVISIBLE
+            } else {
+                binding.ampm.visibility = View.VISIBLE
+                binding.ampm.text = item.ampm
+            }
+
+            if (item.delayTime > 0L && item.delayTime > timeInstance) {
+                binding.isDelayed.visibility = View.VISIBLE
+            } else {
+                binding.isDelayed.visibility = View.INVISIBLE
             }
         }
 
-        private fun setBackgroundDaysOn(view: TextView, colorOn: Int) {
-            view.setBackgroundResource(R.drawable.rectangle_list_background_day)
-            view.setTypeface(null, Typeface.BOLD)
-            view.setTextColor(colorOn)
+        private fun setTimeOnView(item: TimeData, hhmm: String) {
+
+            binding.textViewNumberOne.text = hhmm[0].toString()
+            binding.textViewNumberTwo.text = hhmm[1].toString()
+            binding.textViewNumberThree.text = hhmm[2].toString()
+            binding.textViewNumberFour.text = hhmm[3].toString()
         }
 
-        private fun setBackgroundDaysOff(view: TextView, colorOff: Int, backgroundColor: Int) {
-            view.setBackgroundColor(backgroundColor)
-            view.setTypeface(null, Typeface.NORMAL)
-            view.setTextColor(colorOff)
-        }
-
-        private fun setContentDescription(
+        private fun setItemLayoutContentDescription(
             item: TimeData,
             language: String?,
             is24HourFormat: Boolean,
-            isDelayed: Boolean
+            isDelayed: Boolean,
+            isDeleteMode: Boolean
         ) {
 
             binding.itemLayout.contentDescription =
@@ -347,6 +295,37 @@ class ListItemAdapter(
                         }
                     }
                 }
+
+            if (isDeleteMode) {
+                if (language == "ru_RU") {
+                    binding.itemLayout.contentDescription =
+                        " Включен режим удаления будильников. Будильник из списка в режиме выбора для удаления. " +
+                                " Время будильника. " +
+                                "${binding.textViewNumberOne.text}${binding.textViewNumberTwo.text} часов" +
+                                "${binding.textViewNumberThree.text}${binding.textViewNumberFour.text} минут"
+                } else {
+                    binding.itemLayout.contentDescription =
+                        " Alarm removal mode is enabled. Alarm clock from the list in the selection mode for deletion." +
+                                " Alarm clock time. " +
+                                "${binding.textViewNumberOne.text}${binding.textViewNumberTwo.text} hours" +
+                                "${binding.textViewNumberThree.text}${binding.textViewNumberFour.text} minutes"
+                }
+
+            } else {
+                if (item.active) {
+                    if (language == "ru_RU") {
+                        binding.switchActive.contentDescription = " будильник включен. "
+                    } else {
+                        binding.switchActive.contentDescription = " the alarm is on. "
+                    }
+                } else {
+                    if (language == "ru_RU") {
+                        binding.switchActive.contentDescription = " будильник выключен. "
+                    } else {
+                        binding.switchActive.contentDescription = " the alarm is off. "
+                    }
+                }
+            }
         }
 
     }
@@ -376,3 +355,37 @@ sealed class DataItem {
         override val id = timeData.timeId
     }
 }
+
+class SetBackgroundDays(
+    private val colorOn: Int,
+    private val colorOff: Int,
+    private val backgroundColor: Int,
+    private val mapView: Map<TextView, Boolean>
+) {
+
+    fun setBackgroundDays() {
+
+        mapView.forEach { (key, value) ->
+            if (value) {
+                setBackgroundDaysOn(key)
+            } else {
+                setBackgroundDaysOff(key)
+            }
+        }
+    }
+
+    private fun setBackgroundDaysOn(view: TextView) {
+
+        view.setBackgroundResource(R.drawable.rectangle_list_background_day)
+        view.setTypeface(null, Typeface.BOLD)
+        view.setTextColor(colorOn)
+    }
+
+    private fun setBackgroundDaysOff(view: TextView) {
+
+        view.setBackgroundColor(backgroundColor)
+        view.setTypeface(null, Typeface.NORMAL)
+        view.setTextColor(colorOff)
+    }
+}
+

@@ -122,4 +122,26 @@ class DetailFragmentAndroidTest {
         assertEquals(expectedIntentAction, actualIntent?.action)
         assertEquals(expectedExtraString, actualIntent?.getStringExtra(IntentKeys.timeId))
     }
+
+    @Test
+    fun check_getPauseDurationPreference(){
+
+        preferences.key = PreferenceKeys.pauseDuration
+        val expected = preferences.getPreference()
+        launchFragmentInHiltContainer<DetailFragment>(Bundle(), R.style.Theme_AppCompat){
+            val actual = (this as DetailFragment).getPauseDurationPreference()
+            assertEquals(expected, actual)
+        }
+    }
+
+    @Test
+    fun check_getSignalDurationPreference(){
+
+        preferences.key = PreferenceKeys.signalDuration
+        val expected = preferences.getPreference()
+        launchFragmentInHiltContainer<DetailFragment>(Bundle(), R.style.Theme_AppCompat){
+            val actual = (this as DetailFragment).getSignalDurationPreference()
+            assertEquals(expected, actual)
+        }
+    }
 }

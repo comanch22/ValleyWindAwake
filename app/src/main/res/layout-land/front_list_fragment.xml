@@ -18,8 +18,7 @@
             app:layout_constraintBottom_toTopOf="@id/list"
             app:layout_constraintEnd_toStartOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+            app:layout_constraintTop_toTopOf="parent">
             <TextView
                 android:id="@+id/arrow_back"
                 android:layout_height="wrap_content"

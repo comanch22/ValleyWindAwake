@@ -1,35 +1,38 @@
 package com.comanch.valley_wind_awake.frontListFragment
 
 import android.os.Bundle
-import android.util.Log
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
+import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
-import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.Espresso.*
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.RootMatchers.isDialog
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import com.comanch.valley_wind_awake.DateDifference
 import com.comanch.valley_wind_awake.DefaultPreference
 import com.comanch.valley_wind_awake.R
-import com.comanch.valley_wind_awake.alarmManagement.AlarmControl
 import com.comanch.valley_wind_awake.dataBase.TimeData
 import com.comanch.valley_wind_awake.launchFragmentInHiltContainer
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.*
+import org.hamcrest.Matchers.not
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.*
 import javax.inject.Inject
 
 @MediumTest
@@ -55,42 +58,7 @@ class ListFragmentAndroidTest {
     }
 
     @Test
-    fun checkNearestDate() {
-
-        var actualNearestDateStr = ""
-        var actualToolbarTitle = ""
-        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
-
-            (this as ListFragment).listViewModel.setNearestDate(true)
-            val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
-            mCoroutineScope.launch {
-                val list =
-                    (this@launchFragmentInHiltContainer).listViewModel.database.getListItems()
-                if (list != null && list.isNotEmpty()) {
-                    list.filter { it.active }.let { listF ->
-                        if (listF.isNotEmpty()) {
-                            listF.sortedBy {
-                                it.nearestDate
-                            }.let {
-                                actualNearestDateStr = it[0].nearestDateStr
-                                actualToolbarTitle = resources.getString(R.string.the_nearest_signal)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        onView(withId(R.id.toolbar_title)).check(matches(withText(actualToolbarTitle)))
-        if (actualToolbarTitle.isEmpty()) {
-            onView(withId(R.id.toolbar_title)).check(matches(withEffectiveVisibility(Visibility.INVISIBLE)))
-        } else {
-            onView(withId(R.id.toolbar_title)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
-        }
-        onView(withId(R.id.toolbar_nearestDate)).check(matches(withText(actualNearestDateStr)))
-    }
-
-    @Test
-    fun check_navigateToKeyboardFragment(){
+    fun check_navigateToKeyboardFragment() {
 
         launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
             navController.setGraph(R.navigation.nav_graph)
@@ -98,36 +66,304 @@ class ListFragmentAndroidTest {
             navController.setCurrentDestination(R.id.listFragment)
         }
 
-        onView(withId(R.id.itemLayout)).perform(click())
+        onView(withId(R.id.list))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    0,
+                    click()
+                )
+            )
         Assert.assertEquals(navController.currentDestination?.id, R.id.keyboardFragment)
     }
 
     @Test
-    fun check_deleteAllItems(){
+    fun check_toAboutAppNavigation() {
+
+        var aboutApp = ""
+
+        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
+            aboutApp = resources.getString(R.string.about_app)
+            navController.setGraph(R.navigation.nav_graph)
+            Navigation.setViewNavController(this.requireView(), navController)
+            navController.setCurrentDestination(R.id.listFragment)
+        }
+
+        openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext())
+        onView(withText(aboutApp)).perform(click())
+
+        Assert.assertEquals(navController.currentDestination?.id, R.id.aboutAppFragment)
+    }
+
+    @Test
+    fun check_toSettingsNavigation() {
+
+        var settings = ""
+
+        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
+            settings = resources.getString(R.string.settings)
+            navController.setGraph(R.navigation.nav_graph)
+            Navigation.setViewNavController(this.requireView(), navController)
+            navController.setCurrentDestination(R.id.listFragment)
+        }
+
+        openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext())
+        onView(withText(settings)).perform(click())
+
+        Assert.assertEquals(navController.currentDestination?.id, R.id.settingsFragment)
+    }
+
+    @Test
+    fun check_deleteAllItems() {
 
         var listFragment: Fragment? = null
-        var actualItemsCount: Int? = null
+        var actualItemsCount: Int = -1
         var actionDone = ""
         var ok = ""
-            launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat){
-                listFragment = this
-                actionDone = resources.getString(R.string.delete_all)
-                ok = resources.getString(R.string.delete_ok)
-            }
+        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
+            listFragment = this
+            actionDone = resources.getString(R.string.delete_all)
+            ok = resources.getString(R.string.delete_ok)
+        }
+
+        onView(withId(R.id.ButtonPlus)).perform(click())
+        onView(withId(R.id.ButtonPlus)).perform(click())
 
         openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext())
         onView(withText(actionDone)).perform(click())
         onView(withText(ok))
             .inRoot(isDialog())
             .check(matches(isDisplayed()))
-            .perform(click());
+            .perform(click())
         val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
         mCoroutineScope.launch {
             actualItemsCount =
                 (listFragment as ListFragment).listViewModel.database.getListItems()?.size ?: 0
-            Assert.assertEquals(0, actualItemsCount)
         }
+        Thread.sleep(2000)
+        onView(withId(R.id.toolbar_title)).check(matches(withEffectiveVisibility(Visibility.INVISIBLE)))
+        onView(withId(R.id.toolbar_nearestDate)).check(matches(withText("")))
+        Assert.assertEquals(0, actualItemsCount)
+    }
+
+    @Test
+    fun check_insertItem() {
+
+        var listFragment: Fragment? = null
+        var itemsCount: Int = -1
+        var itemsCountActual: Int = -1
+        val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
+
+        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
+            listFragment = this
+        }
+
+        mCoroutineScope.launch {
+            itemsCount =
+                (listFragment as ListFragment).listViewModel.database.getListItems()?.size ?: 0
+        }
+        Thread.sleep(2000)
+
+        onView(withId(R.id.ButtonPlus)).perform(click())
+        onView(withId(R.id.ButtonPlus)).perform(click())
+        onView(withId(R.id.ButtonPlus)).perform(click())
+
+        mCoroutineScope.launch {
+            itemsCountActual =
+                (listFragment as ListFragment).listViewModel.database.getListItems()?.size ?: 0
+        }
+        Thread.sleep(2000)
+        Assert.assertEquals(itemsCount + 3, itemsCountActual)
+    }
+
+    @Test
+    fun check_deleteOneItem() {
+
+        var listFragment: Fragment? = null
+        var itemsCount: Int = -1
+        var itemsCountActual: Int = -1
+        val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
+
+        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
+            listFragment = this
+        }
+
+        onView(withId(R.id.ButtonPlus)).perform(click())
+        onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is off. "))))
+
+        mCoroutineScope.launch {
+            itemsCount =
+                (listFragment as ListFragment).listViewModel.database.getListItems()?.size ?: 0
+        }
+        Thread.sleep(2000)
+        onView(withId(R.id.ButtonDelete)).perform(click())
+        onView(withId(R.id.ButtonDone)).check(matches(isDisplayed()))
+
+        onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" remove the alarm from the list. "))))
+
+        onView(withId(R.id.list))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    0,
+                    clickElementOnView(R.id.deleteItem)
+                )
+            )
+        mCoroutineScope.launch {
+            itemsCountActual =
+                (listFragment as ListFragment).listViewModel.database.getListItems()?.size ?: 0
+        }
+        Thread.sleep(2000)
+
+        onView(withId(R.id.ButtonDone)).perform(click())
+        onView(withId(R.id.ButtonDone)).check(matches(not(isDisplayed())))
+        Assert.assertEquals(itemsCount - 1, itemsCountActual)
+    }
+
+    @Test
+    fun check_switchActiveItem() {
+
+        var listFragment: Fragment? = null
+        val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
+        var item: TimeData?
+        var active: Boolean? = true
+        var activeActual: Boolean? = false
+        var toastOff = ""
+        var toastOn: String
+        var days = ""
+        var hours = ""
+        var min = ""
+        var nearestDate: Long?
+
+        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
+            listFragment = this
+            toastOff = resources.getString(R.string.alarm_is_off)
+            days = resources.getString(R.string.days)
+            hours = resources.getString(R.string.hours)
+            min = resources.getString(R.string.min)
+        }
+        Thread.sleep(2000)
+        onView(withId(R.id.ButtonPlus)).perform(click())
+        Thread.sleep(1000)
+        onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is off. "))))
+
+        mCoroutineScope.launch {
+            item = (listFragment as ListFragment).listViewModel.database.getItem()
+            active = item?.active
+        }
+        Thread.sleep(2000)
+        Assert.assertEquals(false, active)
+
+        onView(withId(R.id.list))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    0,
+                    clickElementOnView(R.id.switch_active)
+                )
+            )
+
+        onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is on. "))))
+
+        mCoroutineScope.launch {
+            item = (listFragment as ListFragment).listViewModel.database.getItem()
+            activeActual = item?.active
+            nearestDate = item?.nearestDate
+
+            toastOn = DateDifference().getResultString(
+                nearestDate?.minus(Calendar.getInstance().timeInMillis) ?: 0,
+                days,
+                hours,
+                min
+            )
+
+            onView(withText(toastOn))
+                .inRoot(withDecorView(not(listFragment?.activity?.window?.decorView)))
+                .check(matches(isDisplayed()))
+        }
+        Thread.sleep(2000)
+
+        Assert.assertEquals(true, activeActual)
+        onView(withId(R.id.toolbar_title)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+        onView(withId(R.id.toolbar_nearestDate)).check(matches(not(withText(""))))
+
+        onView(withId(R.id.list))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    0,
+                    clickElementOnView(R.id.switch_active)
+                )
+            )
+
+        onView(withText(toastOff))
+            .inRoot(withDecorView(not(listFragment?.activity?.window?.decorView)))
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun check_NearestDate() {
+
+        var actualNearestDateStr = ""
+        var actualToolbarTitle = ""
+        var listFragment: ListFragment? = null
+
+        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
+            listFragment  = this as ListFragment
+            actualToolbarTitle = resources.getString(R.string.the_nearest_signal)
+        }
+
+        onView(withId(R.id.ButtonPlus)).perform(click())
+        Thread.sleep(1000)
+        onView(withId(R.id.list))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    0,
+                    clickElementOnView(R.id.switch_active)
+                )
+            )
+        Thread.sleep(1000)
+        listFragment?.listViewModel?.setNearestDate(true)
+        val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
+        mCoroutineScope.launch {
+            val list =
+                listFragment?.listViewModel?.database?.getListItems()
+            if (list != null && list.isNotEmpty()) {
+                list.filter { it.active }.let { listF ->
+                    if (listF.isNotEmpty()) {
+                        listF.sortedBy {
+                            it.nearestDate
+                        }.let {
+                            actualNearestDateStr = it[0].nearestDateStr
+                        }
+                    }
+                }
+            }
+        }
+        Thread.sleep(2000)
+
+        onView(withId(R.id.toolbar_title)).check(matches(withText(actualToolbarTitle)))
+        onView(withId(R.id.toolbar_title)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
+        onView(withId(R.id.toolbar_nearestDate)).check(matches(withText(actualNearestDateStr)))
+    }
+
+    @Test
+    fun check_arrowBack() {
+
+        var listFragment: Fragment? = null
+
+        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
+            listFragment = this
+        }
+        Thread.sleep(1000)
+        onView(withId(R.id.arrow_back)).perform(click())
+        Assert.assertEquals(true, listFragment?.activity?.isFinishing)
     }
 
 
+    private fun clickElementOnView(viewId: Int) = object : ViewAction {
+
+        override fun getConstraints() = null
+
+        override fun getDescription() = ""
+
+        override fun perform(uiController: UiController, view: View) =
+            click().perform(uiController, view.findViewById(viewId))
+    }
 }

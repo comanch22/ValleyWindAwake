@@ -326,6 +326,11 @@ class ListItemAdapter(
                     }
                 }
             }
+            if (language == "ru_RU") {
+                binding.deleteItem.contentDescription = " удалить будильник из списка. "
+            }else{
+                binding.deleteItem.contentDescription = " remove the alarm from the list. "
+            }
         }
 
     }

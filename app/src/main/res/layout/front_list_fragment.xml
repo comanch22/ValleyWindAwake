@@ -77,9 +77,11 @@
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/ButtonDelete"
             style="@style/front_list_fab_button"
+            android:contentDescription="@string/turnDeleteMode"
+            android:minWidth="48dp"
+            android:minHeight="48dp"
             android:src="@drawable/ic_baseline_delete_forever_8"
             app:fabSize="normal"
-            android:contentDescription="@string/turnDeleteMode"
             app:layout_constraintBottom_toTopOf="@id/guideline17"
             app:layout_constraintStart_toEndOf="@id/guideline20"
             app:tint="?attr/colorSecondary" />

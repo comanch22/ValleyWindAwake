@@ -18,7 +18,9 @@ class ItemListener(val clickListener: (ringtoneData: RingtoneData) -> Unit) {
 
 }
 
-class RingtoneCustomAdapter(private val clickListener: ItemListener) :
+class RingtoneCustomAdapter(
+    private val clickListener: ItemListener,
+    private val language: String?) :
     ListAdapter<RingtoneData, RecyclerView.ViewHolder>(RingtoneItemDiffCallback()) {
 
     fun setData(list: List<RingtoneData>?) {
@@ -43,7 +45,7 @@ class RingtoneCustomAdapter(private val clickListener: ItemListener) :
         when (holder) {
             is ViewHolder -> {
                 val item = getItem(position)
-                holder.bind(item, clickListener)
+                holder.bind(item, clickListener, language)
             }
         }
     }
@@ -61,7 +63,7 @@ class RingtoneCustomAdapter(private val clickListener: ItemListener) :
             }
         }
 
-        fun bind(ringtone: RingtoneData, clickListener: ItemListener) {
+        fun bind(ringtone: RingtoneData, clickListener: ItemListener, language: String?) {
 
             binding.ringtone = ringtone
             binding.title.text = ringtone.title
@@ -71,8 +73,18 @@ class RingtoneCustomAdapter(private val clickListener: ItemListener) :
             binding.clickListener = clickListener
             if (ringtone.active == 1) {
                 binding.ringtoneCustomList.setBackgroundResource(R.drawable.rectangle_for_list_white)
+                if (language == "ru_RU") {
+                    binding.ringtoneCustomList.contentDescription = " эта мелодия выбрана и играет "
+                } else {
+                    binding.ringtoneCustomList.contentDescription = " this melody is selected and is playing "
+                }
             } else {
                 binding.ringtoneCustomList.setBackgroundResource(R.drawable.rectangle_for_list)
+                if (language == "ru_RU") {
+                    binding.ringtoneCustomList.contentDescription = " эта мелодия не выбрана "
+                } else {
+                    binding.ringtoneCustomList.contentDescription = " this melody is not selected "
+                }
             }
         }
 

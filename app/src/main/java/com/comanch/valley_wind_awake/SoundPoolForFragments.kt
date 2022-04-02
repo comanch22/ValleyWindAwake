@@ -21,14 +21,18 @@ class SoundPoolForFragments @Inject constructor(
     val soundStateDown = soundPool.load(context, R.raw.state_change_confirm_down, 1)
     val appContext = context
     val soundMap: HashMap<Int, Int> by lazy { hashMapOf() }
+    private var isTouchSoundsEnabledSystem = Settings.System.getInt(
+        appContext.contentResolver,
+        Settings.System.SOUND_EFFECTS_ENABLED, 1
+    ) != 0
 
-     private fun playSound(id: Int) {
+    private fun playSound(id: Int) {
         soundPool.play(id, 1F, 1F, 1, 0, 1F)
     }
 
-     fun setTouchSound(): Boolean {
+     fun setTouchSound() {
 
-        return Settings.System.getInt(
+         isTouchSoundsEnabledSystem = Settings.System.getInt(
             appContext.contentResolver,
             Settings.System.SOUND_EFFECTS_ENABLED, 1
         ) != 0
@@ -37,7 +41,7 @@ class SoundPoolForFragments @Inject constructor(
     private fun isTouchSoundEnable(soundId: Int?): Boolean {
 
         return soundMap[soundId] == 0
-                && setTouchSound()
+                && isTouchSoundsEnabledSystem
     }
 
     fun playSoundIfEnable(soundInt: Int){

@@ -48,7 +48,6 @@ class ListFragment : Fragment() {
     private val language: String? by lazy { setLanguage() }
     private var adapter: ListItemAdapter? = null
     private var deleteModeOn = false
-    private var isTouchSoundsEnabledSystem = false
     private var isCreated = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -122,7 +121,6 @@ class ListFragment : Fragment() {
                 delay(200)
                 binding.list.smoothScrollToPosition(0)
             }
-            soundPoolContainer.setTouchSound()
             listViewModel.setNearestDate(is24HourFormat())
         }
 
@@ -337,10 +335,7 @@ class ListFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        isTouchSoundsEnabledSystem = Settings.System.getInt(
-            activity?.contentResolver,
-            Settings.System.SOUND_EFFECTS_ENABLED, 1
-        ) != 0
+        soundPoolContainer.setTouchSound()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -376,9 +371,9 @@ class ListFragment : Fragment() {
         else -> false
     }
 
-    fun is24HourFormat() = DateFormat.is24HourFormat(requireContext())
+    private fun is24HourFormat() = DateFormat.is24HourFormat(requireContext())
 
-    fun setLanguage(): String? {
+    private fun setLanguage(): String? {
 
         val localeList = Resources.getSystem().configuration.locales
         return if (localeList.size() > 0) {

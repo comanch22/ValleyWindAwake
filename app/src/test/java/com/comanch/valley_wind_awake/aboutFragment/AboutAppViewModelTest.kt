@@ -20,6 +20,6 @@ class AboutAppViewModelTest{
 
         viewModel.ossLicense()
         val value = viewModel.ossLicense.getOrAwaitValue()
-        assertEquals(value, 1)
+        assertEquals(1, value)
     }
 }

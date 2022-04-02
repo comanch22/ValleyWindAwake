@@ -7,9 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.comanch.valley_wind_awake.LiveDataEvent
 import com.comanch.valley_wind_awake.dataBase.RingtoneDataDao
 import com.comanch.valley_wind_awake.dataBase.RingtoneData
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RingtoneCustomPickerViewModel(val database: RingtoneDataDao) : ViewModel() {
+@HiltViewModel
+class RingtoneCustomPickerViewModel @Inject constructor(val database: RingtoneDataDao) : ViewModel() {
 
     private var selectedRingtone: RingtoneData? = null
     private var setRestorePlayerFlag: Boolean = false
@@ -17,10 +20,6 @@ class RingtoneCustomPickerViewModel(val database: RingtoneDataDao) : ViewModel()
     private val _itemActiveState = MutableLiveData<LiveDataEvent<Boolean>>()
     val itemActiveState: LiveData<LiveDataEvent<Boolean>>
         get() = _itemActiveState
-
-    private val _setTouchSound = MutableLiveData<LiveDataEvent<Int>>()
-    val setTouchSound: LiveData<LiveDataEvent<Int>>
-        get() = _setTouchSound
 
     private val _restorePlayerFlag = MutableLiveData<LiveDataEvent<Boolean>>()
     val restorePlayerFlag: LiveData<LiveDataEvent<Boolean>>
@@ -54,10 +53,6 @@ class RingtoneCustomPickerViewModel(val database: RingtoneDataDao) : ViewModel()
 
     fun resetCurrentRingTone() {
         _currentRingTone.value = null
-    }
-
-    fun setTouchSound() {
-        _setTouchSound.value = LiveDataEvent(1)
     }
 
     fun setItemActiveState() {

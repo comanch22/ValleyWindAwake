@@ -38,9 +38,9 @@ class DetailViewModelTest{
 
         viewModel.offSignal()
         val navigateToList = viewModel.navigateToList.getOrAwaitValue()
-        assertEquals(navigateToList.getContentIfNotHandled(), 1)
+        assertEquals(1, navigateToList.getContentIfNotHandled())
         val offAlarm = viewModel.offAlarm.getOrAwaitValue()
-        assertEquals(offAlarm.getContentIfNotHandled(), 1)
+        assertEquals(1, offAlarm.getContentIfNotHandled())
     }
 
     @Test
@@ -48,9 +48,9 @@ class DetailViewModelTest{
 
         viewModel.delaySignal()
         val navigateToList = viewModel.navigateToList.getOrAwaitValue()
-        assertEquals(navigateToList.getContentIfNotHandled(), 1)
+        assertEquals(1, navigateToList.getContentIfNotHandled())
         val setPause = viewModel.setPause.getOrAwaitValue()
-        assertEquals(setPause.getContentIfNotHandled(), 1)
+        assertEquals(1, setPause.getContentIfNotHandled())
     }
 
     @Test
@@ -58,6 +58,6 @@ class DetailViewModelTest{
 
         viewModel.startDelay(0)
         val stopPlay = viewModel.stopPlay.getOrAwaitValue()
-        assertEquals(stopPlay.getContentIfNotHandled(), 1)
+        assertEquals(1, stopPlay.getContentIfNotHandled())
     }
 }

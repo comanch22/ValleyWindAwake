@@ -1,5 +1,6 @@
 package com.comanch.valley_wind_awake.frontListFragment
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -47,6 +48,7 @@ class ListViewModel @Inject constructor(val database: TimeDataDao) : ViewModel()
 
     fun setNearestDate(is24HourFormat: Boolean) {
 
+        var result = ""
         viewModelScope.launch {
             val listItems = database.getListItems()
             listItems?.sortedBy {
@@ -55,16 +57,17 @@ class ListViewModel @Inject constructor(val database: TimeDataDao) : ViewModel()
             listItems?.filter { it.active }?.sortedBy {
                 it.nearestDate
             }?.let {
-                if (it.isNotEmpty()) {
+                result = if (it.isNotEmpty()) {
                     if (is24HourFormat) {
-                        _nearestDate.value = it[0].nearestDateStr
+                        it[0].nearestDateStr
                     } else {
-                        _nearestDate.value = it[0].nearestDateStr12
+                        it[0].nearestDateStr12
                     }
                 } else {
-                    _nearestDate.value = ""
+                    ""
                 }
             }
+            _nearestDate.value = result
         }
     }
 

@@ -1,5 +1,6 @@
 package com.comanch.valley_wind_awake.frontListFragment
 
+import android.content.res.Resources
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -46,16 +47,18 @@ class ListFragmentAndroidTest {
     @Inject
     lateinit var preferences: DefaultPreference
 
-    @Before
-    fun init() {
-        hiltRule.inject()
-    }
-
     private val navController by lazy {
         TestNavHostController(
             ApplicationProvider.getApplicationContext()
         )
     }
+
+    @Before
+    fun init() {
+        hiltRule.inject()
+    }
+
+    private val language: String? by lazy { setLanguage() }
 
     @Test
     fun check_navigateToKeyboardFragment() {
@@ -87,8 +90,8 @@ class ListFragmentAndroidTest {
             Navigation.setViewNavController(this.requireView(), navController)
             navController.setCurrentDestination(R.id.listFragment)
         }
+        openContextualActionModeOverflowMenu()
 
-        openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext())
         onView(withText(aboutApp)).perform(click())
 
         Assert.assertEquals(navController.currentDestination?.id, R.id.aboutAppFragment)
@@ -105,8 +108,8 @@ class ListFragmentAndroidTest {
             Navigation.setViewNavController(this.requireView(), navController)
             navController.setCurrentDestination(R.id.listFragment)
         }
+        openContextualActionModeOverflowMenu()
 
-        openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext())
         onView(withText(settings)).perform(click())
 
         Assert.assertEquals(navController.currentDestination?.id, R.id.settingsFragment)
@@ -128,7 +131,8 @@ class ListFragmentAndroidTest {
         onView(withId(R.id.ButtonPlus)).perform(click())
         onView(withId(R.id.ButtonPlus)).perform(click())
 
-        openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext())
+        openContextualActionModeOverflowMenu()
+
         onView(withText(actionDone)).perform(click())
         onView(withText(ok))
             .inRoot(isDialog())
@@ -188,7 +192,11 @@ class ListFragmentAndroidTest {
         }
 
         onView(withId(R.id.ButtonPlus)).perform(click())
-        onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is off. "))))
+        if (language == "ru_RU") {
+            onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" будильник выключен. "))))
+        } else {
+            onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is off. "))))
+        }
 
         mCoroutineScope.launch {
             itemsCount =
@@ -198,8 +206,11 @@ class ListFragmentAndroidTest {
         onView(withId(R.id.ButtonDelete)).perform(click())
         onView(withId(R.id.ButtonDone)).check(matches(isDisplayed()))
 
-        onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" remove the alarm from the list. "))))
-
+        if (language == "ru_RU") {
+            onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" удалить будильник из списка. "))))
+        } else {
+            onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" remove the alarm from the list. "))))
+        }
         onView(withId(R.id.list))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
@@ -243,8 +254,11 @@ class ListFragmentAndroidTest {
         Thread.sleep(2000)
         onView(withId(R.id.ButtonPlus)).perform(click())
         Thread.sleep(1000)
-        onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is off. "))))
-
+        if (language == "ru_RU") {
+            onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" будильник выключен. "))))
+        } else {
+            onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is off. "))))
+        }
         mCoroutineScope.launch {
             item = (listFragment as ListFragment).listViewModel.database.getItem()
             active = item?.active
@@ -260,8 +274,11 @@ class ListFragmentAndroidTest {
                 )
             )
 
-        onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is on. "))))
-
+        if (language == "ru_RU") {
+            onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" будильник включен. "))))
+        } else {
+            onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is on. "))))
+        }
         mCoroutineScope.launch {
             item = (listFragment as ListFragment).listViewModel.database.getItem()
             activeActual = item?.active
@@ -305,7 +322,7 @@ class ListFragmentAndroidTest {
         var listFragment: ListFragment? = null
 
         launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
-            listFragment  = this as ListFragment
+            listFragment = this as ListFragment
             actualToolbarTitle = resources.getString(R.string.the_nearest_signal)
         }
 
@@ -365,5 +382,15 @@ class ListFragmentAndroidTest {
 
         override fun perform(uiController: UiController, view: View) =
             click().perform(uiController, view.findViewById(viewId))
+    }
+
+    private fun setLanguage(): String? {
+
+        val localeList = Resources.getSystem().configuration.locales
+        return if (localeList.size() > 0) {
+            localeList[0].toString()
+        } else {
+            null
+        }
     }
 }

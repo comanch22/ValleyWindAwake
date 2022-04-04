@@ -2,7 +2,6 @@ package com.comanch.valley_wind_awake.frontListFragment
 
 import android.content.res.Resources
 import android.os.Bundle
-import android.provider.Settings
 import android.text.format.DateFormat
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -403,12 +402,12 @@ class ListFragment : Fragment() {
 
     fun getDefaultRingtoneUri(): String {
         preferences.key = PreferenceKeys.defaultRingtoneUri
-        return preferences.getPreference() ?: ""
+        return preferences.getString() ?: ""
     }
 
     fun getDefaultRingtoneTitle(): String {
         preferences.key = PreferenceKeys.defaultRingtoneTitle
-        return preferences.getPreference() ?: ""
+        return preferences.getString() ?: ""
     }
 }
 

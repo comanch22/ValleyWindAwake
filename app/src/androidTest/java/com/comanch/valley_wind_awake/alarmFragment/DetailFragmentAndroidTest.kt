@@ -61,7 +61,7 @@ class DetailFragmentAndroidTest {
         preferences.key = PreferenceKeys.pauseDuration
         launchFragmentInHiltContainer<DetailFragment>(Bundle(), R.style.Theme_AppCompat)
         onView(withId(R.id.delay_signal)).check(matches(withText(
-            "delay for ${preferences.getPreference()} min."
+            "delay for ${preferences.getString()} min."
         )))
     }
 
@@ -127,7 +127,7 @@ class DetailFragmentAndroidTest {
     fun check_getPauseDurationPreference(){
 
         preferences.key = PreferenceKeys.pauseDuration
-        val expected = preferences.getPreference()
+        val expected = preferences.getString()
         launchFragmentInHiltContainer<DetailFragment>(Bundle(), R.style.Theme_AppCompat){
             val actual = (this as DetailFragment).getPauseDurationPreference()
             assertEquals(expected, actual)
@@ -138,7 +138,7 @@ class DetailFragmentAndroidTest {
     fun check_getSignalDurationPreference(){
 
         preferences.key = PreferenceKeys.signalDuration
-        val expected = preferences.getPreference()
+        val expected = preferences.getString()
         launchFragmentInHiltContainer<DetailFragment>(Bundle(), R.style.Theme_AppCompat){
             val actual = (this as DetailFragment).getSignalDurationPreference()
             assertEquals(expected, actual)

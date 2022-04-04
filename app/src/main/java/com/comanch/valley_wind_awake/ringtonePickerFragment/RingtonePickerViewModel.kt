@@ -1,5 +1,6 @@
 package com.comanch.valley_wind_awake.ringtonePickerFragment
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,9 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.comanch.valley_wind_awake.LiveDataEvent
 import com.comanch.valley_wind_awake.dataBase.RingtoneDataDao
 import com.comanch.valley_wind_awake.dataBase.RingtoneData
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RingtonePickerViewModel(val database: RingtoneDataDao) : ViewModel() {
+@HiltViewModel
+class RingtonePickerViewModel @Inject constructor(val database: RingtoneDataDao) : ViewModel() {
 
     var items: LiveData<List<RingtoneData>> = database.getAllItems()
 
@@ -55,9 +59,9 @@ class RingtonePickerViewModel(val database: RingtoneDataDao) : ViewModel() {
 
     fun onItemClicked(ringtoneData: RingtoneData) {
 
-        _currentRingTone.value = ringtoneData
         currentRingToneId = ringtoneData.melodyId
         currentRingToneIsCustom = ringtoneData.isCustom
+        _currentRingTone.value = ringtoneData
     }
 
     fun setMelody() {
@@ -85,12 +89,14 @@ class RingtonePickerViewModel(val database: RingtoneDataDao) : ViewModel() {
                         database.delete(item)
                         _delete.value = 1
                     } else {
-                        _toast.value = "choose a ringtone/выберите рингтон"
+                        _toast.value = "choose a ringtone"
                     }
                 }
             } else {
-                _toast.value = "cannot be deleted/нельзя удалить"
+                _toast.value = "cannot be deleted"
             }
+        }else {
+            _toast.value = "choose a ringtone"
         }
     }
 
@@ -108,6 +114,11 @@ class RingtonePickerViewModel(val database: RingtoneDataDao) : ViewModel() {
 
     fun resetCurrentRingTone() {
         _currentRingTone.value = null
+    }
+
+    fun resetCurrentRingtoneValue(){
+        currentRingToneId = null
+        currentRingToneIsCustom = null
     }
 
     fun setTouchSoundAndVolume() {

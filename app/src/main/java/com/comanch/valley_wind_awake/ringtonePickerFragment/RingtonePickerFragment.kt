@@ -1,16 +1,15 @@
 package com.comanch.valley_wind_awake.ringtonePickerFragment
 
-
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import android.Manifest
-import android.provider.Settings
-import android.content.*
+import android.content.Context
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
-import android.media.AudioAttributes
+import android.content.res.Resources
 import android.media.AudioManager
 import android.media.RingtoneManager
-import android.media.SoundPool
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -27,41 +26,45 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavDirections
-import androidx.navigation.fragment.navArgs
-import androidx.preference.PreferenceManager
+import androidx.fragment.app.viewModels
+import com.comanch.valley_wind_awake.DefaultPreference
+import com.comanch.valley_wind_awake.NavigationBetweenFragments
 import com.comanch.valley_wind_awake.R
+import com.comanch.valley_wind_awake.SoundPoolForFragments
 import com.comanch.valley_wind_awake.alarmManagement.RingtoneService
-import com.comanch.valley_wind_awake.dataBase.DataControl
 import com.comanch.valley_wind_awake.dataBase.RingtoneData
 import com.comanch.valley_wind_awake.databinding.RingtonePickerFragmentBinding
 import com.comanch.valley_wind_awake.keyboardFragment.Correspondent
 import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class RingtonePickerFragment : Fragment() {
 
+    val ringtonePickerViewModel: RingtonePickerViewModel by viewModels()
+
+    @Inject
+    lateinit var soundPoolContainer: SoundPoolForFragments
+
+    @Inject
+    lateinit var preferences: DefaultPreference
+
+    @Inject
+    lateinit var navigation: NavigationBetweenFragments
+
+    val adapter: RingtoneAdapter by lazy { setAdapter() }
+    private val language: String? by lazy { setLanguage() }
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
     private val args: RingtonePickerFragmentArgs by navArgs()
     private var defaultListOfRingtones: MutableList<RingtoneData> = mutableListOf()
-    private var preferenceDefaultRingtone: SharedPreferences? = null
-    private var ringtonePickerViewModel: RingtonePickerViewModel? = null
     private var previousRingTone: RingtoneData? = null
-    private var mService: RingtoneService? = null
+    var mService: RingtoneService? = null
     private var audioManager: AudioManager? = null
     private var currentVolume: Int? = null
     private var maxVolume: Int? = null
     private var minVolume: Int = 1
     private var selectedPlayerVolume = 20
-
-    // touch sound
-    private var isTouchSoundsEnabledSystem: Boolean = false
-    private var soundPool: SoundPool? = null
-    private var soundCancel: Int? = null
-    private var soundButtonTap: Int? = null
-    private var soundMap: HashMap<Int, Int>? = null
-    private val maxSoundPoolStreams = 1
-    //
 
     private var isPlaying: Boolean = false
     private var isSaveState: Boolean = false
@@ -102,7 +105,8 @@ class RingtonePickerFragment : Fragment() {
                 ActivityResultContracts.RequestPermission()
             ) { isGranted: Boolean ->
                 if (isGranted) {
-                    navigateToDestination(
+                    navigation.navigateToDestination(
+                        this,
                         RingtonePickerFragmentDirections.actionRingtonePickerFragmentToRingtoneCustomPickerFragment(
                             args.itemId,
                             args.ringtoneTitle
@@ -127,40 +131,17 @@ class RingtonePickerFragment : Fragment() {
                 )
             }
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
-            navigateToDestination(action)
+            navigation.navigateToDestination(
+                this@RingtonePickerFragment,
+                action
+            )
         }
         callback.isEnabled = true
+        initValuesFromSavedState(savedInstanceState)
+        setAudioManager()
 
-        ringtoneUri = savedInstanceState?.getString("ringtoneUri") ?: emptyString
-        ringtoneSeekPosition = savedInstanceState?.getInt("ringtoneSeekPosition") ?: zeroPosition
-        isPlaying = savedInstanceState?.getBoolean("isPlaying") ?: false
-        isSaveState = savedInstanceState?.getBoolean("isSaveState") ?: false
-        defaultListOfRingtones = getDefaultRingtoneList(defaultListOfRingtones)
-        currentRingTonePositionInList =
-            savedInstanceState?.getInt("currentRingTonePositionInList") ?: -1
-
-        audioManager = context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        audioManager?.let {
-            currentVolume = audioManager?.getStreamVolume(AudioManager.STREAM_ALARM)
-            maxVolume = audioManager?.getStreamMaxVolume(AudioManager.STREAM_ALARM)
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                maxVolume = maxVolume?.minus(1)
-            }
-        }
-        preferenceDefaultRingtone = PreferenceManager.getDefaultSharedPreferences(requireContext())
-
-        soundMap = hashMapOf()
-        soundPool = SoundPool.Builder()
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
-            ).setMaxStreams(maxSoundPoolStreams)
-            .build()
-
-        soundPool?.setOnLoadCompleteListener { _, sampleId, status ->
-            soundMap?.put(sampleId, status)
+        soundPoolContainer.soundPool.setOnLoadCompleteListener { _, sampleId, status ->
+            soundPoolContainer.soundMap[sampleId] = status
         }
     }
 
@@ -173,47 +154,34 @@ class RingtonePickerFragment : Fragment() {
             inflater, R.layout.ringtone_picker_fragment, container, false
         )
 
-        val application = requireNotNull(this.activity).application
-        val dataSourceMelody = DataControl.getInstance(application).ringtoneDatabaseDao
-        val viewModelFactory = RingtonePickerViewModelFactory(dataSourceMelody)
-        ringtonePickerViewModel =
-            ViewModelProvider(this, viewModelFactory)[RingtonePickerViewModel::class.java]
         binding.ringtonePickerViewModel = ringtonePickerViewModel
-
-        val colorAccent = TypedValue()
-        requireContext().theme.resolveAttribute(R.attr.colorPrimaryVariant, colorAccent, true)
-
-        val adapter =
-            RingtoneAdapter(ItemListener { ringtone ->
-                ringtonePickerViewModel?.onItemClicked(ringtone)
-            }, defaultListOfRingtones, colorAccent.data)
-
         binding.RingtoneList.adapter = adapter
         binding.lifecycleOwner = viewLifecycleOwner
 
         if (args.correspondent == Correspondent.SettingsFragment) {
-            binding.fabAdd.isInvisible = true
-            binding.fabDelete.isInvisible = true
+            setButtonsVisible(binding)
         }
 
-        ringtonePickerViewModel?.setRestorePlayerFlag(isSaveState)
-        ringtonePickerViewModel?.restorePlayerFlag?.observe(viewLifecycleOwner) {
+        ringtonePickerViewModel.setRestorePlayerFlag(isSaveState)
+        ringtonePickerViewModel.restorePlayerFlag.observe(viewLifecycleOwner) {
 
             it.getContentIfNotHandled()?.let {
                 if (isSaveState && isPlaying) {
                     mService?.startPlayAfterRotation(ringtoneUri, ringtoneSeekPosition)
                     previousRingTone = setActiveForItem(adapter, itemActive)
-                    previousRingTone?.let { it1 -> ringtonePickerViewModel?.onItemClicked(it1) }
+                    previousRingTone?.let { it1 -> ringtonePickerViewModel.onItemClicked(it1) }
                 }
             }
         }
 
-        ringtonePickerViewModel?.setTouchSoundAndVolume()
-        ringtonePickerViewModel?.setTouchSoundAndVolume?.observe(viewLifecycleOwner) { content ->
+        ringtonePickerViewModel.setTouchSoundAndVolume()
+        ringtonePickerViewModel.setTouchSoundAndVolume.observe(viewLifecycleOwner) { content ->
             content.getContentIfNotHandled()?.let {
 
                 getVolumeFromSettings().let {
-                    binding.seekbar.progress = it
+                    if (it != null) {
+                        binding.seekbar.progress = it
+                    }
                     binding.seekbarValue.text = it.toString()
                 }
                 if (currentVolume != null && maxVolume != null) {
@@ -225,11 +193,10 @@ class RingtonePickerFragment : Fragment() {
                     }
                     binding.seekbarValue.text = currentVolume.toString()
                 }
-                setTouchSound()
             }
         }
 
-        ringtonePickerViewModel?.itemActiveState?.observe(viewLifecycleOwner) {
+        ringtonePickerViewModel.itemActiveState.observe(viewLifecycleOwner) {
 
             it.getContentIfNotHandled()?.let {
                 if (!isSaveState) {
@@ -242,7 +209,7 @@ class RingtonePickerFragment : Fragment() {
             context?.bindService(intent, connection, Context.BIND_AUTO_CREATE)
         }
 
-        ringtonePickerViewModel?.currentRingTone?.observe(viewLifecycleOwner) {
+        ringtonePickerViewModel.currentRingTone.observe(viewLifecycleOwner) {
             it?.let {
 
                 if (!isSaveState) {
@@ -253,6 +220,7 @@ class RingtonePickerFragment : Fragment() {
                         if (it.active == itemActive) {
                             it.active = itemNotActive
                             currentRingTonePositionInList = impossiblePositionInList
+                            ringtonePickerViewModel.resetCurrentRingtoneValue()
                         } else {
                             mService?.setUri(it.uriAsString)
                             mService?.startPlay()
@@ -268,29 +236,26 @@ class RingtonePickerFragment : Fragment() {
                         previousRingTone = it
                     }
                     isCustomChooseVolume = false
-                }else{
+                } else {
                     isSaveState = false
                 }
             }
         }
 
-        ringtonePickerViewModel?.items?.observe(viewLifecycleOwner) {
+        ringtonePickerViewModel.items.observe(viewLifecycleOwner) {
             it?.let {
                 adapter.setData(it, counterPosition)
             }
         }
 
-        ringtonePickerViewModel?.delete?.observe(viewLifecycleOwner) {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+        ringtonePickerViewModel.delete.observe(viewLifecycleOwner) {
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             mService?.stopPlay()
         }
 
-        ringtonePickerViewModel?.chooseRingtone?.observe(viewLifecycleOwner) {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+        ringtonePickerViewModel.chooseRingtone.observe(viewLifecycleOwner) {
+
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             it.getContentIfNotHandled()?.let {
                 when {
                     context?.let { it_ ->
@@ -299,7 +264,8 @@ class RingtonePickerFragment : Fragment() {
                             Manifest.permission.READ_EXTERNAL_STORAGE
                         )
                     } == PackageManager.PERMISSION_GRANTED -> {
-                        navigateToDestination(
+                        navigation.navigateToDestination(
+                            this,
                             RingtonePickerFragmentDirections.actionRingtonePickerFragmentToRingtoneCustomPickerFragment(
                                 args.itemId,
                                 args.ringtoneTitle
@@ -318,44 +284,44 @@ class RingtonePickerFragment : Fragment() {
             }
         }
 
-        ringtonePickerViewModel?.toast?.observe(viewLifecycleOwner) {
-            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+        ringtonePickerViewModel.toast.observe(viewLifecycleOwner) {
+            val text = when (it) {
+                "choose a ringtone" -> resources.getString(R.string.choose_a_ringtone)
+                "cannot be deleted" -> resources.getString(R.string.cannot_deleted)
+                else -> ""
+            }
+            Toast.makeText(requireContext(), text, Toast.LENGTH_LONG).show()
         }
 
-        ringtonePickerViewModel?.setRingtoneTitle?.observe(viewLifecycleOwner) { content ->
+        ringtonePickerViewModel.setRingtoneTitle.observe(viewLifecycleOwner) { content ->
             content.getContentIfNotHandled()?.let { ringtoneTitle ->
                 if (ringtoneTitle != "" && args.correspondent == Correspondent.SettingsFragment) {
-                    with(preferenceDefaultRingtone?.edit()) {
-                        this?.putString(PreferenceKeys.defaultRingtoneTitle, ringtoneTitle)
-                        this?.apply()
-                    }
+                    preferences.key = PreferenceKeys.defaultRingtoneTitle
+                    preferences.putString(ringtoneTitle)
                 }
             }
         }
 
-        ringtonePickerViewModel?.setRingtoneUri?.observe(viewLifecycleOwner) { content ->
+        ringtonePickerViewModel.setRingtoneUri.observe(viewLifecycleOwner) { content ->
 
-            if (isTouchSoundEnable(soundCancel)) {
-                soundCancel?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundCancel)
             content.getContentIfNotHandled()?.let { ringtoneUri ->
                 if (ringtoneUri == "") {
-                    Toast.makeText(context, R.string.noRingtoneSelected, Toast.LENGTH_LONG)
+                    Toast.makeText(context, R.string.choose_a_ringtone, Toast.LENGTH_LONG)
                         .show()
                 } else {
                     when (args.correspondent) {
                         Correspondent.SettingsFragment -> {
-                            with(preferenceDefaultRingtone?.edit()) {
-                                this?.putString(
-                                    PreferenceKeys.defaultRingtoneUri, ringtoneUri)
-                                this?.apply()
-                            }
-                            navigateToDestination(
+                            preferences.key = PreferenceKeys.defaultRingtoneUri
+                            preferences.putString(ringtoneUri)
+                            navigation.navigateToDestination(
+                                this,
                                 RingtonePickerFragmentDirections.actionRingtonePickerFragmentToSettingsFragment()
                             )
                         }
                         else -> {
-                            navigateToDestination(
+                            navigation.navigateToDestination(
+                                this,
                                 RingtonePickerFragmentDirections.actionRingtonePickerFragmentToKeyboardFragment(
                                     args.itemId,
                                     Correspondent.RingtoneFragment,
@@ -371,24 +337,22 @@ class RingtonePickerFragment : Fragment() {
 
         binding.fabDelete.setOnClickListener {
 
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             mService?.stopPlay()
-            ringtonePickerViewModel?.deleteMelody()
+            ringtonePickerViewModel.deleteMelody()
         }
 
         binding.Cancel.setOnClickListener {
 
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             if (args.correspondent == Correspondent.SettingsFragment) {
-                navigateToDestination(
+                navigation.navigateToDestination(
+                    this,
                     RingtonePickerFragmentDirections.actionRingtonePickerFragmentToSettingsFragment()
                 )
             } else {
-                navigateToDestination(
+                navigation.navigateToDestination(
+                    this,
                     RingtonePickerFragmentDirections.actionRingtonePickerFragmentToKeyboardFragment(
                         args.itemId,
                         Correspondent.RingtoneFragment,
@@ -403,9 +367,7 @@ class RingtonePickerFragment : Fragment() {
 
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
 
-                if (isTouchSoundEnable(soundButtonTap)) {
-                    soundButtonTap?.let { id -> playSound(id) }
-                }
+                soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     binding.seekbarValue.text = progress.toString()
@@ -428,21 +390,17 @@ class RingtonePickerFragment : Fragment() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
 
                 val ringtone =
-                    adapter.getIt(if (currentRingTonePositionInList >= 0) currentRingTonePositionInList else 0)
+                    adapter.getRingtone(if (currentRingTonePositionInList >= 0) currentRingTonePositionInList else 0)
                 ringtone?.let {
                     isCustomChooseVolume = true
-                    ringtonePickerViewModel?.onItemClicked(ringtone)
+                    ringtonePickerViewModel.onItemClicked(ringtone)
                 }
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                context?.let { context ->
-                    PreferenceManager.getDefaultSharedPreferences(context)?.let {
-                        with(it.edit()) {
-                            putInt("mediaPlayerVolume", selectedPlayerVolume)
-                            apply()
-                        }
-                    }
+                context?.let {
+                    preferences.key = PreferenceKeys.mediaPlayerVolume
+                    preferences.putInt(selectedPlayerVolume)
                 }
             }
 
@@ -450,15 +408,15 @@ class RingtonePickerFragment : Fragment() {
 
         binding.arrowBack.setOnClickListener {
 
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             if (args.correspondent == Correspondent.SettingsFragment) {
-                navigateToDestination(
+                navigation.navigateToDestination(
+                    this,
                     RingtonePickerFragmentDirections.actionRingtonePickerFragmentToSettingsFragment()
                 )
             } else {
-                navigateToDestination(
+                navigation.navigateToDestination(
+                    this,
                     RingtonePickerFragmentDirections.actionRingtonePickerFragmentToKeyboardFragment(
                         args.itemId,
                         Correspondent.RingtoneFragment,
@@ -472,14 +430,20 @@ class RingtonePickerFragment : Fragment() {
         return binding.root
     }
 
+    private fun setAdapter() = RingtoneAdapter(
+        ItemListener { ringtone ->
+            ringtonePickerViewModel.onItemClicked(ringtone)
+        },
+        defaultListOfRingtones,
+        setColorAccent(),
+        language
+    )
+
     override fun onResume() {
 
         super.onResume()
-        ringtonePickerViewModel?.setItemActiveState()
-        isTouchSoundsEnabledSystem = Settings.System.getInt(
-            activity?.contentResolver,
-            Settings.System.SOUND_EFFECTS_ENABLED, 1
-        ) != 0
+        ringtonePickerViewModel.setItemActiveState()
+        soundPoolContainer.setTouchSound()
     }
 
     override fun onPause() {
@@ -489,7 +453,7 @@ class RingtonePickerFragment : Fragment() {
         ringtoneSeekPosition = mService?.getPausePosition() ?: zeroPosition
         isSaveState = false
 
-        ringtonePickerViewModel?.resetCurrentRingTone()
+        ringtonePickerViewModel.resetCurrentRingTone()
         mService?.offMediaPlayer()
 
         super.onPause()
@@ -541,7 +505,7 @@ class RingtonePickerFragment : Fragment() {
 
     private fun setActiveForItem(adapter: RingtoneAdapter, active: Int): RingtoneData? {
 
-        return adapter.getIt(currentRingTonePositionInList)?.let { ringtoneData ->
+        return adapter.getRingtone(currentRingTonePositionInList)?.let { ringtoneData ->
             ringtoneData.active = active
             adapter.notifyItemChanged(ringtoneData.position)
             ringtoneData
@@ -549,39 +513,55 @@ class RingtonePickerFragment : Fragment() {
     }
 
     private fun startServiceAfterRotation() {
-        ringtonePickerViewModel?.restoreStateForRingtoneFragment()
+        ringtonePickerViewModel.restoreStateForRingtoneFragment()
     }
 
-    private fun navigateToDestination(destination: NavDirections) = with(findNavController()) {
-
-        currentDestination?.getAction(destination.actionId)
-            ?.let { navigate(destination) }
-        offMediaUnbindService()
+    private fun getVolumeFromSettings(): Int? {
+        preferences.key = PreferenceKeys.mediaPlayerVolume
+        return preferences.getInt()
     }
 
-    private fun getVolumeFromSettings(): Int {
-        return PreferenceManager.getDefaultSharedPreferences(requireContext())
-            .getInt("mediaPlayerVolume", 20)
+    private fun setColorAccent(): Int {
+        val colorAccent = TypedValue()
+        requireContext().theme.resolveAttribute(R.attr.colorPrimaryVariant, colorAccent, true)
+        return colorAccent.data
     }
 
-    private fun playSound(id: Int) {
-        soundPool?.play(id, 1F, 1F, 1, 0, 1F)
+    private fun setButtonsVisible(binding: RingtonePickerFragmentBinding) {
+        binding.fabAdd.isInvisible = true
+        binding.fabDelete.isInvisible = true
     }
 
-    private fun setTouchSound() {
+    private fun setAudioManager() {
 
-        isTouchSoundsEnabledSystem = Settings.System.getInt(
-            activity?.contentResolver,
-            Settings.System.SOUND_EFFECTS_ENABLED, 1
-        ) != 0
-
-        soundCancel = soundPool?.load(context, R.raw.navigation_cancel, 1)
-        soundButtonTap = soundPool?.load(context, R.raw.navigation_forward_selection_minimal, 1)
+        audioManager = context?.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager?.let {
+            currentVolume = audioManager?.getStreamVolume(AudioManager.STREAM_ALARM)
+            maxVolume = audioManager?.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                maxVolume = maxVolume?.minus(1)
+            }
+        }
     }
 
-    private fun isTouchSoundEnable(soundId: Int?): Boolean {
+    private fun initValuesFromSavedState(savedInstanceState: Bundle?) {
 
-        return soundMap?.get(soundId) == 0
-                && isTouchSoundsEnabledSystem
+        ringtoneUri = savedInstanceState?.getString("ringtoneUri") ?: emptyString
+        ringtoneSeekPosition = savedInstanceState?.getInt("ringtoneSeekPosition") ?: zeroPosition
+        isPlaying = savedInstanceState?.getBoolean("isPlaying") ?: false
+        isSaveState = savedInstanceState?.getBoolean("isSaveState") ?: false
+        defaultListOfRingtones = getDefaultRingtoneList(defaultListOfRingtones)
+        currentRingTonePositionInList =
+            savedInstanceState?.getInt("currentRingTonePositionInList") ?: -1
+    }
+
+    private fun setLanguage(): String? {
+
+        val localeList = Resources.getSystem().configuration.locales
+        return if (localeList.size() > 0) {
+            localeList[0].toString()
+        } else {
+            null
+        }
     }
 }

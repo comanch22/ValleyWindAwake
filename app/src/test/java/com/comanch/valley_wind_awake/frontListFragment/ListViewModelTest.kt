@@ -1,9 +1,7 @@
 package com.comanch.valley_wind_awake.frontListFragment
 
-import android.util.Log
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.comanch.valley_wind_awake.MainCoroutineRule
-import com.comanch.valley_wind_awake.alarmFragment.DetailViewModel
 import com.comanch.valley_wind_awake.dataBase.TimeDataDao
 import com.comanch.valley_wind_awake.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi

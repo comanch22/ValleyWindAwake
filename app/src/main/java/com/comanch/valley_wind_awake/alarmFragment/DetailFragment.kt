@@ -114,13 +114,13 @@ class DetailFragment : Fragment() {
     fun getPauseDurationPreference(): String{
 
         preferences.key = PreferenceKeys.pauseDuration
-        return preferences.getPreference() ?: "5"
+        return preferences.getString() ?: "5"
     }
 
     fun getSignalDurationPreference(): String{
 
         preferences.key = PreferenceKeys.signalDuration
-        return preferences.getPreference() ?: "2"
+        return preferences.getString() ?: "2"
     }
 
     private fun setDelaySignalText(pauseDuration: String): String {

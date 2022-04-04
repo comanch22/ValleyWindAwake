@@ -22,7 +22,8 @@ class ItemListener(val clickListener: (ringtoneData: RingtoneData) -> Unit) {
 class RingtoneAdapter(
     private val clickListener: ItemListener,
     var _ringtoneList: MutableList<RingtoneData>,
-    private val colorAccent: Int?
+    private val colorAccent: Int?,
+    private val language: String?
 ) :
     ListAdapter<RingtoneData, RecyclerView.ViewHolder>(RingtoneItemDiffCallback()) {
 
@@ -35,7 +36,7 @@ class RingtoneAdapter(
         return currentList.size
     }
 
-    fun getIt(position: Int): RingtoneData? {
+    fun getRingtone(position: Int): RingtoneData? {
         return if (position >= 0 && currentList.size.minus(1) >= position) super.getItem(position) else null
     }
 
@@ -49,7 +50,7 @@ class RingtoneAdapter(
         when (holder) {
             is ViewHolder -> {
                 val item = getItem(position)
-                holder.bind(item, clickListener, colorAccent)
+                holder.bind(item, clickListener, colorAccent, language)
             }
         }
 
@@ -68,15 +69,25 @@ class RingtoneAdapter(
             }
         }
 
-        fun bind(ringtone: RingtoneData, clickListener: ItemListener, colorAccent: Int?) {
+        fun bind(ringtone: RingtoneData, clickListener: ItemListener, colorAccent: Int?, language: String?) {
 
             binding.ringtone = ringtone
             binding.TITLE.text = ringtone.title
             binding.clickListener = clickListener
             if (ringtone.active == 1) {
                 binding.TITLE.setBackgroundResource(R.drawable.rectangle_ringtone_adapter)
+                if (language == "ru_RU") {
+                    binding.ringtonePickerLayout.contentDescription = " эта мелодия выбрана и играет "
+                } else {
+                    binding.ringtonePickerLayout.contentDescription = " this melody is selected and is playing "
+                }
             } else {
                 binding.TITLE.setBackgroundColor(colorAccent ?: Color.WHITE)
+                if (language == "ru_RU") {
+                    binding.ringtonePickerLayout.contentDescription = " эта мелодия не выбрана "
+                } else {
+                    binding.ringtonePickerLayout.contentDescription = " this melody is not selected "
+                }
             }
         }
 

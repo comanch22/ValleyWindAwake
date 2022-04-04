@@ -88,17 +88,8 @@ class RingtoneCustomPickerFragment : Fragment() {
         }
         callback.isEnabled = true
 
-        ringtoneUri = savedInstanceState?.getString("ringtoneUri") ?: emptyString
-        ringtoneSeekPosition = savedInstanceState?.getInt("ringtoneSeekPosition") ?: zeroPosition
-        currentRingTonePositionInList =
-            savedInstanceState?.getInt("currentRingTonePositionInList") ?: impossiblePositionInList
-        isPlaying = savedInstanceState?.getBoolean("isPlaying") ?: false
-        isSaveState = savedInstanceState?.getBoolean("isSaveState") ?: false
-
-        context?.let {
-            listOfRingtones = ListOfCustomRingtones(it).getListOfRingtones()
-        }
-
+        initSavedInstanceState(savedInstanceState)
+        initListOfRingtones()
 
         soundPoolContainer.soundPool.setOnLoadCompleteListener { _, sampleId, status ->
             soundPoolContainer.soundMap[sampleId] = status
@@ -130,7 +121,6 @@ class RingtoneCustomPickerFragment : Fragment() {
 
         ringtoneCustomPickerViewModel.setRestorePlayerFlag(isSaveState)
         ringtoneCustomPickerViewModel.restorePlayerFlag.observe(viewLifecycleOwner) {
-
             it.getContentIfNotHandled()?.let {
                 if (isPlaying && isSaveState) {
                     mService?.startPlayAfterRotation(ringtoneUri, ringtoneSeekPosition)
@@ -289,6 +279,21 @@ class RingtoneCustomPickerFragment : Fragment() {
         } else {
             null
         }
+    }
+
+    private fun initListOfRingtones() {
+        context?.let {
+            listOfRingtones = ListOfCustomRingtones(it).getListOfRingtones()
+        }
+    }
+
+    private fun initSavedInstanceState(savedInstanceState: Bundle?) {
+        ringtoneUri = savedInstanceState?.getString("ringtoneUri") ?: emptyString
+        ringtoneSeekPosition = savedInstanceState?.getInt("ringtoneSeekPosition") ?: zeroPosition
+        currentRingTonePositionInList =
+            savedInstanceState?.getInt("currentRingTonePositionInList") ?: impossiblePositionInList
+        isPlaying = savedInstanceState?.getBoolean("isPlaying") ?: false
+        isSaveState = savedInstanceState?.getBoolean("isSaveState") ?: false
     }
 
 }

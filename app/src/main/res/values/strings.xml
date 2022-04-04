@@ -78,6 +78,8 @@
     <string name="ok">OK</string>
     <string name="add_ringtone">add a new ringtone to the list</string>
     <string name="delete_melody">delete the selected melody from the list</string>
+    <string name="choose_a_ringtone">choose a melody</string>
+    <string name="cannot_deleted">cannot be deleted default ringtone</string>
     <!-- app menu -->
     <string name="delete_all">delete all</string>
     <string name="settings">settings</string>

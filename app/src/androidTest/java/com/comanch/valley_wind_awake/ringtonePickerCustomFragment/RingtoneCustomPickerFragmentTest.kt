@@ -94,7 +94,15 @@ class RingtoneCustomPickerFragmentTest {
             Navigation.setViewNavController(this.requireView(), navController)
             navController.setCurrentDestination(R.id.ringtoneCustomPickerFragment, bundle)
         }
-        onView(withId(R.id.Cancel)).perform(ViewActions.click())
+        onView(withId(R.id.RingtoneList))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    0,
+                    ViewActions.click()
+                )
+            )
+        Thread.sleep(2000)
+        onView(withId(R.id.Ok)).perform(ViewActions.click())
         assertEquals(navController.currentDestination?.id, R.id.ringtonePickerFragment)
     }
 

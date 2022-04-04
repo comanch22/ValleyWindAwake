@@ -103,5 +103,7 @@
     <string name="add_ringtone">добавить новую мелодию звонка в список</string>
     <string name="delete_melody">удалить выбранную мелодию из списка</string>
     <string name="reset_character">обнулить набранный символ</string>
+    <string name="cannot_deleted">нельзя удалить стандартный рингтон</string>
+    <string name="choose_a_ringtone">не выбрана мелодия</string>
 
 </resources>

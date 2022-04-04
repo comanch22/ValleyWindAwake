@@ -8,7 +8,7 @@ class DefaultPreference @Inject constructor(val preference: SharedPreferences) {
 
     lateinit var key: String
 
-    fun getPreference(): String? {
+    fun getString(): String? {
 
         return when (key) {
             PreferenceKeys.signalDuration -> {
@@ -26,6 +26,34 @@ class DefaultPreference @Inject constructor(val preference: SharedPreferences) {
             else -> {
                 null
             }
+        }
+    }
+
+    fun getInt(): Int? {
+
+        return when (key) {
+            PreferenceKeys.mediaPlayerVolume -> {
+                preference.getInt(PreferenceKeys.mediaPlayerVolume, 20)
+            }
+            else -> {
+                null
+            }
+        }
+    }
+
+    fun putInt(value: Int){
+
+        with(preference.edit()){
+            putInt(key, value)
+            apply()
+        }
+    }
+
+    fun putString(value: String){
+
+        with(preference.edit()){
+            putString(key, value)
+            apply()
         }
     }
 }

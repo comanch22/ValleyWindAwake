@@ -39,7 +39,7 @@ class RingtoneService : Service(),
     OnCompletionListener,
     OnAudioFocusChangeListener {
 
-    private var mMediaPlayer: MediaPlayer? = null
+     var mMediaPlayer: MediaPlayer? = null
     private var audioManager: AudioManager? = null
     private var stringUri: String? = null
     private var focusRequest: AudioFocusRequest? = null
@@ -271,18 +271,19 @@ class RingtoneService : Service(),
 
     fun startPlayAfterRotation(uri: String, position: Int?) {
 
-        offMediaPlayer()
+       offMediaPlayer()
         if (uri.isNotEmpty()) {
             setUri(uri)
             pausePosition = position
-            initMediaPlayer()
             isRotation = true
-            mMediaPlayer?.prepareAsync()
+            startPlay()
+           /* initMediaPlayer()
+            isRotation = true
+            mMediaPlayer?.prepareAsync()*/
         }
     }
 
     fun startPlay() {
-
         if (mMediaPlayer == null) {
             initMediaPlayer()
             mMediaPlayer?.prepareAsync()
@@ -325,7 +326,6 @@ class RingtoneService : Service(),
     }
 
     private fun initMediaPlayer() {
-
         mMediaPlayer = MediaPlayer().apply {
             setAudioAttributes(
                 AudioAttributes.Builder()
@@ -511,6 +511,10 @@ class RingtoneService : Service(),
 
     fun getPausePosition(): Int? {
         return mMediaPlayer?.currentPosition
+    }
+
+    fun getVolume(): Int? {
+        return audioManager?.getStreamVolume(AudioManager.STREAM_ALARM)
     }
 
     fun isPlaying(): Boolean {

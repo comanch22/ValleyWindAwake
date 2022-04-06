@@ -44,18 +44,10 @@ class ListFragmentAndroidTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    @Inject
-    lateinit var preferences: DefaultPreference
-
     private val navController by lazy {
         TestNavHostController(
             ApplicationProvider.getApplicationContext()
         )
-    }
-
-    @Before
-    fun init() {
-        hiltRule.inject()
     }
 
     private val language: String? by lazy { setLanguage() }

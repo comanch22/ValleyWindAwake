@@ -64,7 +64,7 @@ class RingtonePickerFragment : Fragment() {
     private var currentVolume: Int? = null
     private var maxVolume: Int? = null
     private var minVolume: Int = 1
-    private var selectedPlayerVolume = 20
+    private var selectedPlayerVolume = 10
 
     private var isPlaying: Boolean = false
     private var isSaveState: Boolean = false
@@ -178,12 +178,6 @@ class RingtonePickerFragment : Fragment() {
         ringtonePickerViewModel.setTouchSoundAndVolume.observe(viewLifecycleOwner) { content ->
             content.getContentIfNotHandled()?.let {
 
-                getVolumeFromSettings().let {
-                    if (it != null) {
-                        binding.seekbar.progress = it
-                    }
-                    binding.seekbarValue.text = it.toString()
-                }
                 if (currentVolume != null && maxVolume != null) {
                     binding.seekbar.progress =
                         currentVolume ?: (maxVolume!!.plus(minVolume)).div(2)
@@ -211,7 +205,6 @@ class RingtonePickerFragment : Fragment() {
 
         ringtonePickerViewModel.currentRingTone.observe(viewLifecycleOwner) {
             it?.let {
-
                 if (!isSaveState) {
                     if (isCustomChooseVolume && mService?.isPlaying() == true) {
                         currentRingTonePositionInList = it.position
@@ -249,8 +242,11 @@ class RingtonePickerFragment : Fragment() {
         }
 
         ringtonePickerViewModel.delete.observe(viewLifecycleOwner) {
-            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
-            mService?.stopPlay()
+            it?.let {
+                soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
+                mService?.stopPlay()
+                ringtonePickerViewModel.resetDelete()
+            }
         }
 
         ringtonePickerViewModel.chooseRingtone.observe(viewLifecycleOwner) {
@@ -285,12 +281,15 @@ class RingtonePickerFragment : Fragment() {
         }
 
         ringtonePickerViewModel.toast.observe(viewLifecycleOwner) {
-            val text = when (it) {
-                "choose a ringtone" -> resources.getString(R.string.choose_a_ringtone)
-                "cannot be deleted" -> resources.getString(R.string.cannot_deleted)
-                else -> ""
+            it?.let {
+                val text = when (it) {
+                    "choose a ringtone" -> resources.getString(R.string.choose_a_ringtone)
+                    "cannot be deleted" -> resources.getString(R.string.cannot_deleted)
+                    else -> ""
+                }
+                Toast.makeText(requireContext(), text, Toast.LENGTH_LONG).show()
+                ringtonePickerViewModel.resetToast()
             }
-            Toast.makeText(requireContext(), text, Toast.LENGTH_LONG).show()
         }
 
         ringtonePickerViewModel.setRingtoneTitle.observe(viewLifecycleOwner) { content ->
@@ -399,8 +398,7 @@ class RingtonePickerFragment : Fragment() {
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 context?.let {
-                    preferences.key = PreferenceKeys.mediaPlayerVolume
-                    preferences.putInt(selectedPlayerVolume)
+
                 }
             }
 
@@ -514,11 +512,6 @@ class RingtonePickerFragment : Fragment() {
 
     private fun startServiceAfterRotation() {
         ringtonePickerViewModel.restoreStateForRingtoneFragment()
-    }
-
-    private fun getVolumeFromSettings(): Int? {
-        preferences.key = PreferenceKeys.mediaPlayerVolume
-        return preferences.getInt()
     }
 
     private fun setColorAccent(): Int {

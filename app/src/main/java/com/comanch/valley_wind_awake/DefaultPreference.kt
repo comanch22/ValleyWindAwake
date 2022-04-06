@@ -4,7 +4,7 @@ import android.content.SharedPreferences
 import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
 import javax.inject.Inject
 
-class DefaultPreference @Inject constructor(val preference: SharedPreferences) {
+class DefaultPreference @Inject constructor(private val preference: SharedPreferences) {
 
     lateinit var key: String
 
@@ -32,9 +32,7 @@ class DefaultPreference @Inject constructor(val preference: SharedPreferences) {
     fun getInt(): Int? {
 
         return when (key) {
-            PreferenceKeys.mediaPlayerVolume -> {
-                preference.getInt(PreferenceKeys.mediaPlayerVolume, 20)
-            }
+            //
             else -> {
                 null
             }

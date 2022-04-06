@@ -2,43 +2,53 @@ package com.comanch.valley_wind_awake.ringtonePickerFragment
 
 import android.content.res.Resources
 import android.os.Bundle
+import android.view.View
+import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.UiController
+import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.contrib.RecyclerViewActions
-import org.hamcrest.Matchers.not
+import androidx.test.espresso.action.ViewActions.swipeRight
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.RootMatchers
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.comanch.valley_wind_awake.R
+import com.comanch.valley_wind_awake.alarmManagement.RingtoneService
 import com.comanch.valley_wind_awake.keyboardFragment.Correspondent
 import com.comanch.valley_wind_awake.launchFragmentInHiltContainer
-import org.junit.Assert.assertEquals
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.hamcrest.Matcher
+import org.hamcrest.Matchers.not
+import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
-class RingtonePickerFragmentTest{
+class RingtonePickerFragmentTest {
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
+
+    lateinit var mService: RingtoneService
 
     private val navController by lazy {
         TestNavHostController(
@@ -72,6 +82,11 @@ class RingtonePickerFragmentTest{
 
     private val language: String? by lazy { setLanguage() }
 
+    @Before
+    fun init() {
+        hiltRule.inject()
+    }
+
     @Test
     fun check_arrowBack() {
 
@@ -94,7 +109,7 @@ class RingtonePickerFragmentTest{
             Navigation.setViewNavController(this.requireView(), navController)
             navController.setCurrentDestination(R.id.ringtonePickerFragment, bundleSettingsFragment)
         }
-        onView(withId(R.id.arrow_back)).perform(ViewActions.click())
+        onView(withId(R.id.arrow_back)).perform(click())
         assertEquals(navController.currentDestination?.id, R.id.settingsFragment)
     }
 
@@ -160,7 +175,7 @@ class RingtonePickerFragmentTest{
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     0,
-                    ViewActions.click()
+                    click()
                 )
             )
 
@@ -205,7 +220,7 @@ class RingtonePickerFragmentTest{
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     0,
-                    ViewActions.click()
+                    click()
                 )
             )
         Thread.sleep(1000)
@@ -235,7 +250,7 @@ class RingtonePickerFragmentTest{
             navController.setCurrentDestination(R.id.ringtonePickerFragment, bundleKeyboardFragment)
         }
 
-        onView(withId(R.id.fabAdd)).perform(ViewActions.click())
+        onView(withId(R.id.fabAdd)).perform(click())
         assertEquals(navController.currentDestination?.id, R.id.ringtoneCustomPickerFragment)
     }
 
@@ -307,11 +322,12 @@ class RingtonePickerFragmentTest{
         Thread.sleep(2000)
 
         if (listSizeAfter == null
-            || listSizeBefore?.minus(1) ?: -1 != listSizeAfter){
+            || listSizeBefore?.minus(1) ?: -1 != listSizeAfter
+        ) {
             onView(withText(cannotDelete))
                 .inRoot(RootMatchers.withDecorView(not(ringtoneFragment?.activity?.window?.decorView)))
                 .check(matches(isDisplayed()))
-        }else {
+        } else {
             val itemCountAfter: Int = (ringtoneFragment as RingtonePickerFragment).adapter.itemCount
             assertEquals(itemCountBefore - 1, itemCountAfter)
         }
@@ -364,21 +380,94 @@ class RingtonePickerFragmentTest{
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     0,
-                    ViewActions.click()
+                    click()
                 )
             )
         Thread.sleep(1000)
 
-        onView(withId(R.id.Ok)).perform(ViewActions.click())
-        onView(ViewMatchers.withText(chooseRingtone))
-            .inRoot(RootMatchers.withDecorView(not(ringtoneFragment?.activity?.window?.decorView)))
-            .check(matches(ViewMatchers.isDisplayed()))
-        Thread.sleep(5000)
-
-        onView(withId(R.id.fabDelete)).perform(ViewActions.click())
+        onView(withId(R.id.Ok)).perform(click())
         onView(withText(chooseRingtone))
             .inRoot(RootMatchers.withDecorView(not(ringtoneFragment?.activity?.window?.decorView)))
             .check(matches(isDisplayed()))
+        Thread.sleep(5000)
+
+        onView(withId(R.id.fabDelete)).perform(click())
+        onView(withText(chooseRingtone))
+            .inRoot(RootMatchers.withDecorView(not(ringtoneFragment?.activity?.window?.decorView)))
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun check_seekBar() {
+
+        var ringtoneFragment: Fragment? = null
+
+        launchFragmentInHiltContainer<RingtonePickerFragment>(
+            bundleKeyboardFragment,
+            R.style.Theme_AppCompat
+        ) {
+            ringtoneFragment = this
+        }
+        onView(withId(R.id.seekbar)).perform(click())
+        Thread.sleep(1000)
+
+        val musicPlay = (ringtoneFragment as RingtonePickerFragment)
+            .mService?.isPlaying()
+        assertEquals(true, musicPlay)
+
+        onView(withId(R.id.seekbar)).perform(setSeekBarProgress(5))
+        Thread.sleep(2000)
+
+        onView(withText("5")).check(matches(isDisplayed()))
+        assertEquals(
+            5, (ringtoneFragment as RingtonePickerFragment)
+                .mService?.getVolume()
+        )
+
+        onView(withId(R.id.seekbar)).perform(setSeekBarProgress(2))
+        Thread.sleep(2000)
+
+        onView(withText("2")).check(matches(isDisplayed()))
+        assertEquals(
+            2, (ringtoneFragment as RingtonePickerFragment)
+                .mService?.getVolume()
+        )
+
+        onView(withId(R.id.seekbar)).perform(swipeRight())
+        Thread.sleep(1000)
+
+        onView(withId(R.id.RingtoneList))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    0,
+                    click()
+                )
+            )
+        Thread.sleep(2000)
+
+        val musicNoPlay = (ringtoneFragment as RingtonePickerFragment)
+            .mService?.isPlaying()
+        assertEquals(false, musicNoPlay)
+
+        assertEquals(
+            7, (ringtoneFragment as RingtonePickerFragment)
+                .mService?.getVolume()
+        )
+
+    }
+
+    private fun setSeekBarProgress(progress: Int) = object : ViewAction {
+
+        override fun getConstraints(): Matcher<View?>? {
+            return isAssignableFrom(SeekBar::class.java)
+        }
+
+        override fun getDescription() = ""
+
+        override fun perform(uiController: UiController?, view: View) {
+            val seekBar = view as SeekBar
+            seekBar.progress = progress
+        }
     }
 
     private fun setLanguage(): String? {

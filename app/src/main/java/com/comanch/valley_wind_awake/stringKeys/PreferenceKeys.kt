@@ -10,6 +10,5 @@ class PreferenceKeys {
         const val signalDuration = "signalDuration"
         const val pauseDuration = "pauseDuration"
         const val isVibrate = "isVibrate"
-        const val mediaPlayerVolume = "mediaPlayerVolume"
     }
 }

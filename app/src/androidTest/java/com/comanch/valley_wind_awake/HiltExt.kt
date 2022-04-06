@@ -51,7 +51,7 @@ inline fun <reified T : Fragment> launchFragmentInHiltContainer(
         fragment.arguments = fragmentArgs
         activity.supportFragmentManager
             .beginTransaction()
-            .add(android.R.id.content, fragment, "")
+            .add(android.R.id.content, fragment, "mFrag")
             .commitNow()
 
         fragment.action()

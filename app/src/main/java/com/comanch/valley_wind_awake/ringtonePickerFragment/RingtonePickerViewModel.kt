@@ -17,9 +17,9 @@ class RingtonePickerViewModel @Inject constructor(val database: RingtoneDataDao)
 
     var items: LiveData<List<RingtoneData>> = database.getAllItems()
 
-    private var currentRingToneId: Long? = null
-    private var currentRingToneIsCustom: Int? = null
-    private var setRestorePlayerFlag: Boolean = false
+    var currentRingToneId: Long? = null
+    var currentRingToneIsCustom: Int? = null
+    var setRestorePlayerFlag: Boolean = false
 
     private val _currentRingTone = MutableLiveData<RingtoneData?>()
     val currentRingTone: LiveData<RingtoneData?>
@@ -80,25 +80,35 @@ class RingtonePickerViewModel @Inject constructor(val database: RingtoneDataDao)
     }
 
     fun deleteMelody() {
+        delete(currentRingToneId, currentRingToneIsCustom)
+    }
 
-        if (currentRingToneId != null && currentRingToneIsCustom != null) {
-            if (currentRingToneIsCustom == 1) {
+    fun delete(currentRingToneId_ : Long?, currentRingToneIsCustom_: Int?) {
+        if (currentRingToneId_ != null && currentRingToneIsCustom_ != null) {
+            if (currentRingToneIsCustom_ == 1) {
                 viewModelScope.launch {
-                    val item = currentRingToneId?.let { database.get(it) }
-                    if (item != null) {
-                        database.delete(item)
-                        _delete.value = 1
-                    } else {
-                        _toast.value = "choose a ringtone"
-                    }
+                    val item = currentRingToneId_.let { database.get(it) }
+                    deleteItem(item)
                 }
+                _toast.value = null
             } else {
                 _toast.value = "cannot be deleted"
             }
-        }else {
+        } else {
             _toast.value = "choose a ringtone"
         }
     }
+
+    suspend fun deleteItem(item: RingtoneData?) {
+        if (item != null) {
+            database.delete(item)
+            _delete.value = 1
+        } else {
+            _toast.value = "choose a ringtone"
+        }
+    }
+
+    ////////// stopp
 
     fun setItemActiveState() {
         _itemActiveState.value = LiveDataEvent(true)
@@ -116,11 +126,19 @@ class RingtonePickerViewModel @Inject constructor(val database: RingtoneDataDao)
         _currentRingTone.value = null
     }
 
-    fun resetCurrentRingtoneValue(){
+    fun resetCurrentRingtoneValue() {
         currentRingToneId = null
         currentRingToneIsCustom = null
     }
 
+    fun resetDelete(){
+        _delete.value = null
+    }
+
+    fun resetToast(){
+
+        _toast.value = null
+    }
     fun setTouchSoundAndVolume() {
         _setTouchSoundAndVolume.value = LiveDataEvent(1)
     }

@@ -1,35 +1,30 @@
 package com.comanch.valley_wind_awake
 
 import android.content.SharedPreferences
+import com.comanch.valley_wind_awake.stringKeys.AppStyleKey
 import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
 import javax.inject.Inject
 
 class DefaultPreference @Inject constructor(private val preference: SharedPreferences) {
 
-    lateinit var key: String
+    fun getString(key: String): String {
 
-    fun getString(): String? {
+        val defaultValue =
+            when(key){
+                PreferenceKeys.signalDuration -> "2"
+                PreferenceKeys.pauseDuration -> "5"
+                PreferenceKeys.defaultRingtoneUri -> ""
+                PreferenceKeys.defaultRingtoneTitle -> ""
+                AppStyleKey.appStyle -> AppStyleKey.blue
+                else -> {
+                    null
+                }
+            }
 
-        return when (key) {
-            PreferenceKeys.signalDuration -> {
-                preference.getString(PreferenceKeys.signalDuration, "2")
-            }
-            PreferenceKeys.pauseDuration -> {
-                preference.getString(PreferenceKeys.pauseDuration, "5")
-            }
-            PreferenceKeys.defaultRingtoneUri -> {
-                preference.getString(PreferenceKeys.defaultRingtoneUri, "")
-            }
-            PreferenceKeys.defaultRingtoneTitle -> {
-                preference.getString(PreferenceKeys.defaultRingtoneTitle, "")
-            }
-            else -> {
-                null
-            }
-        }
+        return preference.getString(key, defaultValue)!!
     }
 
-    fun getInt(): Int? {
+    fun getInt(key: String): Int? {
 
         return when (key) {
             //
@@ -39,15 +34,22 @@ class DefaultPreference @Inject constructor(private val preference: SharedPrefer
         }
     }
 
-    fun putInt(value: Int){
+    fun putBoolean(key: String, value: Boolean) {
+
+        with(preference.edit()) {
+            putBoolean(key, value)
+            apply()
+        }
+    }
+/*    fun putInt(value: Int){
 
         with(preference.edit()){
             putInt(key, value)
             apply()
         }
-    }
+    }*/
 
-    fun putString(value: String){
+    fun putString(key: String, value: String){
 
         with(preference.edit()){
             putString(key, value)

@@ -114,4 +114,59 @@ class RingtonePickerViewModelTest {
         assertEquals("choose a ringtone", actualToast)
 
     }
+
+    @Test
+    fun check_setItemActiveState(){
+
+        viewModel.setItemActiveState()
+        val actualItemActive = viewModel.itemActiveState.getOrAwaitValue()
+        assertEquals(true, actualItemActive.getContentIfNotHandled())
+    }
+
+    @Test
+    fun check_restoreStateForRingtoneFragment(){
+
+        viewModel.setRestorePlayerFlag(false)
+        viewModel.restoreStateForRingtoneFragment()
+        val actualStateF = viewModel.restorePlayerFlag.getOrAwaitValue()
+        assertEquals(false, actualStateF.getContentIfNotHandled())
+
+        viewModel.setRestorePlayerFlag(true)
+        viewModel.restoreStateForRingtoneFragment()
+        val actualStateT = viewModel.restorePlayerFlag.getOrAwaitValue()
+        assertEquals(true, actualStateT.getContentIfNotHandled())
+    }
+
+    @Test
+    fun check_resetCurrentRingTone(){
+
+        viewModel.resetCurrentRingTone()
+        val actualResetCurrentRingTone = viewModel.currentRingTone.getOrAwaitValue()
+        assertEquals(null, actualResetCurrentRingTone)
+    }
+
+    @Test
+    fun check_resetDelete(){
+
+        viewModel.resetDelete()
+        val actualDelete = viewModel.delete.getOrAwaitValue()
+        assertEquals(null, actualDelete)
+    }
+
+    @Test
+    fun check_resetToast(){
+
+        viewModel.resetToast()
+        val actualToast = viewModel.toast.getOrAwaitValue()
+        assertEquals(null, actualToast)
+    }
+
+    @Test
+    fun check_setTouchSoundAndVolume(){
+
+        viewModel.setTouchSoundAndVolume()
+        val actualTouchSound = viewModel.setTouchSoundAndVolume.getOrAwaitValue()
+        assertEquals(1, actualTouchSound.getContentIfNotHandled())
+    }
+
 }

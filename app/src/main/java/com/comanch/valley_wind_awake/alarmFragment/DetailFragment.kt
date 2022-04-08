@@ -15,6 +15,7 @@ import com.comanch.valley_wind_awake.NavigationBetweenFragments
 import com.comanch.valley_wind_awake.stringKeys.IntentKeys
 import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
 import com.comanch.valley_wind_awake.R
+import com.comanch.valley_wind_awake.SoundPoolForFragments
 import com.comanch.valley_wind_awake.alarmManagement.RingtoneService
 import com.comanch.valley_wind_awake.broadcastreceiver.AlarmReceiver
 import com.comanch.valley_wind_awake.databinding.DetailFragmentBinding
@@ -32,6 +33,17 @@ class DetailFragment : Fragment() {
 
     @Inject
     lateinit var preferences: DefaultPreference
+
+    @Inject
+    lateinit var soundPoolContainer: SoundPoolForFragments
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        soundPoolContainer.soundPool.setOnLoadCompleteListener { _, sampleId, status ->
+            soundPoolContainer.soundMap[sampleId] = status
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,6 +75,7 @@ class DetailFragment : Fragment() {
         }
 
         detailViewModel.setPause.observe(viewLifecycleOwner) { content ->
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             content.getContentIfNotHandled()?.let {
                 val pauseIntent = createIntentAlarmReceiver(IntentKeys.pauseAlarm, args.itemId)
                 context?.sendBroadcast(pauseIntent)
@@ -70,6 +83,7 @@ class DetailFragment : Fragment() {
         }
 
         detailViewModel.offAlarm.observe(viewLifecycleOwner) { content ->
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             content.getContentIfNotHandled()?.let {
                 val offIntent = createIntentAlarmReceiver(IntentKeys.offAlarm, args.itemId)
                 context?.sendBroadcast(offIntent)
@@ -89,6 +103,11 @@ class DetailFragment : Fragment() {
 
         activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        soundPoolContainer.setTouchSound()
     }
 
     private fun stopPlayRingtone() {
@@ -113,14 +132,12 @@ class DetailFragment : Fragment() {
 
     fun getPauseDurationPreference(): String{
 
-        preferences.key = PreferenceKeys.pauseDuration
-        return preferences.getString() ?: "5"
+        return preferences.getString(PreferenceKeys.pauseDuration)
     }
 
     fun getSignalDurationPreference(): String{
 
-        preferences.key = PreferenceKeys.signalDuration
-        return preferences.getString() ?: "2"
+        return preferences.getString(PreferenceKeys.signalDuration)
     }
 
     private fun setDelaySignalText(pauseDuration: String): String {

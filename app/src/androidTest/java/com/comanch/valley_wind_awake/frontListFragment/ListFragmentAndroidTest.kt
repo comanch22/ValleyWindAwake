@@ -12,6 +12,7 @@ import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.pressBackUnconditionally
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.RootMatchers.isDialog
@@ -22,6 +23,7 @@ import androidx.test.filters.MediumTest
 import com.comanch.valley_wind_awake.DateDifference
 import com.comanch.valley_wind_awake.DefaultPreference
 import com.comanch.valley_wind_awake.R
+import com.comanch.valley_wind_awake.aboutFragment.AboutAppFragment
 import com.comanch.valley_wind_awake.dataBase.TimeData
 import com.comanch.valley_wind_awake.launchFragmentInHiltContainer
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -350,6 +352,19 @@ class ListFragmentAndroidTest {
         onView(withId(R.id.toolbar_title)).check(matches(withText(actualToolbarTitle)))
         onView(withId(R.id.toolbar_title)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
         onView(withId(R.id.toolbar_nearestDate)).check(matches(withText(actualNearestDateStr)))
+    }
+
+    @Test
+    fun check_pressBack() {
+
+        var listFragment: Fragment? = null
+
+        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
+            listFragment = this
+        }
+        pressBackUnconditionally()
+        Thread.sleep(1000)
+        Assert.assertEquals(true, listFragment?.isResumed)
     }
 
     @Test

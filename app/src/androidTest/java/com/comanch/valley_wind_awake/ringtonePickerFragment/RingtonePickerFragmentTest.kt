@@ -9,6 +9,7 @@ import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
@@ -22,6 +23,7 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.comanch.valley_wind_awake.R
+import com.comanch.valley_wind_awake.aboutFragment.AboutAppFragment
 import com.comanch.valley_wind_awake.alarmManagement.RingtoneService
 import com.comanch.valley_wind_awake.keyboardFragment.Correspondent
 import com.comanch.valley_wind_awake.launchFragmentInHiltContainer
@@ -48,8 +50,6 @@ class RingtonePickerFragmentTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    lateinit var mService: RingtoneService
-
     private val navController by lazy {
         TestNavHostController(
             ApplicationProvider.getApplicationContext()
@@ -72,19 +72,22 @@ class RingtonePickerFragmentTest {
         }
     }
 
-    private val bundleRingtoneCustomFragment: Bundle by lazy {
-        Bundle().apply {
-            putLong("itemId", 1L)
-            putString("ringtoneTitle", "ringtoneTitleTest")
-            putSerializable("correspondent", Correspondent.RingtoneCustomFragment)
-        }
-    }
-
     private val language: String? by lazy { setLanguage() }
 
-    @Before
-    fun init() {
-        hiltRule.inject()
+    @Test
+    fun check_pressBack() {
+
+        launchFragmentInHiltContainer<RingtonePickerFragment>(
+            bundleKeyboardFragment,
+            R.style.Theme_AppCompat
+        ) {
+            navController.setGraph(R.navigation.nav_graph)
+            Navigation.setViewNavController(this.requireView(), navController)
+            navController.setCurrentDestination(R.id.ringtonePickerFragment, bundleKeyboardFragment)
+        }
+
+        Espresso.pressBack()
+        assertEquals(navController.currentDestination?.id, R.id.keyboardFragment)
     }
 
     @Test
@@ -98,7 +101,7 @@ class RingtonePickerFragmentTest {
             Navigation.setViewNavController(this.requireView(), navController)
             navController.setCurrentDestination(R.id.ringtonePickerFragment, bundleKeyboardFragment)
         }
-        onView(withId(R.id.arrow_back)).perform(ViewActions.click())
+        onView(withId(R.id.arrow_back)).perform(click())
         assertEquals(navController.currentDestination?.id, R.id.keyboardFragment)
 
         launchFragmentInHiltContainer<RingtonePickerFragment>(

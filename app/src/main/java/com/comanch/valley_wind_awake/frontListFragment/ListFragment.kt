@@ -9,12 +9,14 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.comanch.valley_wind_awake.*
+import com.comanch.valley_wind_awake.aboutFragment.AboutAppFragmentDirections
 import com.comanch.valley_wind_awake.stringKeys.FragmentResultKey
 import com.comanch.valley_wind_awake.stringKeys.OperationKey
 import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
@@ -51,6 +53,11 @@ class ListFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
+            activity?.finish()
+        }
+        callback.isEnabled = true
 
         soundPoolContainer.soundPool.setOnLoadCompleteListener { _, sampleId, status ->
             soundPoolContainer.soundMap[sampleId] = status
@@ -400,14 +407,14 @@ class ListFragment : Fragment() {
         return color
     }
 
-    fun getDefaultRingtoneUri(): String {
-        preferences.key = PreferenceKeys.defaultRingtoneUri
-        return preferences.getString() ?: ""
+    private fun getDefaultRingtoneUri(): String {
+
+        return preferences.getString(PreferenceKeys.defaultRingtoneUri)
     }
 
-    fun getDefaultRingtoneTitle(): String {
-        preferences.key = PreferenceKeys.defaultRingtoneTitle
-        return preferences.getString() ?: ""
+    private fun getDefaultRingtoneTitle(): String {
+
+        return preferences.getString(PreferenceKeys.defaultRingtoneTitle)
     }
 }
 

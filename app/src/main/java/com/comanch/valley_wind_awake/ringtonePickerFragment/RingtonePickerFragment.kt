@@ -295,8 +295,7 @@ class RingtonePickerFragment : Fragment() {
         ringtonePickerViewModel.setRingtoneTitle.observe(viewLifecycleOwner) { content ->
             content.getContentIfNotHandled()?.let { ringtoneTitle ->
                 if (ringtoneTitle != "" && args.correspondent == Correspondent.SettingsFragment) {
-                    preferences.key = PreferenceKeys.defaultRingtoneTitle
-                    preferences.putString(ringtoneTitle)
+                    preferences.putString(PreferenceKeys.defaultRingtoneTitle, ringtoneTitle)
                 }
             }
         }
@@ -311,8 +310,7 @@ class RingtonePickerFragment : Fragment() {
                 } else {
                     when (args.correspondent) {
                         Correspondent.SettingsFragment -> {
-                            preferences.key = PreferenceKeys.defaultRingtoneUri
-                            preferences.putString(ringtoneUri)
+                            preferences.putString(PreferenceKeys.defaultRingtoneUri, ringtoneUri)
                             navigation.navigateToDestination(
                                 this,
                                 RingtonePickerFragmentDirections.actionRingtonePickerFragmentToSettingsFragment()

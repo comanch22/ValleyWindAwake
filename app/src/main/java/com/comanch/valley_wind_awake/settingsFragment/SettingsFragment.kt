@@ -1,10 +1,7 @@
 package com.comanch.valley_wind_awake.settingsFragment
 
 import android.content.Intent
-import android.media.AudioAttributes
-import android.media.SoundPool
 import android.os.Bundle
-import android.provider.Settings
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -12,49 +9,47 @@ import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.setFragmentResultListener
-import androidx.navigation.NavDirections
-import androidx.navigation.fragment.findNavController
 import androidx.preference.*
+import com.comanch.valley_wind_awake.DefaultPreference
+import com.comanch.valley_wind_awake.NavigationBetweenFragments
 import com.comanch.valley_wind_awake.stringKeys.AppStyleKey
 import com.comanch.valley_wind_awake.stringKeys.FragmentResultKey
 import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
 import com.comanch.valley_wind_awake.dialogFragments.DialogRestartActivity
 import com.comanch.valley_wind_awake.keyboardFragment.Correspondent
 import com.comanch.valley_wind_awake.R
+import com.comanch.valley_wind_awake.SoundPoolForFragments
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat() {
 
-    private var isTouchSoundsEnabledSystem: Boolean = false
-    private var soundPool: SoundPool? = null
-    private var soundButtonTap: Int? = null
-    private var soundMap: HashMap<Int, Int>? = null
-    private val maxSoundPoolStreams = 1
+    @Inject
+    lateinit var navigation: NavigationBetweenFragments
+
+    @Inject
+    lateinit var preferences: DefaultPreference
+
+    @Inject
+    lateinit var soundPoolContainer: SoundPoolForFragments
+
     private var previousAppStylePref: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val defaultPreference = context?.let { PreferenceManager.getDefaultSharedPreferences(it) }
-        previousAppStylePref = defaultPreference?.getString(AppStyleKey.appStyle, AppStyleKey.blue) ?: AppStyleKey.blue
+        previousAppStylePref = preferences.getString(AppStyleKey.appStyle)
 
-        soundMap = hashMapOf()
-        soundPool = SoundPool.Builder()
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
-            ).setMaxStreams(maxSoundPoolStreams)
-            .build()
-
-        soundPool?.setOnLoadCompleteListener { _, sampleId, status ->
-            soundMap?.put(sampleId, status)
+        soundPoolContainer.soundPool.setOnLoadCompleteListener { _, sampleId, status ->
+            soundPoolContainer.soundMap[sampleId] = status
         }
 
-        setTouchSound()
-
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
-            navigateToDestination(SettingsFragmentDirections.actionSettingsFragmentToListFragment())
+            navigation.navigateToDestination(
+                this@SettingsFragment,
+                SettingsFragmentDirections.actionSettingsFragmentToListFragment()
+            )
         }
         callback.isEnabled = true
 
@@ -80,10 +75,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val backButton = findPreference<Preference>(PreferenceKeys.backButton)
         backButton?.let {
             it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                if (isTouchSoundEnable(soundButtonTap)) {
-                    soundButtonTap?.let { id -> playSound(id) }
-                }
-                navigateToDestination(SettingsFragmentDirections.actionSettingsFragmentToListFragment())
+                soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
+                navigation.navigateToDestination(
+                    this,
+                    SettingsFragmentDirections.actionSettingsFragmentToListFragment())
                 true
             }
         }
@@ -91,10 +86,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val ringtoneVolumeSelection = findPreference<Preference>(PreferenceKeys.defaultRingtoneUri)
         ringtoneVolumeSelection?.let {
             it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                if (isTouchSoundEnable(soundButtonTap)) {
-                    soundButtonTap?.let { id -> playSound(id) }
-                }
-                navigateToDestination(
+                soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
+                navigation.navigateToDestination(
+                    this,
                     SettingsFragmentDirections.actionSettingsFragmentToRingtonePickerFragment(
                         -1,
                         "",
@@ -104,29 +98,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 true
             }
 
-        }
-
-        val buttonSoundEnable = findPreference<Preference>("buttonSoundEnable")
-        buttonSoundEnable?.let {
-            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                true
-            }
-        }
-
-        buttonSoundEnable?.let {
-            it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _,
-                                                                                    newValue ->
-                if (newValue == false) {
-                    if (isTouchSoundEnable(soundButtonTap)) {
-                        soundButtonTap?.let { id -> playSound(id) }
-                    }
-                } else {
-                    if (isTouchSoundEnable(soundButtonTap)) {
-                        soundButtonTap?.let { id -> playSound(id) }
-                    }
-                }
-                true
-            }
         }
 
         val appStyle = findPreference<Preference>(AppStyleKey.appStyle)
@@ -143,9 +114,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         appStyle?.let {
             it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                if (isTouchSoundEnable(soundButtonTap)) {
-                    soundButtonTap?.let { id -> playSound(id) }
-                }
+                soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
                 true
             }
         }
@@ -160,9 +129,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         signalDuration?.let {
             it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                if (isTouchSoundEnable(soundButtonTap)) {
-                    soundButtonTap?.let { id -> playSound(id) }
-                }
+                soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
                 true
             }
         }
@@ -177,29 +144,21 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         pauseDuration?.let {
             it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                if (isTouchSoundEnable(soundButtonTap)) {
-                    soundButtonTap?.let { id -> playSound(id) }
-                }
+                soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
                 true
             }
         }
 
         val isVibrate = findPreference<Preference>(PreferenceKeys.isVibrate)
         isVibrate?.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener() { _,
-                                                    newValue ->
-                with(defaultPreference?.edit()) {
-                    this?.putBoolean(PreferenceKeys.isVibrate, newValue as Boolean)
-                    this?.apply()
-                }
+            Preference.OnPreferenceChangeListener() { _, newValue ->
+                preferences.putBoolean(PreferenceKeys.isVibrate, newValue as Boolean)
                 true
             }
 
         isVibrate?.let {
             it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-                if (isTouchSoundEnable(soundButtonTap)) {
-                    soundButtonTap?.let { id -> playSound(id) }
-                }
+                soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
                 true
             }
         }
@@ -222,7 +181,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         val context = preferenceManager.context
         val screen = preferenceManager.createPreferenceScreen(context)
-        val defaultPreference = PreferenceManager.getDefaultSharedPreferences(context)
 
         val backButton = Preference(context)
         backButton.icon = ResourcesCompat.getDrawable(
@@ -238,14 +196,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val ringtoneVolumeSelection = Preference(context)
         ringtoneVolumeSelection.key = PreferenceKeys.defaultRingtoneUri
         ringtoneVolumeSelection.title = resources.getString(R.string.settings_ringtone_choice)
-        ringtoneVolumeSelection.summary = defaultPreference.getString("defaultRingtoneTitle", "")
+        ringtoneVolumeSelection.summary = preferences.getString(PreferenceKeys.defaultRingtoneTitle)
         ringtoneVolumeSelection.layoutResource = R.layout.preference_custom_layout
         ringtoneVolumeSelection.setDefaultValue("")
 
         val appStyle = ListPreference(context)
         appStyle.key = AppStyleKey.appStyle
         appStyle.title = resources.getString(R.string.settings_app_style)
-        appStyle.summary = defaultPreference.getString(AppStyleKey.appStyle, AppStyleKey.blue)
+        appStyle.summary = preferences.getString(AppStyleKey.appStyle)
         appStyle.dialogTitle = resources.getString(R.string.application_style)
         appStyle.layoutResource = R.layout.preference_custom_layout
         appStyle.setEntries(R.array.app_style)
@@ -255,7 +213,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val signalDuration = ListPreference(context)
         signalDuration.key = PreferenceKeys.signalDuration
         signalDuration.title = resources.getString(R.string.signal_duration)
-        signalDuration.summary = defaultPreference.getString(PreferenceKeys.signalDuration, "2")
+        signalDuration.summary = preferences.getString(PreferenceKeys.signalDuration)
         signalDuration.dialogTitle = resources.getString(R.string.choose_signal_duration)
         signalDuration.layoutResource = R.layout.preference_custom_layout
         signalDuration.setEntries(R.array.signal_duration)
@@ -265,7 +223,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val pauseDuration = ListPreference(context)
         pauseDuration.key = PreferenceKeys.pauseDuration
         pauseDuration.title = resources.getString(R.string.pause_duration)
-        pauseDuration.summary = defaultPreference.getString(PreferenceKeys.pauseDuration, "5")
+        pauseDuration.summary = preferences.getString(PreferenceKeys.pauseDuration)
         pauseDuration.dialogTitle = resources.getString(R.string.choose_pause_duration)
         pauseDuration.layoutResource = R.layout.preference_custom_layout
         pauseDuration.setEntries(R.array.pause_duration)
@@ -289,36 +247,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onResume() {
         super.onResume()
-        isTouchSoundsEnabledSystem = Settings.System.getInt(
-            activity?.contentResolver,
-            Settings.System.SOUND_EFFECTS_ENABLED, 1
-        ) != 0
+        soundPoolContainer.setTouchSound()
     }
 
-    private fun playSound(id: Int) {
-        soundPool?.play(id, 1F, 1F, 1, 0, 1F)
-    }
-
-    private fun setTouchSound() {
-
-        isTouchSoundsEnabledSystem = Settings.System.getInt(
-            activity?.contentResolver,
-            Settings.System.SOUND_EFFECTS_ENABLED, 1
-        ) != 0
-
-        soundButtonTap = soundPool?.load(context, R.raw.navigation_forward_selection_minimal, 1)
-    }
-
-    private fun isTouchSoundEnable(soundId: Int?): Boolean {
-
-        return soundMap?.get(soundId) == 0
-                && isTouchSoundsEnabledSystem
-    }
-
-    private fun navigateToDestination(destination: NavDirections) = with(findNavController()) {
-
-        currentDestination?.getAction(destination.actionId)
-            ?.let { navigate(destination) }
-    }
 }
 

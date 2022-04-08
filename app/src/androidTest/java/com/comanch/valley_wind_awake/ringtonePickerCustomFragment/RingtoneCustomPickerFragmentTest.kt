@@ -8,6 +8,7 @@ import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.contrib.RecyclerViewActions
@@ -17,6 +18,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.comanch.valley_wind_awake.R
+import com.comanch.valley_wind_awake.aboutFragment.AboutAppFragment
 import com.comanch.valley_wind_awake.launchFragmentInHiltContainer
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -51,6 +53,21 @@ class RingtoneCustomPickerFragmentTest {
     @Before
     fun init() {
 
+    }
+
+    @Test
+    fun check_pressBack() {
+
+        launchFragmentInHiltContainer<RingtoneCustomPickerFragment>(
+            bundle,
+            R.style.Theme_AppCompat
+        ) {
+            navController.setGraph(R.navigation.nav_graph)
+            Navigation.setViewNavController(this.requireView(), navController)
+            navController.setCurrentDestination(R.id.ringtoneCustomPickerFragment, bundle)
+        }
+        Espresso.pressBack()
+        assertEquals(navController.currentDestination?.id, R.id.ringtonePickerFragment)
     }
 
     @Test

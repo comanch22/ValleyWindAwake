@@ -108,8 +108,6 @@ class RingtonePickerViewModel @Inject constructor(val database: RingtoneDataDao)
         }
     }
 
-    ////////// stopp
-
     fun setItemActiveState() {
         _itemActiveState.value = LiveDataEvent(true)
     }
@@ -136,7 +134,6 @@ class RingtonePickerViewModel @Inject constructor(val database: RingtoneDataDao)
     }
 
     fun resetToast(){
-
         _toast.value = null
     }
     fun setTouchSoundAndVolume() {

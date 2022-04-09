@@ -24,22 +24,27 @@ import android.text.style.StyleSpan
 import android.util.Log
 import android.util.TypedValue
 import androidx.core.app.NotificationCompat
-import androidx.preference.PreferenceManager
+import com.comanch.valley_wind_awake.DefaultPreference
 import com.comanch.valley_wind_awake.stringKeys.IntentKeys
 import com.comanch.valley_wind_awake.MainActivity
 import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
 import com.comanch.valley_wind_awake.R
 import com.comanch.valley_wind_awake.broadcastreceiver.AlarmReceiver
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class RingtoneService : Service(),
     OnPreparedListener,
     OnErrorListener,
     OnCompletionListener,
     OnAudioFocusChangeListener {
 
-     var mMediaPlayer: MediaPlayer? = null
+    @Inject
+    lateinit var preferences: DefaultPreference
+
+    private var mMediaPlayer: MediaPlayer? = null
     private var audioManager: AudioManager? = null
     private var stringUri: String? = null
     private var focusRequest: AudioFocusRequest? = null
@@ -66,7 +71,8 @@ class RingtoneService : Service(),
             IntentKeys.playAction -> {
                 if (!isStarted) {
                     isStarted = true
-                    previousTimeId = (intent.extras?.getLong(IntentKeys.timeId, -1L) ?: -1L).toString()
+                    previousTimeId =
+                        (intent.extras?.getLong(IntentKeys.timeId, -1L) ?: -1L).toString()
                     getIntentString(intent, IntentKeys.timeStr).let {
                         previousTimeStr = it
                     }
@@ -75,7 +81,10 @@ class RingtoneService : Service(),
                     }
                     startForeground(17131415, setNotificationAndTimer(context))
                 } else {
-                    sendOffDuplicateSignal(context, (intent.extras?.getLong(IntentKeys.timeId, -1L) ?: -1L).toString())
+                    sendOffDuplicateSignal(
+                        context,
+                        (intent.extras?.getLong(IntentKeys.timeId, -1L) ?: -1L).toString()
+                    )
                 }
             }
             IntentKeys.stopAction -> {
@@ -91,7 +100,6 @@ class RingtoneService : Service(),
 
     private fun setNotificationAndTimer(context: Context): Notification {
 
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val notification = createFullScreenNotification(
             context,
             previousTimeId,
@@ -102,18 +110,20 @@ class RingtoneService : Service(),
         if (previousRingtoneUri.isNotEmpty()) {
             setUri(previousRingtoneUri)
             startPlay()
-            if (sharedPreferences.getBoolean(PreferenceKeys.isVibrate, false)) {
+            if (preferences.getBoolean(PreferenceKeys.isVibrate)) {
                 startVibrate()
             }
         }
-        val signalDurationPreference =
-            (sharedPreferences.getString(PreferenceKeys.signalDuration, "2") ?: "2").toLong()
+        setTimer(context)
+
+        return notification
+    }
+
+    private fun setTimer(context: Context) {
         clearTimer()
         timer = Timer()
         timerTask = MTimerTask(context, previousTimeId)
-        timer?.schedule(timerTask, signalDurationPreference * 60000)
-
-        return notification
+        timer?.schedule(timerTask, preferences.getString(PreferenceKeys.signalDuration).toLong() * 60000)
     }
 
     private fun sendOffIntent(context: Context, timeId: String) {
@@ -271,15 +281,12 @@ class RingtoneService : Service(),
 
     fun startPlayAfterRotation(uri: String, position: Int?) {
 
-       offMediaPlayer()
+        offMediaPlayer()
         if (uri.isNotEmpty()) {
             setUri(uri)
             pausePosition = position
             isRotation = true
             startPlay()
-           /* initMediaPlayer()
-            isRotation = true
-            mMediaPlayer?.prepareAsync()*/
         }
     }
 
@@ -403,10 +410,6 @@ class RingtoneService : Service(),
         timeStr: String,
         ringtoneUri: String
     ): Notification {
-        val pauseDurationPreference = context?.let {
-            PreferenceManager.getDefaultSharedPreferences(it)
-                .getString(PreferenceKeys.pauseDuration, "5")
-        } ?: "5"
 
         val intent = Intent(context, MainActivity::class.java)
         intent.putExtra(IntentKeys.timeId, timeId)
@@ -439,7 +442,7 @@ class RingtoneService : Service(),
                 setOffPendingIntent(context, timeId)
             )
             .addAction(
-                0, "delay $pauseDurationPreference",
+                0, "delay ${preferences.getString(PreferenceKeys.pauseDuration)}",
                 setPausePendingIntent(context, timeId)
             )
             .setColor(context.getColor(R.color.notificationTextColor))

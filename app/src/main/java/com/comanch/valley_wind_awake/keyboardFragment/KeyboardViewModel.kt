@@ -8,7 +8,7 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-class KeyboardViewModel(val dataSource: TimeDataDao, private val handle: SavedStateHandle) :
+class KeyboardViewModel(private val dataSource: TimeDataDao, private val handle: SavedStateHandle) :
     ViewModel() {
 
     private var ringtoneUri: String = ""

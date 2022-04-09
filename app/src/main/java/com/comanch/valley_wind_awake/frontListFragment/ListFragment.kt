@@ -46,6 +46,9 @@ class ListFragment : Fragment() {
     @Inject
     lateinit var navigation: NavigationBetweenFragments
 
+    @Inject
+    lateinit var alarmControl: AlarmControl
+
     private val language: String? by lazy { setLanguage() }
     private var adapter: ListItemAdapter? = null
     private var deleteModeOn = false
@@ -166,8 +169,8 @@ class ListFragment : Fragment() {
                     context?.applicationContext.let { appContext ->
                         if (appContext != null) {
                             it.forEach {
-                                AlarmControl(appContext, it)
-                                    .schedulerAlarm(AlarmTypeOperation.DELETE).isNotEmpty()
+                                alarmControl.timeData = it
+                                alarmControl.schedulerAlarm(AlarmTypeOperation.DELETE).isNotEmpty()
                             }
                             listViewModel.deleteAll()
                             listViewModel.resetDeleteAllItems()
@@ -184,8 +187,8 @@ class ListFragment : Fragment() {
                 lifecycleScope.launch {
                     context?.applicationContext.let { appContext ->
                         if (appContext != null) {
-                            AlarmControl(appContext, it)
-                                .schedulerAlarm(AlarmTypeOperation.DELETE).isNotEmpty()
+                            alarmControl.timeData = it
+                            alarmControl.schedulerAlarm(AlarmTypeOperation.DELETE).isNotEmpty()
                             listViewModel.deleteItem(it)
                         }
                     }
@@ -204,10 +207,8 @@ class ListFragment : Fragment() {
                 lifecycleScope.launch {
                     context?.applicationContext.let { appContext ->
                         if (appContext != null) {
-                            when (AlarmControl(
-                                appContext,
-                                timeData
-                            ).schedulerAlarm(AlarmTypeOperation.SWITCH)
+                            alarmControl.timeData = timeData
+                            when (alarmControl.schedulerAlarm(AlarmTypeOperation.SWITCH)
                             ) {
                                 OperationKey.successOff -> {
                                     listViewModel.resetItemActive()
@@ -389,7 +390,7 @@ class ListFragment : Fragment() {
         }
     }
 
-    fun resolveColor(attr: Int): TypedValue {
+    private fun resolveColor(attr: Int): TypedValue {
 
         val color = TypedValue()
         when (attr) {

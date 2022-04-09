@@ -9,26 +9,23 @@ import com.comanch.valley_wind_awake.stringKeys.IntentKeys
 import com.comanch.valley_wind_awake.MainActivity
 import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
 import com.comanch.valley_wind_awake.broadcastreceiver.AlarmReceiver
-import com.comanch.valley_wind_awake.dataBase.DataControl
 import com.comanch.valley_wind_awake.dataBase.TimeData
+import com.comanch.valley_wind_awake.dataBase.TimeDataDao
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class AlarmControl(val context: Context) {
+class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationContext val context: Context) {
 
     var timeData: TimeData? = null
-    val dataSource = DataControl.getInstance(context.applicationContext).timeDatabaseDao
-
-    constructor(_context: Context, _timeData: TimeData) : this(_context) {
-        this.timeData = _timeData
-    }
 
     suspend fun restartAlarm() {
 
-        val alarmList = dataSource.getListItems()
+        val alarmList = database.getListItems()
         alarmList?.forEach {
-            if(it.active) {
-                    onAlarm(it, true)
+            if (it.active) {
+                onAlarm(it, true)
             }
         }
     }
@@ -86,65 +83,81 @@ class AlarmControl(val context: Context) {
         calendarList: MutableList<Calendar>
     ) {
 
-        setContentDescriptionPart2(item,
+        setContentDescriptionPart2(
+            item,
             " отмечены дни недели. ",
-            " the days of the week are marked. ")
+            " the days of the week are marked. "
+        )
 
         var oneInstance = true
 
         if (item.mondayOn) {
             setDayOfWeek(Calendar.MONDAY, item, calendarList)
-            setContentDescriptionPart2(item,
+            setContentDescriptionPart2(
+                item,
                 " понедельник. ",
-                " monday. ")
+                " monday. "
+            )
             oneInstance = false
         }
 
         if (item.tuesdayOn) {
             setDayOfWeek(Calendar.TUESDAY, item, calendarList)
-            setContentDescriptionPart2(item,
+            setContentDescriptionPart2(
+                item,
                 " вторник. ",
-                " tuesday. ")
+                " tuesday. "
+            )
             oneInstance = false
         }
 
         if (item.wednesdayOn) {
             setDayOfWeek(Calendar.WEDNESDAY, item, calendarList)
-            setContentDescriptionPart2(item,
+            setContentDescriptionPart2(
+                item,
                 " среда. ",
-                " wednesday. ")
+                " wednesday. "
+            )
             oneInstance = false
         }
 
         if (item.thursdayOn) {
             setDayOfWeek(Calendar.THURSDAY, item, calendarList)
-            setContentDescriptionPart2(item,
+            setContentDescriptionPart2(
+                item,
                 " четверг. ",
-                " thursday. ")
+                " thursday. "
+            )
             oneInstance = false
         }
 
         if (item.fridayOn) {
             setDayOfWeek(Calendar.FRIDAY, item, calendarList)
-            setContentDescriptionPart2(item,
+            setContentDescriptionPart2(
+                item,
                 " пятница. ",
-                " friday. ")
+                " friday. "
+            )
             oneInstance = false
         }
 
         if (item.saturdayOn) {
             setDayOfWeek(Calendar.SATURDAY, item, calendarList)
-            setContentDescriptionPart2(item,
+            setContentDescriptionPart2(
+                item,
                 " суббота. ",
-                " saturday. ")
+                " saturday. "
+            )
             oneInstance = false
         }
 
         if (item.sundayOn) {
             setDayOfWeek(Calendar.SUNDAY, item, calendarList)
-            setContentDescriptionPart2(item,
+            setContentDescriptionPart2(
+                item,
                 " воскресенье. ",
-                " sunday. ")
+                " sunday. "
+            )
             oneInstance = false
         }
 
@@ -226,7 +239,7 @@ class AlarmControl(val context: Context) {
 
     suspend fun schedulerAlarm(typeOperation: AlarmTypeOperation): String {
 
-        val item = timeData?.timeId?.let { dataSource.get(it) } ?: return "error"
+        val item = timeData?.timeId?.let { database.get(it) } ?: return "error"
         when (typeOperation) {
             AlarmTypeOperation.SAVE -> {
                 if (item.oneInstance &&
@@ -237,7 +250,7 @@ class AlarmControl(val context: Context) {
                 }
                 onAlarm(item)
                 item.active = true
-                dataSource.update(item)
+                database.update(item)
             }
             AlarmTypeOperation.OFF -> {
                 if (item.oneInstance) {
@@ -245,7 +258,7 @@ class AlarmControl(val context: Context) {
                 } else {
                     onAlarm(item)
                 }
-                dataSource.update(item)
+                database.update(item)
             }
 
             AlarmTypeOperation.DELETE -> {
@@ -255,7 +268,7 @@ class AlarmControl(val context: Context) {
                 if (item.active) {
                     offAlarm(item)
                     item.active = false
-                    dataSource.update(item)
+                    database.update(item)
                     return "success off"
                 } else {
                     if (item.oneInstance &&
@@ -266,7 +279,7 @@ class AlarmControl(val context: Context) {
                     }
                     onAlarm(item)
                     item.active = true
-                    dataSource.update(item)
+                    database.update(item)
                     return "success on"
                 }
             }
@@ -276,7 +289,7 @@ class AlarmControl(val context: Context) {
                 delaySignal(item)
                 onAlarm(item)
                 item.active = true
-                dataSource.update(item)
+                database.update(item)
             }
         }
         return "success"
@@ -293,9 +306,9 @@ class AlarmControl(val context: Context) {
             calendarList.forEach {
                 val requestCode = "${item.requestCode}$count".toInt()
                 val requestCodeInfo = "${item.requestCode}$count$count".toInt()
-                val pendingIntent = if (isRestart){
+                val pendingIntent = if (isRestart) {
                     createPendingIntent(requestCode, item)
-                }else {
+                } else {
                     createPendingIntent(requestCode)
                 }
                 val pendingIntentInfo = createPendingIntentInfo(requestCodeInfo)
@@ -330,14 +343,20 @@ class AlarmControl(val context: Context) {
         item.delayTime = Calendar.getInstance().timeInMillis + defaultPreference.toInt() * 60000
     }
 
-    private fun createPendingIntent(requestCode: Int, item: TimeData? = null): PendingIntent {
+    private fun createPendingIntent(
+        requestCode: Int,
+        item: TimeData? = null
+    ): PendingIntent {
 
         val timeDataLocal = item ?: timeData
         val intent = Intent(context, AlarmReceiver::class.java)
         intent.action = IntentKeys.SetAlarm
         intent.putExtra(IntentKeys.timeId, timeDataLocal?.timeId)
         intent.putExtra(IntentKeys.ringtoneUri, timeDataLocal?.ringtoneUri)
-        intent.putExtra(IntentKeys.timeStr, "${timeDataLocal?.s1}${timeDataLocal?.s2}${timeDataLocal?.s3}${timeDataLocal?.s4}")
+        intent.putExtra(
+            IntentKeys.timeStr,
+            "${timeDataLocal?.s1}${timeDataLocal?.s2}${timeDataLocal?.s3}${timeDataLocal?.s4}"
+        )
         intent.putExtra(IntentKeys.Alarm_R, true)
         return PendingIntent.getBroadcast(
             context,
@@ -384,9 +403,9 @@ class AlarmControl(val context: Context) {
 
     private fun setContentDescriptionPart2(item: TimeData, strRu: String, strEn: String) {
 
-            item.contentDescriptionRu12 += strRu
-            item.contentDescriptionRu24 += strRu
-            item.contentDescriptionEn12 += strEn
-            item.contentDescriptionEn24 += strEn
+        item.contentDescriptionRu12 += strRu
+        item.contentDescriptionRu24 += strRu
+        item.contentDescriptionEn12 += strEn
+        item.contentDescriptionEn24 += strEn
     }
 }

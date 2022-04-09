@@ -3,7 +3,6 @@ package com.comanch.valley_wind_awake.aboutFragment
 
 import android.content.Intent
 import android.os.Bundle
-import android.provider.Settings
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +16,6 @@ import com.comanch.valley_wind_awake.SoundPoolForFragments
 import com.comanch.valley_wind_awake.databinding.AboutAppFragmentBinding
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.HashMap
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -72,5 +70,10 @@ class AboutAppFragment : Fragment() {
             )
         }
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        soundPoolContainer.setTouchSound()
     }
 }

@@ -5,17 +5,24 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationManagerCompat
+import com.comanch.valley_wind_awake.DefaultPreference
 import com.comanch.valley_wind_awake.stringKeys.IntentKeys
 import com.comanch.valley_wind_awake.alarmManagement.AlarmControl
 import com.comanch.valley_wind_awake.alarmManagement.AlarmTypeOperation
 import com.comanch.valley_wind_awake.alarmManagement.RingtoneService
 import com.comanch.valley_wind_awake.dataBase.DataControl
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AlarmReceiver : BroadcastReceiver() {
+
+    @Inject
+    lateinit var alarmControl: AlarmControl
 
     override fun onReceive(context: Context?, intent: Intent?) {
 
@@ -65,7 +72,7 @@ class AlarmReceiver : BroadcastReceiver() {
         context?.applicationContext?.let {
             val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
             mCoroutineScope.launch {
-                AlarmControl(it).restartAlarm()
+                alarmControl.restartAlarm()
             }
         }
     }
@@ -79,7 +86,8 @@ class AlarmReceiver : BroadcastReceiver() {
                     val dataSource =
                         DataControl.getInstance(context.applicationContext).timeDatabaseDao
                     val item = dataSource.get(timeId.toLong()) ?: return@launch
-                    AlarmControl(it, item).schedulerAlarm(AlarmTypeOperation.PAUSE)
+                    alarmControl.timeData = item
+                    alarmControl.schedulerAlarm(AlarmTypeOperation.PAUSE)
                     stopRingtoneService(context)
                 }
             }
@@ -99,7 +107,8 @@ class AlarmReceiver : BroadcastReceiver() {
                     val dataSource =
                         DataControl.getInstance(context.applicationContext).timeDatabaseDao
                     val item = dataSource.get(timeId.toLong()) ?: return@launch
-                    AlarmControl(it, item).schedulerAlarm(AlarmTypeOperation.OFF)
+                    alarmControl.timeData = item
+                    alarmControl.schedulerAlarm(AlarmTypeOperation.OFF)
                 }
             }
             if (context != null) {
@@ -116,7 +125,8 @@ class AlarmReceiver : BroadcastReceiver() {
                     val dataSource =
                         DataControl.getInstance(context.applicationContext).timeDatabaseDao
                     val item = dataSource.get(timeId.toLong()) ?: return@launch
-                    AlarmControl(it, item).schedulerAlarm(AlarmTypeOperation.OFF)
+                    alarmControl.timeData = item
+                    alarmControl.schedulerAlarm(AlarmTypeOperation.OFF)
                 }
             }
         }

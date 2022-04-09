@@ -151,7 +151,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         val isVibrate = findPreference<Preference>(PreferenceKeys.isVibrate)
         isVibrate?.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener() { _, newValue ->
+            Preference.OnPreferenceChangeListener { _, newValue ->
                 preferences.putBoolean(PreferenceKeys.isVibrate, newValue as Boolean)
                 true
             }

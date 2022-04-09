@@ -4,8 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.comanch.valley_wind_awake.LiveDataEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class StateViewModel : ViewModel() {
+@HiltViewModel
+class StateViewModel @Inject constructor() : ViewModel() {
 
     private var setS1: String? = null
     private var setS2: String? = null
@@ -13,9 +16,6 @@ class StateViewModel : ViewModel() {
     private var setS4: String? = null
     private var setNumbersTimer: String? = null
     private var setIs24HourFormat: Boolean? = null
-
-    private var setHhm12: String? = null
-    private var setHhm24: String? = null
     private var setAmpm: String? = null
 
     private var setOnMonday: Boolean? = null
@@ -97,11 +97,6 @@ class StateViewModel : ViewModel() {
     val specialDate: LiveData<LiveDataEvent<String?>>
         get() = _specialDate
 
-    private val _isUpdated = MutableLiveData<LiveDataEvent<String?>>()
-    val isUpdated: LiveData<LiveDataEvent<String?>>
-        get() = _isUpdated
-
-
     fun sets1(s: String) {
         setS1 = s
     }
@@ -133,7 +128,7 @@ class StateViewModel : ViewModel() {
     }
 
     fun getIs24HourFormat(): Boolean? {
-        return _is24HourFormat.value
+        return is24HourFormat.value
     }
 
     fun setMonday(b: Boolean) {
@@ -182,6 +177,7 @@ class StateViewModel : ViewModel() {
     }
 
     fun restoreStateForKeyboardFragment() {
+
         _is24HourFormat.value = setIs24HourFormat
         _numbersTimer.value = LiveDataEvent(setNumbersTimer)
         _monday.value = LiveDataEvent(setOnMonday)

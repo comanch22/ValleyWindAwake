@@ -24,14 +24,17 @@ class DefaultPreference @Inject constructor(private val preference: SharedPrefer
         return preference.getString(key, defaultValue)!!
     }
 
-    fun getInt(key: String): Int? {
+    fun getBoolean(key: String): Boolean {
 
-        return when (key) {
-            //
+        val defaultValue =
+            when(key){
+            PreferenceKeys.isVibrate -> false
             else -> {
                 null
             }
         }
+
+        return preference.getBoolean(key, defaultValue!!)
     }
 
     fun putBoolean(key: String, value: Boolean) {

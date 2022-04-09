@@ -20,12 +20,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.comanch.valley_wind_awake.*
+import com.comanch.valley_wind_awake.aboutFragment.AboutAppViewModel
 import com.comanch.valley_wind_awake.stringKeys.FragmentResultKey
 import com.comanch.valley_wind_awake.stringKeys.OperationKey
 import com.comanch.valley_wind_awake.alarmManagement.AlarmControl
@@ -34,13 +36,19 @@ import com.comanch.valley_wind_awake.dataBase.DataControl
 import com.comanch.valley_wind_awake.databinding.KeyboardFragmentBinding
 import com.comanch.valley_wind_awake.dialogFragments.DialogDatePicker
 import com.comanch.valley_wind_awake.stateViewModel.StateViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class KeyboardFragment : Fragment() {
 
-    private val stateViewModel: StateViewModel by activityViewModels()
+    private val stateViewModel: StateViewModel by viewModels()
+
+    @Inject
+    lateinit var alarmControl: AlarmControl
 
     private lateinit var keyboardViewModel: KeyboardViewModel
     private val args: KeyboardFragmentArgs by navArgs()
@@ -104,12 +112,6 @@ class KeyboardFragment : Fragment() {
             DataBindingUtil.inflate(
                 inflater, R.layout.keyboard_fragment, container, false
             )
-
-        val application = requireNotNull(this.activity).application
-        val dataSource = DataControl.getInstance(application).timeDatabaseDao
-        val viewModelFactory = KeyboardViewModelFactory(dataSource, this)
-        keyboardViewModel =
-            ViewModelProvider(this, viewModelFactory)[KeyboardViewModel::class.java]
 
         isRotation = savedInstanceState?.getBoolean("isRotation", false) == true
 
@@ -205,10 +207,8 @@ class KeyboardFragment : Fragment() {
                 lifecycleScope.launch {
                     context?.applicationContext.let { appContext ->
                         if (appContext != null) {
-                            when (AlarmControl(
-                                appContext,
-                                it
-                            ).schedulerAlarm(AlarmTypeOperation.SAVE)
+                            alarmControl.timeData = it
+                            when (alarmControl.schedulerAlarm(AlarmTypeOperation.SAVE)
                             ) {
                                 OperationKey.success -> {
                                     stateViewModel.resetStateStoreForKeyboardFragment()

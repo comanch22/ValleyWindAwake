@@ -12,7 +12,6 @@ import androidx.test.espresso.Espresso.*
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.pressBackUnconditionally
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.RootMatchers.isDialog
@@ -21,22 +20,18 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.comanch.valley_wind_awake.DateDifference
-import com.comanch.valley_wind_awake.DefaultPreference
 import com.comanch.valley_wind_awake.R
-import com.comanch.valley_wind_awake.aboutFragment.AboutAppFragment
 import com.comanch.valley_wind_awake.dataBase.TimeData
 import com.comanch.valley_wind_awake.launchFragmentInHiltContainer
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.*
 import org.hamcrest.Matchers.not
-import org.junit.Assert
-import org.junit.Before
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.*
-import javax.inject.Inject
+import java.util.Calendar
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -70,7 +65,7 @@ class ListFragmentAndroidTest {
                     click()
                 )
             )
-        Assert.assertEquals(navController.currentDestination?.id, R.id.keyboardFragment)
+        assertEquals(navController.currentDestination?.id, R.id.keyboardFragment)
     }
 
     @Test
@@ -88,7 +83,7 @@ class ListFragmentAndroidTest {
 
         onView(withText(aboutApp)).perform(click())
 
-        Assert.assertEquals(navController.currentDestination?.id, R.id.aboutAppFragment)
+        assertEquals(navController.currentDestination?.id, R.id.aboutAppFragment)
     }
 
     @Test
@@ -106,7 +101,7 @@ class ListFragmentAndroidTest {
 
         onView(withText(settings)).perform(click())
 
-        Assert.assertEquals(navController.currentDestination?.id, R.id.settingsFragment)
+        assertEquals(navController.currentDestination?.id, R.id.settingsFragment)
     }
 
     @Test
@@ -140,7 +135,7 @@ class ListFragmentAndroidTest {
         Thread.sleep(2000)
         onView(withId(R.id.toolbar_title)).check(matches(withEffectiveVisibility(Visibility.INVISIBLE)))
         onView(withId(R.id.toolbar_nearestDate)).check(matches(withText("")))
-        Assert.assertEquals(0, actualItemsCount)
+        assertEquals(0, actualItemsCount)
     }
 
     @Test
@@ -170,7 +165,7 @@ class ListFragmentAndroidTest {
                 (listFragment as ListFragment).listViewModel.database.getListItems()?.size ?: 0
         }
         Thread.sleep(2000)
-        Assert.assertEquals(itemsCount + 3, itemsCountActual)
+        assertEquals(itemsCount + 3, itemsCountActual)
     }
 
     @Test
@@ -220,7 +215,7 @@ class ListFragmentAndroidTest {
 
         onView(withId(R.id.ButtonDone)).perform(click())
         onView(withId(R.id.ButtonDone)).check(matches(not(isDisplayed())))
-        Assert.assertEquals(itemsCount - 1, itemsCountActual)
+        assertEquals(itemsCount - 1, itemsCountActual)
     }
 
     @Test
@@ -258,7 +253,7 @@ class ListFragmentAndroidTest {
             active = item?.active
         }
         Thread.sleep(2000)
-        Assert.assertEquals(false, active)
+        assertEquals(false, active)
 
         onView(withId(R.id.list))
             .perform(
@@ -291,7 +286,7 @@ class ListFragmentAndroidTest {
         }
         Thread.sleep(2000)
 
-        Assert.assertEquals(true, activeActual)
+        assertEquals(true, activeActual)
         onView(withId(R.id.toolbar_title)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
         onView(withId(R.id.toolbar_nearestDate)).check(matches(not(withText(""))))
 
@@ -355,19 +350,6 @@ class ListFragmentAndroidTest {
     }
 
     @Test
-    fun check_pressBack() {
-
-        var listFragment: Fragment? = null
-
-        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
-            listFragment = this
-        }
-        pressBackUnconditionally()
-        Thread.sleep(1000)
-        Assert.assertEquals(true, listFragment?.isResumed)
-    }
-
-    @Test
     fun check_arrowBack() {
 
         var listFragment: Fragment? = null
@@ -377,7 +359,7 @@ class ListFragmentAndroidTest {
         }
         Thread.sleep(1000)
         onView(withId(R.id.arrow_back)).perform(click())
-        Assert.assertEquals(true, listFragment?.activity?.isFinishing)
+        assertEquals(true, listFragment?.activity?.isFinishing)
     }
 
 

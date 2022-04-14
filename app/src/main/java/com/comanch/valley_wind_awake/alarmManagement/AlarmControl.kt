@@ -11,6 +11,7 @@ import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
 import com.comanch.valley_wind_awake.broadcastreceiver.AlarmReceiver
 import com.comanch.valley_wind_awake.dataBase.TimeData
 import com.comanch.valley_wind_awake.dataBase.TimeDataDao
+import com.comanch.valley_wind_awake.stringKeys.OperationKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.*
@@ -30,7 +31,7 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
         }
     }
 
-    private fun createCalendarList(item: TimeData): MutableList<Calendar> {
+    fun createCalendarList(item: TimeData): MutableList<Calendar> {
 
         val calendarList = mutableListOf<Calendar>()
         setContentDescriptionPart1(item)
@@ -234,6 +235,7 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
         calendar.set(Calendar.HOUR_OF_DAY, "${hhmm[0]}${hhmm[1]}".toInt())
         calendar.set(Calendar.MINUTE, "${hhmm[2]}${hhmm[3]}".toInt())
         calendar.set(Calendar.SECOND, 0)
+        calendar.clear(Calendar.MILLISECOND)
         return calendar
     }
 
@@ -246,7 +248,7 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
                     item.specialDate != 0L &&
                     item.specialDate < Calendar.getInstance().timeInMillis
                 ) {
-                    return "incorrect date"
+                    return OperationKey.incorrectDate
                 }
                 onAlarm(item)
                 item.active = true
@@ -269,18 +271,18 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
                     offAlarm(item)
                     item.active = false
                     database.update(item)
-                    return "success off"
+                    return OperationKey.successOff
                 } else {
                     if (item.oneInstance &&
                         item.specialDate != 0L &&
                         item.specialDate < Calendar.getInstance().timeInMillis
                     ) {
-                        return "incorrect date"
+                        return OperationKey.incorrectDate
                     }
                     onAlarm(item)
                     item.active = true
                     database.update(item)
-                    return "success on"
+                    return OperationKey.successOn
                 }
             }
             AlarmTypeOperation.PAUSE -> {
@@ -336,11 +338,14 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
         }
     }
 
-    private fun delaySignal(item: TimeData) {
+    fun delaySignal(item: TimeData) {
 
         val defaultPreference = PreferenceManager.getDefaultSharedPreferences(context)
             .getString(PreferenceKeys.pauseDuration, "5") ?: "5"
-        item.delayTime = Calendar.getInstance().timeInMillis + defaultPreference.toInt() * 60000
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.SECOND, 0)
+        calendar.clear(Calendar.MILLISECOND)
+        item.delayTime = calendar.timeInMillis + defaultPreference.toInt() * 60000
     }
 
     private fun createPendingIntent(
@@ -383,7 +388,7 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
             "будильник из списка. " +
                     "время будильника ${item.hhmm12[0]}${item.hhmm12[1]} часов " +
                     "${item.hhmm12[2]}${item.hhmm12[3]} минут " +
-                    "двенадцатичасовой формат" +
+                    "двенадцатичасовой формат " +
                     "${item.ampm[0]}. ${item.ampm[1]}. " + ". "
         item.contentDescriptionRu24 =
             "будильник из списка. " +
@@ -393,7 +398,7 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
             "alarm clock from the list. " +
                     "alarm clock time ${item.hhmm12[0]}${item.hhmm12[1]} hours " +
                     "${item.hhmm12[2]}${item.hhmm12[3]} minutes " +
-                    "twelve - hour format" +
+                    "twelve - hour format " +
                     "${item.ampm[0]}. ${item.ampm[1]}. " + ". "
         item.contentDescriptionEn24 =
             "alarm clock from the list. " +

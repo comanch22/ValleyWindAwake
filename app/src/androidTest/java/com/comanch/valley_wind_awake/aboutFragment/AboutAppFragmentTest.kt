@@ -1,5 +1,6 @@
 package com.comanch.valley_wind_awake.aboutFragment
 
+import android.os.Build
 import android.os.Bundle
 import androidx.navigation.Navigation
 import androidx.navigation.testing.TestNavHostController
@@ -7,20 +8,15 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.intent.Intents
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.espresso.intent.Intents.intended
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasComponent
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.filters.MediumTest
 import com.comanch.valley_wind_awake.R
 import com.comanch.valley_wind_awake.launchFragmentInHiltContainer
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import org.junit.After
 import org.junit.Assert.*
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,16 +33,6 @@ class AboutAppFragmentTest {
         TestNavHostController(
             ApplicationProvider.getApplicationContext()
         )
-    }
-
-    @Before
-    fun init() {
-        Intents.init()
-    }
-
-    @After
-    fun end() {
-        Intents.release()
     }
 
     @Test
@@ -79,14 +65,10 @@ class AboutAppFragmentTest {
     @Test
     fun aboutAppFragment_oss_license_click() {
 
-        launchFragmentInHiltContainer<AboutAppFragment>(Bundle(), R.style.Theme_MyAlarmClock) {
-
-            navController.setGraph(R.navigation.nav_graph)
-            Navigation.setViewNavController(this.requireView(), navController)
-            navController.setCurrentDestination(R.id.aboutAppFragment)
+        if (Build.VERSION.SDK_INT >= 29) {
+            launchFragmentInHiltContainer<AboutAppFragment>(Bundle(), R.style.Theme_MyAlarmClock)
+            onView(withId(R.id.oss_license)).perform(click())
+            onView(withText("Open source licenses")).check(matches(isDisplayed()))
         }
-
-        onView(withId(R.id.oss_license)).perform(click())
-        intended(hasComponent(OssLicensesMenuActivity::class.java.name))
     }
 }

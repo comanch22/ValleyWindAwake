@@ -4,15 +4,20 @@ import androidx.lifecycle.*
 import com.comanch.valley_wind_awake.LiveDataEvent
 import com.comanch.valley_wind_awake.dataBase.TimeData
 import com.comanch.valley_wind_awake.dataBase.TimeDataDao
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class KeyboardViewModel(private val dataSource: TimeDataDao, private val handle: SavedStateHandle) :
+@HiltViewModel
+class KeyboardViewModel @Inject constructor
+    (private val savedStateHandle: SavedStateHandle,
+     val database: TimeDataDao) :
     ViewModel() {
 
     private var ringtoneUri: String = ""
-    private var localItemId = -1L
+    var localItemId = -1L
 
     private val _specialDateStr = MutableLiveData<String?>()
     val specialDateStr: LiveData<String?>
@@ -94,10 +99,6 @@ class KeyboardViewModel(private val dataSource: TimeDataDao, private val handle:
     val sunday: LiveData<Boolean?>
         get() = _sunday
 
-    private var _isRotation = MutableLiveData<LiveDataEvent<Boolean?>>()
-    val isRotation: LiveData<LiveDataEvent<Boolean?>>
-        get() = _isRotation
-
     private var _newAlarm = MutableLiveData<LiveDataEvent<TimeData?>>()
     val newAlarm: LiveData<LiveDataEvent<TimeData?>>
         get() = _newAlarm
@@ -114,10 +115,6 @@ class KeyboardViewModel(private val dataSource: TimeDataDao, private val handle:
     val save: LiveData<LiveDataEvent<Int?>>
         get() = _save
 
-    private val _setTouchSound = MutableLiveData<LiveDataEvent<Int?>>()
-    val setTouchSound: LiveData<LiveDataEvent<Int?>>
-        get() = _setTouchSound
-
     private var _setTimeIsReady = MutableLiveData<LiveDataEvent<Int?>>()
     val setTimeIsReady: LiveData<LiveDataEvent<Int?>>
         get() = _setTimeIsReady
@@ -127,18 +124,18 @@ class KeyboardViewModel(private val dataSource: TimeDataDao, private val handle:
         get() = _setRingtoneTitle
 
     val backgroundTimerChanged
-        get() = handle.getLiveData("backgroundTimerChanged", 0)
+        get() = savedStateHandle.getLiveData("backgroundTimerChanged", 0)
 
     fun setTime(
         itemId: Long,
         correspondent: Correspondent,
         _ringtoneUri: String,
-        ringtoneTitle: String
+        _ringtoneTitle: String
     ) {
         when (correspondent) {
             Correspondent.ListFragment -> {
                 viewModelScope.launch {
-                    val item = dataSource.get(itemId) ?: return@launch
+                    val item = database.get(itemId) ?: return@launch
                     when (is24HourFormat.value) {
                         true -> {
                             _s1.value = item.hhmm24[0].toString()
@@ -171,37 +168,40 @@ class KeyboardViewModel(private val dataSource: TimeDataDao, private val handle:
                 }
             }
             Correspondent.RingtoneFragment -> {
-                _setRingtoneTitle.value = LiveDataEvent(ringtoneTitle)
+                _setRingtoneTitle.value = LiveDataEvent(_ringtoneTitle)
                 if (_ringtoneUri.isNotEmpty()) {
                     ringtoneUri = _ringtoneUri
                 } else {
                     viewModelScope.launch {
-                        val item = dataSource.get(itemId) ?: return@launch
+                        val item = database.get(itemId) ?: return@launch
                         ringtoneUri = item.ringtoneUri
                     }
                 }
                 localItemId = itemId
             }
             Correspondent.FragmentRotation -> {
-                _isRotation.value = LiveDataEvent(false)
-                //
-                _setRingtoneTitle.value = LiveDataEvent(ringtoneTitle)
+                if (_ringtoneTitle.isNotEmpty()){
+                    _setRingtoneTitle.value = LiveDataEvent(_ringtoneTitle)
+                }else{
+                    viewModelScope.launch {
+                        val item = database.get(itemId) ?: return@launch
+                        _setRingtoneTitle.value = LiveDataEvent(item.ringtoneTitle)
+                    }
+                }
                 if (_ringtoneUri.isNotEmpty()) {
                     ringtoneUri = _ringtoneUri
                 } else {
                     viewModelScope.launch {
-                        val item = dataSource.get(itemId) ?: return@launch
+                        val item = database.get(itemId) ?: return@launch
                         ringtoneUri = item.ringtoneUri
                     }
                 }
                 localItemId = itemId
-                //
             }
             else -> {
                 localItemId = itemId
             }
         }
-        _setTouchSound.value = LiveDataEvent(1)
     }
 
     fun prepareSave() {
@@ -213,7 +213,7 @@ class KeyboardViewModel(private val dataSource: TimeDataDao, private val handle:
 
         val newTime = setNewTime()
         viewModelScope.launch {
-            val item = dataSource.get(localItemId) ?: return@launch
+            val item = database.get(localItemId) ?: return@launch
             if (item != newTime) {
                 item.s1 = newTime.s1
                 item.s2 = newTime.s2
@@ -277,9 +277,9 @@ class KeyboardViewModel(private val dataSource: TimeDataDao, private val handle:
                 item.ringtoneUri = ringtoneUri
                 item.ringtoneTitle = setRingtoneTitle.value?.getContent() ?: ""
                 item.delayTime = 0L
-                dataSource.update(item)
+                database.update(item)
 
-                val updatedItem = dataSource.get(localItemId) ?: return@launch
+                val updatedItem = database.get(localItemId) ?: return@launch
                 _newAlarm.value = LiveDataEvent(updatedItem)
             } else {
                 _save.value = LiveDataEvent(2)
@@ -344,23 +344,23 @@ class KeyboardViewModel(private val dataSource: TimeDataDao, private val handle:
 
         when (num) {
             in 1..2 -> {
-                handle.set("positionOnTimer", 1)
-                handle.set("backgroundTimerChanged", 1)
+                savedStateHandle.set("positionOnTimer", 1)
+                savedStateHandle.set("backgroundTimerChanged", 1)
             }
             in 3..4 -> {
-                handle.set("positionOnTimer", 3)
-                handle.set("backgroundTimerChanged", 3)
+                savedStateHandle.set("positionOnTimer", 3)
+                savedStateHandle.set("backgroundTimerChanged", 3)
             }
         }
-        handle.set("stopDeleteNumbers", false)
-        handle.set("inputNumberFromTimer", true)
+        savedStateHandle.set("stopDeleteNumbers", false)
+        savedStateHandle.set("inputNumberFromTimer", true)
     }
 
     private fun setNumberOnTimer(num: Int) {
 
-        handle.set("inputNumberFromTimer", false)
-        handle.set("stopDeleteNumbers", false)
-        val positionOnTimer = handle.getLiveData("positionOnTimer", 1).value ?: 1
+        savedStateHandle.set("inputNumberFromTimer", false)
+        savedStateHandle.set("stopDeleteNumbers", false)
+        val positionOnTimer = savedStateHandle.getLiveData("positionOnTimer", 1).value ?: 1
         var wrongNumber = false
 
         when (positionOnTimer) {
@@ -390,52 +390,52 @@ class KeyboardViewModel(private val dataSource: TimeDataDao, private val handle:
             4 -> _s4.value = num.toString()
         }
         if (!wrongNumber) {
-            handle.set("backgroundTimerChanged", positionOnTimer)
+            savedStateHandle.set("backgroundTimerChanged", positionOnTimer)
             if (positionOnTimer < 4) {
-                handle.set("positionOnTimer", positionOnTimer + 1)
+                savedStateHandle.set("positionOnTimer", positionOnTimer + 1)
             } else {
-                handle.set("positionOnTimer", 1)
+                savedStateHandle.set("positionOnTimer", 1)
             }
         }
     }
 
     private fun backSpaceNumber() {
 
-        var positionOnTimer = handle.getLiveData("positionOnTimer", 1).value ?: 1
-        val deleteNumber = handle.getLiveData("inputNumberFromTimer", false).value ?: false
-        val stopDeleteNumbers = handle.getLiveData("stopDeleteNumbers", false).value ?: false
+        var positionOnTimer = savedStateHandle.getLiveData("positionOnTimer", 1).value ?: 1
+        val deleteNumber = savedStateHandle.getLiveData("inputNumberFromTimer", false).value ?: false
+        val stopDeleteNumbers = savedStateHandle.getLiveData("stopDeleteNumbers", false).value ?: false
         if (!stopDeleteNumbers) {
             if (deleteNumber) {
                 when (positionOnTimer) {
-                    1 -> handle.set("positionOnTimer", 3)
-                    3 -> handle.set("positionOnTimer", 1)
+                    1 -> savedStateHandle.set("positionOnTimer", 3)
+                    3 -> savedStateHandle.set("positionOnTimer", 1)
                 }
             }
-            positionOnTimer = handle.getLiveData("positionOnTimer", 1).value ?: 1
+            positionOnTimer = savedStateHandle.getLiveData("positionOnTimer", 1).value ?: 1
             when (positionOnTimer) {
                 1 -> _s4.value = "0"
                 2 -> {
                     _s1.value = "0"
-                    handle.set("stopDeleteNumbers", true)
+                    savedStateHandle.set("stopDeleteNumbers", true)
                 }
                 3 -> _s2.value = "0"
                 4 -> _s3.value = "0"
             }
             if (positionOnTimer > 1) {
-                handle.set("positionOnTimer", positionOnTimer - 1)
-                handle.set("backgroundTimerChanged", positionOnTimer - 1)
+                savedStateHandle.set("positionOnTimer", positionOnTimer - 1)
+                savedStateHandle.set("backgroundTimerChanged", positionOnTimer - 1)
             } else {
-                handle.set("positionOnTimer", 4)
-                handle.set("backgroundTimerChanged", 4)
+                savedStateHandle.set("positionOnTimer", 4)
+                savedStateHandle.set("backgroundTimerChanged", 4)
             }
-            handle.set("inputNumberFromTimer", false)
+            savedStateHandle.set("inputNumberFromTimer", false)
         }
     }
 
     fun showDiffTimeToast(timeId: Long) {
 
         viewModelScope.launch {
-            val item = dataSource.get(timeId) ?: return@launch
+            val item = database.get(timeId) ?: return@launch
             _timeToast.value = LiveDataEvent(item)
         }
     }

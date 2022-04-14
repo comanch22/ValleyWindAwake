@@ -4,11 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.comanch.valley_wind_awake.LiveDataEvent
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 
-@HiltViewModel
-class StateViewModel @Inject constructor() : ViewModel() {
+
+class StateViewModel : ViewModel() {
 
     private var setS1: String? = null
     private var setS2: String? = null
@@ -16,7 +14,6 @@ class StateViewModel @Inject constructor() : ViewModel() {
     private var setS4: String? = null
     private var setNumbersTimer: String? = null
     private var setIs24HourFormat: Boolean? = null
-    private var setAmpm: String? = null
 
     private var setOnMonday: Boolean? = null
     private var setOnTuesday: Boolean? = null
@@ -29,13 +26,9 @@ class StateViewModel @Inject constructor() : ViewModel() {
     private var setSpecialDate: String? = null
     private var setRingtoneTitle: String? = null
 
-    private val _is24HourFormat = MutableLiveData<Boolean?>()
-    val is24HourFormat: LiveData<Boolean?>
+    private val _is24HourFormat = MutableLiveData<LiveDataEvent<Boolean?>>()
+    val is24HourFormat: LiveData<LiveDataEvent<Boolean?>>
         get() = _is24HourFormat
-
-    private val _ringtoneUri = MutableLiveData<String>()
-    val ringtoneUri: LiveData<String>
-        get() = _ringtoneUri
 
     private val _ringtoneTitle = MutableLiveData<LiveDataEvent<String?>>()
     val ringtoneTitle: LiveData<LiveDataEvent<String?>>
@@ -113,22 +106,12 @@ class StateViewModel @Inject constructor() : ViewModel() {
         setS4 = s
     }
 
-    fun getNumbersTimer(): String? {
-
-        return setNumbersTimer
-    }
-
     fun setNumbersTimer(s: String) {
-
         setNumbersTimer = s
     }
 
     fun setIs24HourFormat(b: Boolean) {
         setIs24HourFormat = b
-    }
-
-    fun getIs24HourFormat(): Boolean? {
-        return is24HourFormat.value
     }
 
     fun setMonday(b: Boolean) {
@@ -164,21 +147,30 @@ class StateViewModel @Inject constructor() : ViewModel() {
         setSpecialDate = s
     }
 
-    fun getSpecialDate(): String? {
-        return setSpecialDate
-    }
-
     fun setRingtoneTitle(s: String) {
         setRingtoneTitle = s
     }
 
-    fun restoreSpecialDate() {
+    fun getSpecialDate(): String? {
+        return setSpecialDate
+    }
+
+    fun getNumbersTimer(): String? {
+        return setNumbersTimer
+    }
+
+    fun getIs24HourFormat(): Boolean? {
+        return setIs24HourFormat
+    }
+
+    fun restoreSpecialDateAndTimer() {
         _specialDate.value = LiveDataEvent(setSpecialDate)
+        _numbersTimer.value = LiveDataEvent(setNumbersTimer)
     }
 
     fun restoreStateForKeyboardFragment() {
 
-        _is24HourFormat.value = setIs24HourFormat
+        _is24HourFormat.value = LiveDataEvent(setIs24HourFormat)
         _numbersTimer.value = LiveDataEvent(setNumbersTimer)
         _monday.value = LiveDataEvent(setOnMonday)
         _tuesday.value = LiveDataEvent(setOnTuesday)
@@ -201,7 +193,6 @@ class StateViewModel @Inject constructor() : ViewModel() {
         setNumbersTimer = null
         setIs24HourFormat = null
 
-        setAmpm = null
         setOnMonday = null
         setOnTuesday = null
         setOnWednesday = null

@@ -3,12 +3,10 @@ package com.comanch.valley_wind_awake.keyboardFragment
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
-import android.media.AudioAttributes
 import android.media.RingtoneManager
-import android.media.SoundPool
 import android.os.Bundle
-import android.provider.Settings
 import android.text.format.DateFormat
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -16,26 +14,23 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavDirections
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.comanch.valley_wind_awake.*
-import com.comanch.valley_wind_awake.aboutFragment.AboutAppViewModel
 import com.comanch.valley_wind_awake.stringKeys.FragmentResultKey
 import com.comanch.valley_wind_awake.stringKeys.OperationKey
 import com.comanch.valley_wind_awake.alarmManagement.AlarmControl
 import com.comanch.valley_wind_awake.alarmManagement.AlarmTypeOperation
-import com.comanch.valley_wind_awake.dataBase.DataControl
 import com.comanch.valley_wind_awake.databinding.KeyboardFragmentBinding
 import com.comanch.valley_wind_awake.dialogFragments.DialogDatePicker
 import com.comanch.valley_wind_awake.stateViewModel.StateViewModel
+import com.comanch.valley_wind_awake.viewTags.ViewTags
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -45,24 +40,24 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class KeyboardFragment : Fragment() {
 
-    private val stateViewModel: StateViewModel by viewModels()
+    private val stateViewModel: StateViewModel by activityViewModels()
+    val keyboardViewModel: KeyboardViewModel by viewModels()
 
     @Inject
     lateinit var alarmControl: AlarmControl
 
-    private lateinit var keyboardViewModel: KeyboardViewModel
+    @Inject
+    lateinit var soundPoolContainer: SoundPoolForFragments
+
+    @Inject
+    lateinit var navigation: NavigationBetweenFragments
+
     private val args: KeyboardFragmentArgs by navArgs()
-    private var isTouchSoundsEnabledSystem: Boolean = false
+
     private var viewOne: TextView? = null
     private var viewTwo: TextView? = null
     private var viewThree: TextView? = null
     private var viewFour: TextView? = null
-    private var soundPool: SoundPool? = null
-    private var soundCancel: Int? = null
-    private var soundButtonTap: Int? = null
-    private var soundUiTap: Int? = null
-    private var soundMap: HashMap<Int, Int>? = null
-    private val maxSoundPoolStreams = 1
     private var selectedRingtoneTitle: String = ""
     private var isRotation = false
     private var colorAccent: Int? = null
@@ -82,22 +77,14 @@ class KeyboardFragment : Fragment() {
         super.onCreate(savedInstanceState)
         val action = KeyboardFragmentDirections.actionKeyboardFragmentToListFragment()
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
-            navigateToListFragment(action)
+            navigation.navigateToDestination(
+                this@KeyboardFragment,
+                action)
         }
         callback.isEnabled = true
 
-        soundMap = hashMapOf()
-        soundPool = SoundPool.Builder()
-            .setAudioAttributes(
-                AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build()
-            ).setMaxStreams(maxSoundPoolStreams)
-            .build()
-
-        soundPool?.setOnLoadCompleteListener { _, sampleId, status ->
-            soundMap?.put(sampleId, status)
+        soundPoolContainer.soundPool.setOnLoadCompleteListener { _, sampleId, status ->
+            soundPoolContainer.soundMap[sampleId] = status
         }
 
         is24HourFormat = DateFormat.is24HourFormat(requireContext())
@@ -112,6 +99,12 @@ class KeyboardFragment : Fragment() {
             DataBindingUtil.inflate(
                 inflater, R.layout.keyboard_fragment, container, false
             )
+
+        if (args.correspondent != Correspondent.ListFragment) {
+            stateViewModel.restoreStateForKeyboardFragment()
+        } else {
+            stateViewModel.restoreSpecialDateAndTimer()
+        }
 
         isRotation = savedInstanceState?.getBoolean("isRotation", false) == true
 
@@ -136,7 +129,7 @@ class KeyboardFragment : Fragment() {
         if (args.correspondent != Correspondent.ListFragment) {
             stateViewModel.restoreStateForKeyboardFragment()
         } else {
-            stateViewModel.restoreSpecialDate()
+            stateViewModel.restoreSpecialDateAndTimer()
         }
 
         keyboardViewModel.setTimeIsReady.observe(viewLifecycleOwner) { content ->
@@ -167,12 +160,6 @@ class KeyboardFragment : Fragment() {
                 if (isPaused) {
                     keyboardViewModel.refreshViewDateFormat()
                 }
-            }
-        }
-
-        keyboardViewModel.setTouchSound.observe(viewLifecycleOwner) {
-            it.getContentIfNotHandled()?.let {
-                setTouchSound()
             }
         }
 
@@ -242,7 +229,9 @@ class KeyboardFragment : Fragment() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            navigateToListFragment(KeyboardFragmentDirections.actionKeyboardFragmentToListFragment())
+            navigation.navigateToDestination(
+                this,
+                KeyboardFragmentDirections.actionKeyboardFragmentToListFragment())
         }
 
         keyboardViewModel.errorForUser.observe(viewLifecycleOwner) {
@@ -251,7 +240,9 @@ class KeyboardFragment : Fragment() {
 
         keyboardViewModel.save.observe(viewLifecycleOwner) {
             it.getContentIfNotHandled()?.let {
-                navigateToListFragment(KeyboardFragmentDirections.actionKeyboardFragmentToListFragment())
+                navigation.navigateToDestination(
+                    this,
+                    KeyboardFragmentDirections.actionKeyboardFragmentToListFragment())
                 stateViewModel.resetStateStoreForKeyboardFragment()
             }
         }
@@ -546,145 +537,106 @@ class KeyboardFragment : Fragment() {
 
         //region setSound
         keyboardViewModel.monday.observe(viewLifecycleOwner) {
-            if (isTouchSoundEnable(soundUiTap)) {
-                soundUiTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundUiTap)
         }
 
         keyboardViewModel.tuesday.observe(viewLifecycleOwner) {
-            if (isTouchSoundEnable(soundUiTap)) {
-                soundUiTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundUiTap)
         }
 
         keyboardViewModel.wednesday.observe(viewLifecycleOwner) {
-            if (isTouchSoundEnable(soundUiTap)) {
-                soundUiTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundUiTap)
         }
 
         keyboardViewModel.thursday.observe(viewLifecycleOwner) {
-            if (isTouchSoundEnable(soundUiTap)) {
-                soundUiTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundUiTap)
         }
 
         keyboardViewModel.friday.observe(viewLifecycleOwner) {
-            if (isTouchSoundEnable(soundUiTap)) {
-                soundUiTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundUiTap)
         }
 
         keyboardViewModel.saturday.observe(viewLifecycleOwner) {
-            if (isTouchSoundEnable(soundUiTap)) {
-                soundUiTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundUiTap)
         }
 
         keyboardViewModel.sunday.observe(viewLifecycleOwner) {
-            if (isTouchSoundEnable(soundUiTap)) {
-                soundUiTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundUiTap)
         }
 
         binding.textViewKeyOne.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             keyboardViewModel.fromKeyBoardLayout(1)
         }
 
         binding.textViewKeyTwo.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             keyboardViewModel.fromKeyBoardLayout(2)
         }
 
         binding.textViewKeyThree.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             keyboardViewModel.fromKeyBoardLayout(3)
         }
 
         binding.textViewKeyFour.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             keyboardViewModel.fromKeyBoardLayout(4)
         }
 
         binding.textViewKeyFive.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             keyboardViewModel.fromKeyBoardLayout(5)
         }
 
         binding.textViewKeySix.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             keyboardViewModel.fromKeyBoardLayout(6)
         }
 
         binding.textViewKeySeven.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             keyboardViewModel.fromKeyBoardLayout(7)
         }
 
         binding.textViewKeyEight.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             keyboardViewModel.fromKeyBoardLayout(8)
         }
 
         binding.textViewKeyNine.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             keyboardViewModel.fromKeyBoardLayout(9)
         }
 
         binding.textViewKeyZero.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             keyboardViewModel.fromKeyBoardLayout(0)
         }
 
         binding.imageViewKeyDelete.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             keyboardViewModel.fromKeyBoardLayout(10)
         }
         //endregion
 
         binding.textViewKeySave.setOnClickListener {
-            if (isTouchSoundEnable(soundCancel)) {
-                soundCancel?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundCancel)
             keyboardViewModel.prepareSave()
         }
 
         binding.textViewKeyCancel.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             stateViewModel.resetStateStoreForKeyboardFragment()
-            navigateToListFragment(KeyboardFragmentDirections.actionKeyboardFragmentToListFragment())
+            navigation.navigateToDestination(
+                this,
+                KeyboardFragmentDirections.actionKeyboardFragmentToListFragment())
         }
 
         binding.textViewSelectTrack.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
-            navigateToListFragment(
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
+            navigation.navigateToDestination(
+                this,
                 KeyboardFragmentDirections.actionKeyboardFragmentToRingtonePickerFragment(
                     args.itemId,
                     selectedRingtoneTitle,
@@ -742,9 +694,7 @@ class KeyboardFragment : Fragment() {
 
         binding.calendarMonth.setOnClickListener {
 
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             val dateDialogPicker = DialogDatePicker()
             parentFragmentManager.let { fragmentM ->
                 dateDialogPicker.show(fragmentM, "datePicker")
@@ -753,9 +703,7 @@ class KeyboardFragment : Fragment() {
 
         binding.ampmKey.setOnClickListener {
 
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             when (ampm) {
                 "AM" -> {
                     resources.getString(R.string.pm).let {
@@ -775,10 +723,10 @@ class KeyboardFragment : Fragment() {
         }
 
         binding.arrowBack.setOnClickListener {
-            if (isTouchSoundEnable(soundButtonTap)) {
-                soundButtonTap?.let { id -> playSound(id) }
-            }
-            navigateToListFragment(KeyboardFragmentDirections.actionKeyboardFragmentToListFragment())
+            soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
+            navigation.navigateToDestination(
+                this,
+                KeyboardFragmentDirections.actionKeyboardFragmentToListFragment())
         }
 
         return binding.root
@@ -813,11 +761,7 @@ class KeyboardFragment : Fragment() {
     override fun onResume() {
 
         super.onResume()
-        isTouchSoundsEnabledSystem = Settings.System.getInt(
-            activity?.contentResolver,
-            Settings.System.SOUND_EFFECTS_ENABLED, 1
-        ) != 0
-
+        soundPoolContainer.setTouchSound()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -827,36 +771,16 @@ class KeyboardFragment : Fragment() {
         super.onSaveInstanceState(outState)
     }
 
-    private fun playSound(id: Int) {
-        soundPool?.play(id, 1F, 1F, 1, 0, 1F)
-    }
-
-    private fun setTouchSound() {
-
-        isTouchSoundsEnabledSystem = Settings.System.getInt(
-            activity?.contentResolver,
-            Settings.System.SOUND_EFFECTS_ENABLED, 1
-        ) != 0
-
-        soundCancel = soundPool?.load(context, R.raw.navigation_cancel, 1)
-        soundButtonTap = soundPool?.load(context, R.raw.navigation_forward_selection_minimal, 1)
-        soundUiTap = soundPool?.load(context, R.raw.ui_refresh_feed, 1)
-    }
-
-    private fun isTouchSoundEnable(soundId: Int?): Boolean {
-
-        return soundMap?.get(soundId) == 0
-                && isTouchSoundsEnabledSystem
-    }
-
     private fun setTextColorDayPanel(itemOn: Boolean, view: TextView) {
 
         if (itemOn) {
             view.setBackgroundResource(R.drawable.rectangle)
             view.setTypeface(null, Typeface.BOLD)
+            view.tag = ViewTags.dayOn
         } else {
             view.setTypeface(null, Typeface.NORMAL)
             view.setBackgroundColor(colorAccent ?: Color.WHITE)
+            view.tag = ViewTags.dayOff
         }
     }
 
@@ -938,7 +862,4 @@ class KeyboardFragment : Fragment() {
         }
     }
 
-    private fun navigateToListFragment(destination: NavDirections) = with(findNavController()) {
-        currentDestination?.getAction(destination.actionId)?.let { navigate(destination) }
-    }
 }

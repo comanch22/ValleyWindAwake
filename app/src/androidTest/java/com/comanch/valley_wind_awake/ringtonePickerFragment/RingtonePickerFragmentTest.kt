@@ -127,7 +127,7 @@ class RingtonePickerFragmentTest {
             Navigation.setViewNavController(this.requireView(), navController)
             navController.setCurrentDestination(R.id.ringtonePickerFragment, bundleKeyboardFragment)
         }
-        onView(withId(R.id.Cancel)).perform(ViewActions.click())
+        onView(withId(R.id.Cancel)).perform(click())
         assertEquals(navController.currentDestination?.id, R.id.keyboardFragment)
 
         launchFragmentInHiltContainer<RingtonePickerFragment>(
@@ -158,11 +158,11 @@ class RingtonePickerFragmentTest {
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
                     0,
-                    ViewActions.click()
+                    click()
                 )
             )
 
-        onView(withId(R.id.Ok)).perform(ViewActions.click())
+        onView(withId(R.id.Ok)).perform(click())
         assertEquals(navController.currentDestination?.id, R.id.keyboardFragment)
 
         launchFragmentInHiltContainer<RingtonePickerFragment>(

@@ -6,7 +6,6 @@ import android.graphics.Typeface
 import android.media.RingtoneManager
 import android.os.Bundle
 import android.text.format.DateFormat
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +13,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
-import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -103,7 +101,7 @@ class KeyboardFragment : Fragment() {
         if (args.correspondent != Correspondent.ListFragment) {
             stateViewModel.restoreStateForKeyboardFragment()
         } else {
-            stateViewModel.restoreSpecialDateAndTimer()
+            stateViewModel.restoreTimer()
         }
 
         isRotation = savedInstanceState?.getBoolean("isRotation", false) == true
@@ -126,11 +124,11 @@ class KeyboardFragment : Fragment() {
 
         savedInstanceState?.putBoolean("isRotation", false)
 
-        if (args.correspondent != Correspondent.ListFragment) {
+      /*  if (args.correspondent != Correspondent.ListFragment) {
             stateViewModel.restoreStateForKeyboardFragment()
         } else {
             stateViewModel.restoreSpecialDateAndTimer()
-        }
+        }*/
 
         keyboardViewModel.setTimeIsReady.observe(viewLifecycleOwner) { content ->
             content.getContentIfNotHandled()?.let {
@@ -173,7 +171,7 @@ class KeyboardFragment : Fragment() {
 
         keyboardViewModel.specialDateStr.observe(viewLifecycleOwner) { specialDate ->
             specialDate?.let {
-                if (!stateViewModel.getSpecialDate().isNullOrEmpty()) {
+               /* if (!stateViewModel.getSpecialDate().isNullOrEmpty()) {
                     binding.selectedDate.text = stateViewModel.getSpecialDate()?.substring(0..9)
                     stateViewModel.setSpecialDate(stateViewModel.getSpecialDate()!!)
                 } else {
@@ -181,7 +179,9 @@ class KeyboardFragment : Fragment() {
                         ""
                     else specialDate.substring(0..9)
                     stateViewModel.setSpecialDate(specialDate)
-                }
+                }*/
+                stateViewModel.setSpecialDate(it)
+                binding.selectedDate.text = it
             }
         }
 
@@ -205,6 +205,13 @@ class KeyboardFragment : Fragment() {
                                     Toast.makeText(
                                         context,
                                         resources.getString(R.string.time_is_over),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                                OperationKey.incorrectSpecialDate -> {
+                                    Toast.makeText(
+                                        context,
+                                        resources.getString(R.string.incorrect_special_date),
                                         Toast.LENGTH_LONG
                                     ).show()
                                 }
@@ -651,6 +658,7 @@ class KeyboardFragment : Fragment() {
                 FragmentResultKey.clear -> {
                     stateViewModel.setSpecialDate("")
                     keyboardViewModel.clearSpecialDate()
+                    keyboardViewModel.setSpecialDateStr("")
                 }
                 else -> {
                     if (result is Bundle) {
@@ -662,9 +670,22 @@ class KeyboardFragment : Fragment() {
                         calendar.set(Calendar.YEAR, year)
                         calendar.set(Calendar.MONTH, month)
                         calendar.set(Calendar.DAY_OF_MONTH, day)
-                        calendar.set(Calendar.HOUR_OF_DAY, "$s1$s2".toInt())
-                        calendar.set(Calendar.MINUTE, "$s3$s4".toInt())
-                        calendar.set(Calendar.SECOND, 0)
+                        if (is24HourFormat == true) {
+                            calendar.set(Calendar.HOUR_OF_DAY, "$s1$s2".toInt())
+                            calendar.set(Calendar.MINUTE, "$s3$s4".toInt())
+                            calendar.set(Calendar.SECOND, 0)
+                            calendar.clear(Calendar.MILLISECOND)
+                        }
+                        else {
+                            calendar.set(Calendar.HOUR, "$s1$s2".toInt())
+                            calendar.set(Calendar.MINUTE, "$s3$s4".toInt())
+                            calendar.set(
+                                Calendar.AM_PM,
+                                if (ampm == "PM") Calendar.PM else Calendar.AM
+                            )
+                            calendar.set(Calendar.SECOND, 0)
+                            calendar.clear(Calendar.MILLISECOND)
+                        }
                         calendar.clear(Calendar.MILLISECOND)
                         if (calendar.timeInMillis <= Calendar.getInstance().timeInMillis) {
                             Toast.makeText(
@@ -673,18 +694,12 @@ class KeyboardFragment : Fragment() {
                                 Toast.LENGTH_LONG
                             ).show()
                         } else {
-                            stateViewModel.setSpecialDate(
-                                SimpleDateFormat(
-                                    "dd.MM.yyyy HH:mm",
-                                    Locale.US
-                                ).format(calendar.time)
-                            )
-                            keyboardViewModel.setSpecialDateStr(
-                                SimpleDateFormat(
-                                    "dd.MM.yyyy HH:mm",
-                                    Locale.US
-                                ).format(calendar.time)
-                            )
+                            val date = SimpleDateFormat(
+                                "dd.MM.yyyy",
+                                Locale.US
+                            ).format(calendar.time)
+                            stateViewModel.setSpecialDate(date)
+                            keyboardViewModel.setSpecialDateStr(date)
                             keyboardViewModel.setSpecialDate(calendar.timeInMillis)
                         }
                     }
@@ -792,10 +807,6 @@ class KeyboardFragment : Fragment() {
                     viewThree!!.paintFlags =
                         viewThree!!.paintFlags xor Paint.UNDERLINE_TEXT_FLAG
                 }
-                if ((viewFour!!.paintFlags and Paint.UNDERLINE_TEXT_FLAG) == Paint.UNDERLINE_TEXT_FLAG) {
-                    viewFour!!.paintFlags =
-                        viewFour!!.paintFlags xor Paint.UNDERLINE_TEXT_FLAG
-                }
                 if ((viewOne!!.paintFlags and Paint.UNDERLINE_TEXT_FLAG) != Paint.UNDERLINE_TEXT_FLAG) {
                     viewOne!!.paintFlags =
                         viewOne!!.paintFlags xor Paint.UNDERLINE_TEXT_FLAG
@@ -809,10 +820,6 @@ class KeyboardFragment : Fragment() {
                 if ((viewThree!!.paintFlags and Paint.UNDERLINE_TEXT_FLAG) == Paint.UNDERLINE_TEXT_FLAG) {
                     viewThree!!.paintFlags =
                         viewThree!!.paintFlags xor Paint.UNDERLINE_TEXT_FLAG
-                }
-                if ((viewFour!!.paintFlags and Paint.UNDERLINE_TEXT_FLAG) == Paint.UNDERLINE_TEXT_FLAG) {
-                    viewFour!!.paintFlags =
-                        viewFour!!.paintFlags xor Paint.UNDERLINE_TEXT_FLAG
                 }
                 if ((viewOne!!.paintFlags and Paint.UNDERLINE_TEXT_FLAG) == Paint.UNDERLINE_TEXT_FLAG) {
                     viewOne!!.paintFlags =
@@ -828,10 +835,6 @@ class KeyboardFragment : Fragment() {
                     viewThree!!.paintFlags =
                         viewThree!!.paintFlags xor Paint.UNDERLINE_TEXT_FLAG
                 }
-                if ((viewFour!!.paintFlags and Paint.UNDERLINE_TEXT_FLAG) == Paint.UNDERLINE_TEXT_FLAG) {
-                    viewFour!!.paintFlags =
-                        viewFour!!.paintFlags xor Paint.UNDERLINE_TEXT_FLAG
-                }
                 if ((viewOne!!.paintFlags and Paint.UNDERLINE_TEXT_FLAG) == Paint.UNDERLINE_TEXT_FLAG) {
                     viewOne!!.paintFlags =
                         viewOne!!.paintFlags xor Paint.UNDERLINE_TEXT_FLAG
@@ -845,10 +848,6 @@ class KeyboardFragment : Fragment() {
                 if ((viewThree!!.paintFlags and Paint.UNDERLINE_TEXT_FLAG) == Paint.UNDERLINE_TEXT_FLAG) {
                     viewThree!!.paintFlags =
                         viewThree!!.paintFlags xor Paint.UNDERLINE_TEXT_FLAG
-                }
-                if ((viewFour!!.paintFlags and Paint.UNDERLINE_TEXT_FLAG) != Paint.UNDERLINE_TEXT_FLAG) {
-                    viewFour!!.paintFlags =
-                        viewFour!!.paintFlags xor Paint.UNDERLINE_TEXT_FLAG
                 }
                 if ((viewOne!!.paintFlags and Paint.UNDERLINE_TEXT_FLAG) == Paint.UNDERLINE_TEXT_FLAG) {
                     viewOne!!.paintFlags =

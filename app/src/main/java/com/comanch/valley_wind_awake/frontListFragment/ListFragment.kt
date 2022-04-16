@@ -3,6 +3,7 @@ package com.comanch.valley_wind_awake.frontListFragment
 import android.content.res.Resources
 import android.os.Bundle
 import android.text.format.DateFormat
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -16,7 +17,6 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.comanch.valley_wind_awake.*
-import com.comanch.valley_wind_awake.aboutFragment.AboutAppFragmentDirections
 import com.comanch.valley_wind_awake.stringKeys.FragmentResultKey
 import com.comanch.valley_wind_awake.stringKeys.OperationKey
 import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
@@ -198,6 +198,7 @@ class ListFragment : Fragment() {
 
         listViewModel.itemActive.observe(viewLifecycleOwner) { timeData ->
             timeData?.let {
+                Log.e("grtrtrtyrty", "code = ${timeData.requestCode}")
                 if (timeData.active) {
                     soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundStateDown)
                 } else {

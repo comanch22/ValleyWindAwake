@@ -73,6 +73,7 @@
     <string name="time_displayed">time displayed</string>
     <string name="activated">will be activated</string>
     <string name="reset_character">reset the typed character</string>
+    <string name="incorrect_special_date">the time of the selected calendar date has expired</string>
     <!-- ringtone_picker fragment -->
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>

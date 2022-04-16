@@ -9,5 +9,6 @@ class OperationKey {
         const val ringtoneUri = "ringtoneUri"
         const val successOff = "success off"
         const val successOn = "success on"
+        const val incorrectSpecialDate = "success on"
     }
 }

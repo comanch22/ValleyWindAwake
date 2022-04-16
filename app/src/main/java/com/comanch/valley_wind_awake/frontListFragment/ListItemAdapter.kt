@@ -152,15 +152,13 @@ class ListItemAdapter(
                 isDeleteMode)
 
             if (is24HourFormat) {
-                setTimeOnView(item, item.hhmm24)
+                setTimeOnView(item.hhmm24)
             } else {
-                setTimeOnView(item, item.hhmm12)
+                setTimeOnView(item.hhmm12)
                 binding.ampm.text = item.ampm
             }
 
-            if (item.specialDateStr.length > 10) {
-                binding.selectedDate.text = item.specialDateStr.substring(0, 10)
-            }
+            binding.selectedDate.text = item.specialDateStr
 
             SetBackgroundDays(
                 colorOn,
@@ -217,7 +215,7 @@ class ListItemAdapter(
             }
         }
 
-        private fun setTimeOnView(item: TimeData, hhmm: String) {
+        private fun setTimeOnView(hhmm: String) {
 
             binding.textViewNumberOne.text = hhmm[0].toString()
             binding.textViewNumberTwo.text = hhmm[1].toString()

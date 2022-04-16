@@ -22,16 +22,20 @@ import androidx.test.filters.MediumTest
 import com.comanch.valley_wind_awake.DateDifference
 import com.comanch.valley_wind_awake.R
 import com.comanch.valley_wind_awake.dataBase.TimeData
+import com.comanch.valley_wind_awake.dataBase.TimeDataDao
 import com.comanch.valley_wind_awake.launchFragmentInHiltContainer
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.*
 import org.hamcrest.Matchers.not
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.Calendar
+import javax.inject.Inject
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -41,6 +45,9 @@ class ListFragmentAndroidTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
+    @Inject
+    lateinit var database: TimeDataDao
+
     private val navController by lazy {
         TestNavHostController(
             ApplicationProvider.getApplicationContext()
@@ -48,6 +55,20 @@ class ListFragmentAndroidTest {
     }
 
     private val language: String? by lazy { setLanguage() }
+
+    @Before
+    fun init() {
+
+        hiltRule.inject()
+    }
+
+    @After
+    fun end() {
+        val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
+        mCoroutineScope.launch {
+            database.clear()
+        }
+    }
 
     @Test
     fun check_navigateToKeyboardFragment() {
@@ -57,6 +78,9 @@ class ListFragmentAndroidTest {
             Navigation.setViewNavController(this.requireView(), navController)
             navController.setCurrentDestination(R.id.listFragment)
         }
+
+        onView(withId(R.id.ButtonPlus)).perform(click())
+        Thread.sleep(1000)
 
         onView(withId(R.id.list))
             .perform(
@@ -107,12 +131,10 @@ class ListFragmentAndroidTest {
     @Test
     fun check_deleteAllItems() {
 
-        var listFragment: Fragment? = null
         var actualItemsCount: Int = -1
         var actionDone = ""
         var ok = ""
         launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
-            listFragment = this
             actionDone = resources.getString(R.string.delete_all)
             ok = resources.getString(R.string.delete_ok)
         }
@@ -129,8 +151,7 @@ class ListFragmentAndroidTest {
             .perform(click())
         val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
         mCoroutineScope.launch {
-            actualItemsCount =
-                (listFragment as ListFragment).listViewModel.database.getListItems()?.size ?: 0
+            actualItemsCount = database.getListItems()?.size ?: 0
         }
         Thread.sleep(2000)
         onView(withId(R.id.toolbar_title)).check(matches(withEffectiveVisibility(Visibility.INVISIBLE)))
@@ -141,18 +162,14 @@ class ListFragmentAndroidTest {
     @Test
     fun check_insertItem() {
 
-        var listFragment: Fragment? = null
         var itemsCount: Int = -1
         var itemsCountActual: Int = -1
         val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
 
-        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
-            listFragment = this
-        }
+        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat)
 
         mCoroutineScope.launch {
-            itemsCount =
-                (listFragment as ListFragment).listViewModel.database.getListItems()?.size ?: 0
+            itemsCount = database.getListItems()?.size ?: 0
         }
         Thread.sleep(2000)
 
@@ -161,8 +178,7 @@ class ListFragmentAndroidTest {
         onView(withId(R.id.ButtonPlus)).perform(click())
 
         mCoroutineScope.launch {
-            itemsCountActual =
-                (listFragment as ListFragment).listViewModel.database.getListItems()?.size ?: 0
+            itemsCountActual = database.getListItems()?.size ?: 0
         }
         Thread.sleep(2000)
         assertEquals(itemsCount + 3, itemsCountActual)
@@ -171,14 +187,11 @@ class ListFragmentAndroidTest {
     @Test
     fun check_deleteOneItem() {
 
-        var listFragment: Fragment? = null
         var itemsCount: Int = -1
         var itemsCountActual: Int = -1
         val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
 
-        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
-            listFragment = this
-        }
+        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat)
 
         onView(withId(R.id.ButtonPlus)).perform(click())
         if (language == "ru_RU") {
@@ -188,8 +201,7 @@ class ListFragmentAndroidTest {
         }
 
         mCoroutineScope.launch {
-            itemsCount =
-                (listFragment as ListFragment).listViewModel.database.getListItems()?.size ?: 0
+            itemsCount = database.getListItems()?.size ?: 0
         }
         Thread.sleep(2000)
         onView(withId(R.id.ButtonDelete)).perform(click())
@@ -208,8 +220,7 @@ class ListFragmentAndroidTest {
                 )
             )
         mCoroutineScope.launch {
-            itemsCountActual =
-                (listFragment as ListFragment).listViewModel.database.getListItems()?.size ?: 0
+            itemsCountActual = database.getListItems()?.size ?: 0
         }
         Thread.sleep(2000)
 
@@ -249,7 +260,7 @@ class ListFragmentAndroidTest {
             onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is off. "))))
         }
         mCoroutineScope.launch {
-            item = (listFragment as ListFragment).listViewModel.database.getItem()
+            item = database.getItem()
             active = item?.active
         }
         Thread.sleep(2000)
@@ -269,7 +280,7 @@ class ListFragmentAndroidTest {
             onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is on. "))))
         }
         mCoroutineScope.launch {
-            item = (listFragment as ListFragment).listViewModel.database.getItem()
+            item = database.getItem()
             activeActual = item?.active
             nearestDate = item?.nearestDate
 
@@ -328,8 +339,7 @@ class ListFragmentAndroidTest {
         listFragment?.listViewModel?.setNearestDate(true)
         val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
         mCoroutineScope.launch {
-            val list =
-                listFragment?.listViewModel?.database?.getListItems()
+            val list = database.getListItems()
             if (list != null && list.isNotEmpty()) {
                 list.filter { it.active }.let { listF ->
                     if (listF.isNotEmpty()) {
@@ -347,6 +357,33 @@ class ListFragmentAndroidTest {
         onView(withId(R.id.toolbar_title)).check(matches(withText(actualToolbarTitle)))
         onView(withId(R.id.toolbar_title)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
         onView(withId(R.id.toolbar_nearestDate)).check(matches(withText(actualNearestDateStr)))
+    }
+
+    @Test
+    fun check_SpecialDate() {
+
+        val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
+
+        launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat)
+
+        onView(withId(R.id.ButtonPlus)).perform(click())
+
+        mCoroutineScope.launch {
+            val item = database.getItem()
+            item?.specialDateStr = "22.22.2222"
+            database.update(item!!)
+        }
+
+        onView(withId(R.id.list))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(
+                    0,
+                    clickElementOnView(R.id.switch_active)
+                )
+            )
+        Thread.sleep(1000)
+        onView(withText("22.22.2222")).check(matches(isDisplayed()))
+
     }
 
     @Test

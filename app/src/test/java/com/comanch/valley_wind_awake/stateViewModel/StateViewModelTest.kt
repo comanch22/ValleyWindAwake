@@ -1,14 +1,11 @@
 package com.comanch.valley_wind_awake.stateViewModel
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.comanch.valley_wind_awake.LiveDataEvent
-import com.comanch.valley_wind_awake.frontListFragment.ListViewModel
 import com.comanch.valley_wind_awake.getOrAwaitValue
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.kotlin.mock
 
 class StateViewModelTest{
 
@@ -82,7 +79,7 @@ class StateViewModelTest{
         viewModel.setNumbersTimer("1000AM")
         viewModel.setSpecialDate("22222022")
 
-        viewModel.restoreSpecialDateAndTimer()
+        viewModel.restoreTimer()
 
         val actualNumbersTimer = viewModel.numbersTimer.getOrAwaitValue()
         assertEquals("1000AM", actualNumbersTimer.getContentIfNotHandled())

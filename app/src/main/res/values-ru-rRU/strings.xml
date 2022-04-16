@@ -105,5 +105,6 @@
     <string name="reset_character">обнулить набранный символ</string>
     <string name="cannot_deleted">нельзя удалить стандартный рингтон</string>
     <string name="choose_a_ringtone">не выбрана мелодия</string>
+    <string name="incorrect_special_date">время выбранной календарной даты истекло</string>
 
 </resources>

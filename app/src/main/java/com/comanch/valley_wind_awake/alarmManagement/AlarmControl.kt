@@ -4,22 +4,28 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.preference.PreferenceManager
+import com.comanch.valley_wind_awake.DefaultPreference
 import com.comanch.valley_wind_awake.stringKeys.IntentKeys
 import com.comanch.valley_wind_awake.MainActivity
-import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
 import com.comanch.valley_wind_awake.broadcastreceiver.AlarmReceiver
 import com.comanch.valley_wind_awake.dataBase.TimeData
 import com.comanch.valley_wind_awake.dataBase.TimeDataDao
 import com.comanch.valley_wind_awake.stringKeys.OperationKey
+import com.comanch.valley_wind_awake.stringKeys.PreferenceKeys
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
-class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationContext val context: Context) {
+class AlarmControl @Inject constructor(
+    val database: TimeDataDao,
+    @ApplicationContext val context: Context
+) {
 
     var timeData: TimeData? = null
+
+    @Inject
+    lateinit var preferences: DefaultPreference
 
     suspend fun restartAlarm() {
 
@@ -31,7 +37,7 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
         }
     }
 
-    fun createCalendarList(item: TimeData): MutableList<Calendar> {
+    private fun createCalendarList(item: TimeData): MutableList<Calendar> {
 
         val calendarList = mutableListOf<Calendar>()
         setContentDescriptionPart1(item)
@@ -74,8 +80,6 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
                         SimpleDateFormat(
                             "dd-MM-yyyy HH:mm", Locale.US
                         ).format(calendarList[0].time)
-            val cal = Calendar.getInstance()
-            cal.timeInMillis = item.nearestDate
         }
     }
 
@@ -90,123 +94,139 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
             " the days of the week are marked. "
         )
 
-        var oneInstance = true
+        var simpleCondition = true
+        var isRepeat = false
+        if (item.specialDate > 0L) {
+            simpleCondition = false
+            if (item.specialDate > Calendar.getInstance().timeInMillis) {
+                val calendar = Calendar.getInstance()
 
-        if (item.mondayOn) {
-            setDayOfWeek(Calendar.MONDAY, item, calendarList)
-            setContentDescriptionPart2(
-                item,
-                " понедельник. ",
-                " monday. "
-            )
-            oneInstance = false
-        }
+                item.contentDescriptionRu12 +=
+                    "дополнительно указанная дата срабатывания сигнала. " +
+                            SimpleDateFormat(
+                                "yyyy-MM-dd", Locale("ru", "RU")
+                            ).format(item.specialDate) + ". "
+                item.contentDescriptionRu24 +=
+                    "дополнительно указанная дата срабатывания сигнала. " +
+                            SimpleDateFormat(
+                                "yyyy-MM-dd", Locale("ru", "RU")
+                            ).format(item.specialDate) + ". "
+                item.contentDescriptionEn12 +=
+                    "additionally, the specified date of the alarm. " +
+                            SimpleDateFormat(
+                                "yyyy-MM-dd", Locale.US
+                            ).format(item.specialDate) + ". "
+                item.contentDescriptionEn24 +=
+                    "additionally, the specified date of the alarm. " +
+                            SimpleDateFormat(
+                                "yyyy-MM-dd", Locale.US
+                            ).format(item.specialDate) + ". "
 
-        if (item.tuesdayOn) {
-            setDayOfWeek(Calendar.TUESDAY, item, calendarList)
-            setContentDescriptionPart2(
-                item,
-                " вторник. ",
-                " tuesday. "
-            )
-            oneInstance = false
-        }
-
-        if (item.wednesdayOn) {
-            setDayOfWeek(Calendar.WEDNESDAY, item, calendarList)
-            setContentDescriptionPart2(
-                item,
-                " среда. ",
-                " wednesday. "
-            )
-            oneInstance = false
-        }
-
-        if (item.thursdayOn) {
-            setDayOfWeek(Calendar.THURSDAY, item, calendarList)
-            setContentDescriptionPart2(
-                item,
-                " четверг. ",
-                " thursday. "
-            )
-            oneInstance = false
-        }
-
-        if (item.fridayOn) {
-            setDayOfWeek(Calendar.FRIDAY, item, calendarList)
-            setContentDescriptionPart2(
-                item,
-                " пятница. ",
-                " friday. "
-            )
-            oneInstance = false
-        }
-
-        if (item.saturdayOn) {
-            setDayOfWeek(Calendar.SATURDAY, item, calendarList)
-            setContentDescriptionPart2(
-                item,
-                " суббота. ",
-                " saturday. "
-            )
-            oneInstance = false
-        }
-
-        if (item.sundayOn) {
-            setDayOfWeek(Calendar.SUNDAY, item, calendarList)
-            setContentDescriptionPart2(
-                item,
-                " воскресенье. ",
-                " sunday. "
-            )
-            oneInstance = false
-        }
-
-        if (item.delayTime != 0L) {
-            val calendar = Calendar.getInstance()
-            if (calendar.timeInMillis <= item.delayTime) {
-                calendar.timeInMillis = item.delayTime
+                calendar.timeInMillis = item.specialDate
                 calendar.clear(Calendar.MILLISECOND)
                 calendarList.add(calendar)
-            }
-        }
-
-        if (item.specialDate > 0L) {
-            val calendar = Calendar.getInstance()
-
-            item.contentDescriptionRu12 +=
-                "дополнительно указанная дата срабатывания сигнала. " +
-                        SimpleDateFormat(
-                            "yyyy-MM-dd", Locale("ru", "RU")
-                        ).format(item.specialDate) + ". "
-            item.contentDescriptionRu24 +=
-                "дополнительно указанная дата срабатывания сигнала. " +
-                        SimpleDateFormat(
-                            "yyyy-MM-dd", Locale("ru", "RU")
-                        ).format(item.specialDate) + ". "
-            item.contentDescriptionEn12 +=
-                "additionally, the specified date of the alarm. " +
-                        SimpleDateFormat(
-                            "yyyy-MM-dd", Locale.US
-                        ).format(item.specialDate) + ". "
-            item.contentDescriptionEn24 +=
-                "additionally, the specified date of the alarm. " +
-                        SimpleDateFormat(
-                            "yyyy-MM-dd", Locale.US
-                        ).format(item.specialDate) + ". "
-
-            calendar.timeInMillis = item.specialDate
-            calendar.clear(Calendar.MILLISECOND)
-            if (calendarList.find {
+                /* if (calendarList.find {
                     it.clear(Calendar.MILLISECOND)
                     it.time.compareTo(calendar.time) == 0
                 } == null && calendar.timeInMillis > Calendar.getInstance().timeInMillis) {
                 calendarList.add(calendar)
+            }*/
+            }else{
+               /* clearSpecialDate(item)
+                clearNearestDate(item)*/
+                return calendarList.clear()
             }
         }
 
-        if (oneInstance && item.specialDate == 0L && item.delayTime == 0L) {
+            if (item.mondayOn) {
+                setDayOfWeek(Calendar.MONDAY, item, calendarList)
+                setContentDescriptionPart2(
+                    item,
+                    " понедельник. ",
+                    " monday. "
+                )
+                simpleCondition = false
+                isRepeat = true
+    }
 
+            if (item.tuesdayOn) {
+                setDayOfWeek(Calendar.TUESDAY, item, calendarList)
+                setContentDescriptionPart2(
+                    item,
+                    " вторник. ",
+                    " tuesday. "
+                )
+                simpleCondition = false
+                isRepeat = true
+            }
+
+            if (item.wednesdayOn) {
+                setDayOfWeek(Calendar.WEDNESDAY, item, calendarList)
+                setContentDescriptionPart2(
+                    item,
+                    " среда. ",
+                    " wednesday. "
+                )
+                simpleCondition = false
+                isRepeat = true
+            }
+
+            if (item.thursdayOn) {
+                setDayOfWeek(Calendar.THURSDAY, item, calendarList)
+                setContentDescriptionPart2(
+                    item,
+                    " четверг. ",
+                    " thursday. "
+                )
+                simpleCondition = false
+                isRepeat = true
+            }
+
+            if (item.fridayOn) {
+                setDayOfWeek(Calendar.FRIDAY, item, calendarList)
+                setContentDescriptionPart2(
+                    item,
+                    " пятница. ",
+                    " friday. "
+                )
+                simpleCondition = false
+                isRepeat = true
+            }
+
+            if (item.saturdayOn) {
+                setDayOfWeek(Calendar.SATURDAY, item, calendarList)
+                setContentDescriptionPart2(
+                    item,
+                    " суббота. ",
+                    " saturday. "
+                )
+                simpleCondition = false
+                isRepeat = true
+            }
+
+            if (item.sundayOn) {
+                setDayOfWeek(Calendar.SUNDAY, item, calendarList)
+                setContentDescriptionPart2(
+                    item,
+                    " воскресенье. ",
+                    " sunday. "
+                )
+                simpleCondition = false
+                isRepeat = true
+            }
+
+            if (item.delayTime != 0L) {
+                val calendar = Calendar.getInstance()
+                if (calendar.timeInMillis <= item.delayTime) {
+                    calendar.timeInMillis = item.delayTime
+                    calendar.clear(Calendar.MILLISECOND)
+                    calendarList.add(calendar)
+                    simpleCondition = false
+                }
+
+        }
+
+        if (simpleCondition) {
             val calendar = Calendar.getInstance()
             setTimeCalendar(calendar, item)
             if (calendar.timeInMillis < Calendar.getInstance().timeInMillis) {
@@ -215,7 +235,7 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
             calendarList.add(calendar)
         }
 
-        item.oneInstance = calendarList.size <= 1 && oneInstance
+        item.oneInstance = calendarList.size <= 1 && !isRepeat
     }
 
     private fun setDayOfWeek(day: Int, item: TimeData, calendarList: MutableList<Calendar>) {
@@ -244,13 +264,12 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
         val item = timeData?.timeId?.let { database.get(it) } ?: return "error"
         when (typeOperation) {
             AlarmTypeOperation.SAVE -> {
-                if (item.oneInstance &&
-                    item.specialDate != 0L &&
-                    item.specialDate < Calendar.getInstance().timeInMillis
-                ) {
+                if (onAlarm(item) == OperationKey.incorrectSpecialDate){
+                    return OperationKey.incorrectSpecialDate
+                }
+                if (item.nearestDate == 0L) {
                     return OperationKey.incorrectDate
                 }
-                onAlarm(item)
                 item.active = true
                 database.update(item)
             }
@@ -260,6 +279,7 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
                 } else {
                     onAlarm(item)
                 }
+                clearSpecialDate(item)
                 database.update(item)
             }
 
@@ -268,24 +288,23 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
             }
             AlarmTypeOperation.SWITCH -> {
                 if (item.active) {
+                    clearSpecialDate(item)
                     offAlarm(item)
                     item.active = false
                     database.update(item)
                     return OperationKey.successOff
                 } else {
-                    if (item.oneInstance &&
-                        item.specialDate != 0L &&
-                        item.specialDate < Calendar.getInstance().timeInMillis
-                    ) {
+                    onAlarm(item)
+                    if (item.nearestDate == 0L) {
                         return OperationKey.incorrectDate
                     }
-                    onAlarm(item)
                     item.active = true
                     database.update(item)
                     return OperationKey.successOn
                 }
             }
             AlarmTypeOperation.PAUSE -> {
+                clearSpecialDate(item)
                 offAlarm(item)
                 item.active = false
                 delaySignal(item)
@@ -297,9 +316,12 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
         return "success"
     }
 
-    private fun onAlarm(item: TimeData, isRestart: Boolean = false) {
+    private fun onAlarm(item: TimeData, isRestart: Boolean = false): String {
 
         val calendarList = createCalendarList(item)
+        if (calendarList.isNullOrEmpty()){
+            return OperationKey.incorrectSpecialDate
+        }
 
         if (calendarList.size > 0) {
             val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -319,6 +341,7 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
                 count++
             }
         }
+        return ""
     }
 
     private fun offAlarm(item: TimeData) {
@@ -340,12 +363,21 @@ class AlarmControl @Inject constructor(val database: TimeDataDao, @ApplicationCo
 
     fun delaySignal(item: TimeData) {
 
-        val defaultPreference = PreferenceManager.getDefaultSharedPreferences(context)
-            .getString(PreferenceKeys.pauseDuration, "5") ?: "5"
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.SECOND, 0)
         calendar.clear(Calendar.MILLISECOND)
-        item.delayTime = calendar.timeInMillis + defaultPreference.toInt() * 60000
+        item.delayTime =
+            calendar.timeInMillis + (preferences.getString(PreferenceKeys.pauseDuration)).toInt() * 60000
+    }
+
+    private fun clearSpecialDate(item: TimeData) {
+
+        if (item.specialDate > 0L) {
+            if (Calendar.getInstance().timeInMillis > item.specialDate) {
+                item.specialDate = 0L
+                item.specialDateStr = ""
+            }
+        }
     }
 
     private fun createPendingIntent(

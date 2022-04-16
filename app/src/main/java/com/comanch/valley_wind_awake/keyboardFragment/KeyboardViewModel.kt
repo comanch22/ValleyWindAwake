@@ -6,14 +6,15 @@ import com.comanch.valley_wind_awake.dataBase.TimeData
 import com.comanch.valley_wind_awake.dataBase.TimeDataDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class KeyboardViewModel @Inject constructor
-    (private val savedStateHandle: SavedStateHandle,
-     val database: TimeDataDao) :
+    (
+    private val savedStateHandle: SavedStateHandle,
+    val database: TimeDataDao
+) :
     ViewModel() {
 
     private var ringtoneUri: String = ""
@@ -180,9 +181,9 @@ class KeyboardViewModel @Inject constructor
                 localItemId = itemId
             }
             Correspondent.FragmentRotation -> {
-                if (_ringtoneTitle.isNotEmpty()){
+                if (_ringtoneTitle.isNotEmpty()) {
                     _setRingtoneTitle.value = LiveDataEvent(_ringtoneTitle)
-                }else{
+                } else {
                     viewModelScope.launch {
                         val item = database.get(itemId) ?: return@launch
                         _setRingtoneTitle.value = LiveDataEvent(item.ringtoneTitle)
@@ -229,20 +230,15 @@ class KeyboardViewModel @Inject constructor
                 item.fridayOn = newTime.fridayOn
                 item.saturdayOn = newTime.saturdayOn
                 item.sundayOn = newTime.sundayOn
-
-                if (newTime.specialDate > 0L) {
+                if (specialDate.value ?: 0 > 0L){
                     val calendar = Calendar.getInstance()
-                    calendar.timeInMillis = newTime.specialDate
+                    calendar.timeInMillis = specialDate.value!!
                     when (is24HourFormat.value) {
                         true -> {
                             calendar.set(Calendar.HOUR_OF_DAY, "${item.s1}${item.s2}".toInt())
                             calendar.set(Calendar.MINUTE, "${item.s3}${item.s4}".toInt())
                             calendar.set(Calendar.SECOND, 0)
                             calendar.clear(Calendar.MILLISECOND)
-                            item.specialDateStr = SimpleDateFormat(
-                                "dd.MM.yyyy HH:mm",
-                                Locale.US
-                            ).format(calendar.time)
                         }
                         false -> {
                             calendar.set(Calendar.HOUR, "${item.s1}${item.s2}".toInt())
@@ -253,21 +249,53 @@ class KeyboardViewModel @Inject constructor
                             )
                             calendar.set(Calendar.SECOND, 0)
                             calendar.clear(Calendar.MILLISECOND)
-                            item.specialDateStr = SimpleDateFormat(
-                                "dd.MM.yyyy hh:mm a",
-                                Locale.US
-                            ).format(calendar.time)
                         }
                         else -> {
-                            _errorForUser.value = "error, restart app"
+
                         }
                     }
                     item.specialDate = calendar.timeInMillis
-                } else {
-                    item.specialDate = newTime.specialDate
-                    item.specialDateStr = newTime.specialDateStr
                 }
-
+                /*   if (newTime.specialDate > 0L) {
+                       val calendar = Calendar.getInstance()
+                       calendar.timeInMillis = newTime.specialDate
+                       when (is24HourFormat.value) {
+                           true -> {
+                               calendar.set(Calendar.HOUR_OF_DAY, "${item.s1}${item.s2}".toInt())
+                               calendar.set(Calendar.MINUTE, "${item.s3}${item.s4}".toInt())
+                               calendar.set(Calendar.SECOND, 0)
+                               calendar.clear(Calendar.MILLISECOND)
+                               item.specialDateStr = SimpleDateFormat(
+                                   "dd.MM.yyyy HH:mm",
+                                   Locale.US
+                               ).format(calendar.time)
+                           }
+                           false -> {
+                               calendar.set(Calendar.HOUR, "${item.s1}${item.s2}".toInt())
+                               calendar.set(Calendar.MINUTE, "${item.s3}${item.s4}".toInt())
+                               calendar.set(
+                                   Calendar.AM_PM,
+                                   if (ampm.value == "PM") Calendar.PM else Calendar.AM
+                               )
+                               calendar.set(Calendar.SECOND, 0)
+                               calendar.clear(Calendar.MILLISECOND)
+                               item.specialDateStr = SimpleDateFormat(
+                                   "dd.MM.yyyy hh:mm a",
+                                   Locale.US
+                               ).format(calendar.time)
+                           }
+                           else -> {
+                               _errorForUser.value = "error, restart app"
+                           }
+                       }
+                       item.specialDate = calendar.timeInMillis
+                   } else {
+                       item.specialDate = newTime.specialDate
+                       item.specialDateStr = newTime.specialDateStr
+                   }
+   */
+              //  item.specialDate = newTime.specialDate
+                item.specialDateStr = newTime.specialDateStr
                 if (item.timeId < 999999999) {
                     item.requestCode = item.timeId.toInt()
                 } else {
@@ -312,7 +340,7 @@ class KeyboardViewModel @Inject constructor
         newTime.saturdayOn = _saturday.value == true
         newTime.sundayOn = _sunday.value == true
         newTime.specialDateStr = specialDateStr.value ?: ""
-        newTime.specialDate = specialDate.value ?: 0L
+      //  newTime.specialDate = specialDate.value ?: 0L
         newTime.ampm = ampm.value ?: "AM"
 
         return newTime
@@ -402,8 +430,10 @@ class KeyboardViewModel @Inject constructor
     private fun backSpaceNumber() {
 
         var positionOnTimer = savedStateHandle.getLiveData("positionOnTimer", 1).value ?: 1
-        val deleteNumber = savedStateHandle.getLiveData("inputNumberFromTimer", false).value ?: false
-        val stopDeleteNumbers = savedStateHandle.getLiveData("stopDeleteNumbers", false).value ?: false
+        val deleteNumber =
+            savedStateHandle.getLiveData("inputNumberFromTimer", false).value ?: false
+        val stopDeleteNumbers =
+            savedStateHandle.getLiveData("stopDeleteNumbers", false).value ?: false
         if (!stopDeleteNumbers) {
             if (deleteNumber) {
                 when (positionOnTimer) {
@@ -489,6 +519,12 @@ class KeyboardViewModel @Inject constructor
     fun clearSpecialDate() {
         _specialDateStr.value = ""
         _specialDate.value = 0L
+        viewModelScope.launch {
+            val item = database.get(localItemId) ?: return@launch
+            item.specialDate = 0L
+            item.specialDateStr = ""
+            database.update(item)
+        }
     }
 
     fun setSpecialDate(specialDate: Long) {

@@ -151,10 +151,6 @@ class StateViewModel : ViewModel() {
         setRingtoneTitle = s
     }
 
-    fun getSpecialDate(): String? {
-        return setSpecialDate
-    }
-
     fun getNumbersTimer(): String? {
         return setNumbersTimer
     }
@@ -163,8 +159,7 @@ class StateViewModel : ViewModel() {
         return setIs24HourFormat
     }
 
-    fun restoreSpecialDateAndTimer() {
-        _specialDate.value = LiveDataEvent(setSpecialDate)
+    fun restoreTimer() {
         _numbersTimer.value = LiveDataEvent(setNumbersTimer)
     }
 

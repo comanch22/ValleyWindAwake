@@ -100,6 +100,7 @@ class RingtoneCustomPickerFragmentTest {
         assertEquals(navController.currentDestination?.id, R.id.ringtonePickerFragment)
     }
 
+    // need ringtone
     @Test
     fun check_Ok() {
 
@@ -111,6 +112,7 @@ class RingtoneCustomPickerFragmentTest {
             Navigation.setViewNavController(this.requireView(), navController)
             navController.setCurrentDestination(R.id.ringtoneCustomPickerFragment, bundle)
         }
+        Thread.sleep(2000)
         onView(withId(R.id.RingtoneList))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<RecyclerView.ViewHolder>(

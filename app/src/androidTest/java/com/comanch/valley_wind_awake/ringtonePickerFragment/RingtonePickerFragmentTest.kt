@@ -453,8 +453,8 @@ class RingtonePickerFragmentTest {
         assertEquals(false, musicNoPlay)
 
         assertEquals(
-            7, (ringtoneFragment as RingtonePickerFragment)
-                .mService?.getVolume()
+            true, ((ringtoneFragment as RingtonePickerFragment)
+                .mService?.getVolume()) in 6..15
         )
 
     }

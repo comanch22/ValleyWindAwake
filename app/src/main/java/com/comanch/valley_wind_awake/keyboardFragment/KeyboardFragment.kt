@@ -209,6 +209,7 @@ class KeyboardFragment : Fragment() {
                                     ).show()
                                 }
                                 OperationKey.incorrectSpecialDate -> {
+                                    keyboardViewModel.setTimerNumbers(it)
                                     Toast.makeText(
                                         context,
                                         resources.getString(R.string.incorrect_special_date),
@@ -242,7 +243,22 @@ class KeyboardFragment : Fragment() {
         }
 
         keyboardViewModel.errorForUser.observe(viewLifecycleOwner) {
-            Toast.makeText(context, it,Toast.LENGTH_SHORT).show()
+            it?.let {
+                var message = ""
+                when (it) {
+                    "reinstall" -> {
+                        message = resources.getString(R.string.reinstall)
+                    }
+                    "restart" -> {
+                        message = resources.getString(R.string.restart)
+                    }
+                }
+                Toast.makeText(
+                    context,
+                    message,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
 
         keyboardViewModel.save.observe(viewLifecycleOwner) {

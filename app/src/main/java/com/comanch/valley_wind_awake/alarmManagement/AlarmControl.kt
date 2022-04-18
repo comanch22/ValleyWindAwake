@@ -280,6 +280,7 @@ class AlarmControl @Inject constructor(
                     onAlarm(item)
                 }
                 clearSpecialDate(item)
+                clearDelayTime(item)
                 database.update(item)
             }
 
@@ -377,6 +378,13 @@ class AlarmControl @Inject constructor(
                 item.specialDate = 0L
                 item.specialDateStr = ""
             }
+        }
+    }
+
+    private fun clearDelayTime(item: TimeData) {
+
+        if (item.delayTime > 0L) {
+                item.delayTime = 0L
         }
     }
 

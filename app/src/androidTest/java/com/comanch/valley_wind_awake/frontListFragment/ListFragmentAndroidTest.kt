@@ -1,5 +1,6 @@
 package com.comanch.valley_wind_awake.frontListFragment
 
+import android.app.Activity
 import android.content.res.Resources
 import android.os.Bundle
 import android.view.View
@@ -390,13 +391,16 @@ class ListFragmentAndroidTest {
     fun check_arrowBack() {
 
         var listFragment: Fragment? = null
+        var activity: Activity? = null
 
         launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
             listFragment = this
+            activity = listFragment?.activity
         }
         Thread.sleep(1000)
         onView(withId(R.id.arrow_back)).perform(click())
-        assertEquals(true, listFragment?.activity?.isFinishing)
+        Thread.sleep(1000)
+        assertEquals(true, activity?.isFinishing)
     }
 
 

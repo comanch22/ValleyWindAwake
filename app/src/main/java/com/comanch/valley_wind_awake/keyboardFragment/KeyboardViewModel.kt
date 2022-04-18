@@ -10,12 +10,10 @@ import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
-class KeyboardViewModel @Inject constructor
-    (
+class KeyboardViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     val database: TimeDataDao
-) :
-    ViewModel() {
+) : ViewModel() {
 
     private var ringtoneUri: String = ""
     var localItemId = -1L
@@ -137,21 +135,7 @@ class KeyboardViewModel @Inject constructor
             Correspondent.ListFragment -> {
                 viewModelScope.launch {
                     val item = database.get(itemId) ?: return@launch
-                    when (is24HourFormat.value) {
-                        true -> {
-                            _s1.value = item.hhmm24[0].toString()
-                            _s2.value = item.hhmm24[1].toString()
-                            _s3.value = item.hhmm24[2].toString()
-                            _s4.value = item.hhmm24[3].toString()
-                        }
-                        false -> {
-                            _s1.value = item.hhmm12[0].toString()
-                            _s2.value = item.hhmm12[1].toString()
-                            _s3.value = item.hhmm12[2].toString()
-                            _s4.value = item.hhmm12[3].toString()
-                        }
-                        else -> {}
-                    }
+                    setTimerNumbers(item)
                     _ampm.value = item.ampm
                     _monday.value = item.mondayOn
                     _tuesday.value = item.tuesdayOn
@@ -205,6 +189,22 @@ class KeyboardViewModel @Inject constructor
         }
     }
 
+    fun setTimerNumbers(item: TimeData) {
+
+        if (is24HourFormat.value == true) {
+                _s1.value = item.hhmm24[0].toString()
+                _s2.value = item.hhmm24[1].toString()
+                _s3.value = item.hhmm24[2].toString()
+                _s4.value = item.hhmm24[3].toString()
+            }
+            else{
+                _s1.value = item.hhmm12[0].toString()
+                _s2.value = item.hhmm12[1].toString()
+                _s3.value = item.hhmm12[2].toString()
+                _s4.value = item.hhmm12[3].toString()
+            }
+    }
+
     fun prepareSave() {
 
         _hhmmSave.value = "${s1.value}${s2.value}${s3.value}${s4.value}"
@@ -256,50 +256,11 @@ class KeyboardViewModel @Inject constructor
                     }
                     item.specialDate = calendar.timeInMillis
                 }
-                /*   if (newTime.specialDate > 0L) {
-                       val calendar = Calendar.getInstance()
-                       calendar.timeInMillis = newTime.specialDate
-                       when (is24HourFormat.value) {
-                           true -> {
-                               calendar.set(Calendar.HOUR_OF_DAY, "${item.s1}${item.s2}".toInt())
-                               calendar.set(Calendar.MINUTE, "${item.s3}${item.s4}".toInt())
-                               calendar.set(Calendar.SECOND, 0)
-                               calendar.clear(Calendar.MILLISECOND)
-                               item.specialDateStr = SimpleDateFormat(
-                                   "dd.MM.yyyy HH:mm",
-                                   Locale.US
-                               ).format(calendar.time)
-                           }
-                           false -> {
-                               calendar.set(Calendar.HOUR, "${item.s1}${item.s2}".toInt())
-                               calendar.set(Calendar.MINUTE, "${item.s3}${item.s4}".toInt())
-                               calendar.set(
-                                   Calendar.AM_PM,
-                                   if (ampm.value == "PM") Calendar.PM else Calendar.AM
-                               )
-                               calendar.set(Calendar.SECOND, 0)
-                               calendar.clear(Calendar.MILLISECOND)
-                               item.specialDateStr = SimpleDateFormat(
-                                   "dd.MM.yyyy hh:mm a",
-                                   Locale.US
-                               ).format(calendar.time)
-                           }
-                           else -> {
-                               _errorForUser.value = "error, restart app"
-                           }
-                       }
-                       item.specialDate = calendar.timeInMillis
-                   } else {
-                       item.specialDate = newTime.specialDate
-                       item.specialDateStr = newTime.specialDateStr
-                   }
-   */
-              //  item.specialDate = newTime.specialDate
                 item.specialDateStr = newTime.specialDateStr
                 if (item.timeId < 999999999) {
                     item.requestCode = item.timeId.toInt()
                 } else {
-                    _errorForUser.value = "переустановите приложение"
+                    _errorForUser.value = "reinstall"
                     return@launch
                 }
                 item.ringtoneUri = ringtoneUri
@@ -329,7 +290,7 @@ class KeyboardViewModel @Inject constructor
             newTime.hhmm12 = hhmm12.value ?: "1200"
             newTime.hhmm24 = hhmm24.value ?: "0000"
         } else {
-            _errorForUser.value = "error, restart app"
+            _errorForUser.value = "restart"
         }
         newTime.active = true
         newTime.mondayOn = _monday.value == true
@@ -340,7 +301,6 @@ class KeyboardViewModel @Inject constructor
         newTime.saturdayOn = _saturday.value == true
         newTime.sundayOn = _sunday.value == true
         newTime.specialDateStr = specialDateStr.value ?: ""
-      //  newTime.specialDate = specialDate.value ?: 0L
         newTime.ampm = ampm.value ?: "AM"
 
         return newTime

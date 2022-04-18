@@ -758,7 +758,7 @@ class KeyboardFragmentTest {
         onView(withId(R.id.ampmKey)).check(matches(not(isDisplayed())))
 
         onView(withId(R.id.textViewKeySave)).perform(click())
-        Thread.sleep(2000)
+        Thread.sleep(4000)
 
         launchFragmentInHiltContainer<KeyboardFragment>(
             Bundle().apply {
@@ -775,7 +775,7 @@ class KeyboardFragmentTest {
             keyFragment = this
             (keyFragment as KeyboardFragment).keyboardViewModel.setIs24HourFormat(false)
         }
-        Thread.sleep(2000)
+        Thread.sleep(4000)
 
         onView(withId(R.id.ampm)).check(matches(isDisplayed()))
         onView(withId(R.id.ampmKey)).check(matches(isDisplayed()))

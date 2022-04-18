@@ -77,14 +77,10 @@ class StateViewModelTest{
     fun check_restoreSpecialDateAndTimer() {
 
         viewModel.setNumbersTimer("1000AM")
-        viewModel.setSpecialDate("22222022")
 
         viewModel.restoreTimer()
 
         val actualNumbersTimer = viewModel.numbersTimer.getOrAwaitValue()
         assertEquals("1000AM", actualNumbersTimer.getContentIfNotHandled())
-
-        val actualSpecialDate = viewModel.specialDate.getOrAwaitValue()
-        assertEquals("22222022", actualSpecialDate.getContentIfNotHandled())
     }
 }

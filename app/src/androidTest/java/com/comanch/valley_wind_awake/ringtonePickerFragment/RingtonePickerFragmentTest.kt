@@ -1,6 +1,7 @@
 package com.comanch.valley_wind_awake.ringtonePickerFragment
 
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.SeekBar
@@ -327,9 +328,11 @@ class RingtonePickerFragmentTest {
         if (listSizeAfter == null
             || listSizeBefore?.minus(1) ?: -1 != listSizeAfter
         ) {
-            onView(withText(cannotDelete))
-                .inRoot(RootMatchers.withDecorView(not(ringtoneFragment?.activity?.window?.decorView)))
-                .check(matches(isDisplayed()))
+            if (Build.VERSION.SDK_INT <= 29) {
+                onView(withText(cannotDelete))
+                    .inRoot(RootMatchers.withDecorView(not(ringtoneFragment?.activity?.window?.decorView)))
+                    .check(matches(isDisplayed()))
+            }
         } else {
             val itemCountAfter: Int = (ringtoneFragment as RingtonePickerFragment).adapter.itemCount
             assertEquals(itemCountBefore - 1, itemCountAfter)
@@ -373,10 +376,11 @@ class RingtonePickerFragmentTest {
         Thread.sleep(1000)
 
         onView(withId(R.id.fabDelete)).perform(click())
-        onView(withText(cannotDelete))
-            .inRoot(RootMatchers.withDecorView(not(ringtoneFragment?.activity?.window?.decorView)))
-            .check(matches(isDisplayed()))
-
+        if (Build.VERSION.SDK_INT <= 29) {
+            onView(withText(cannotDelete))
+                .inRoot(RootMatchers.withDecorView(not(ringtoneFragment?.activity?.window?.decorView)))
+                .check(matches(isDisplayed()))
+        }
         Thread.sleep(3000)
 
         onView(withId(R.id.RingtoneList))
@@ -389,15 +393,19 @@ class RingtonePickerFragmentTest {
         Thread.sleep(1000)
 
         onView(withId(R.id.Ok)).perform(click())
-        onView(withText(chooseRingtone))
-            .inRoot(RootMatchers.withDecorView(not(ringtoneFragment?.activity?.window?.decorView)))
-            .check(matches(isDisplayed()))
+        if (Build.VERSION.SDK_INT <= 29) {
+            onView(withText(chooseRingtone))
+                .inRoot(RootMatchers.withDecorView(not(ringtoneFragment?.activity?.window?.decorView)))
+                .check(matches(isDisplayed()))
+        }
         Thread.sleep(5000)
 
         onView(withId(R.id.fabDelete)).perform(click())
-        onView(withText(chooseRingtone))
-            .inRoot(RootMatchers.withDecorView(not(ringtoneFragment?.activity?.window?.decorView)))
-            .check(matches(isDisplayed()))
+        if (Build.VERSION.SDK_INT <= 29) {
+            onView(withText(chooseRingtone))
+                .inRoot(RootMatchers.withDecorView(not(ringtoneFragment?.activity?.window?.decorView)))
+                .check(matches(isDisplayed()))
+        }
     }
 
     @Test

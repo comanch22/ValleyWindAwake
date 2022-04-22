@@ -74,7 +74,6 @@ class RingtonePickerFragment : Fragment() {
     private var ringtoneSeekPosition: Int = 0
     private val itemNotActive: Int = 0
     private val zeroPosition: Int = 0
-    private var counterPosition = 0
     private var currentRingTonePositionInList: Int = -1
     private val impossiblePositionInList: Int = -1
     private val impossibleMelodyId: Long = -2
@@ -237,7 +236,7 @@ class RingtonePickerFragment : Fragment() {
 
         ringtonePickerViewModel.items.observe(viewLifecycleOwner) {
             it?.let {
-                adapter.setData(it, counterPosition)
+                adapter.setData(it)
             }
         }
 

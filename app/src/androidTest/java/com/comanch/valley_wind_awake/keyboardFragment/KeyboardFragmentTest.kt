@@ -1,6 +1,7 @@
 package com.comanch.valley_wind_awake.keyboardFragment
 
 import android.content.pm.ActivityInfo
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -261,11 +262,11 @@ class KeyboardFragmentTest {
             hours,
             min
         )
-
-        onView(withText(toastOn))
-            .inRoot(RootMatchers.withDecorView(not(keyFragment?.activity?.window?.decorView)))
-            .check(matches(isDisplayed()))
-
+        if (Build.VERSION.SDK_INT <= 29) {
+            onView(withText(toastOn))
+                .inRoot(RootMatchers.withDecorView(not(keyFragment?.activity?.window?.decorView)))
+                .check(matches(isDisplayed()))
+        }
         Thread.sleep(2000)
         assertEquals(s1, s1actual)
         assertEquals(s2, s2actual)
@@ -317,9 +318,11 @@ class KeyboardFragmentTest {
         onView(withId(R.id.textViewKeySave)).perform(click())
         Thread.sleep(1000)
 
-        onView(withText(timeIsOver))
-            .inRoot(RootMatchers.withDecorView(not(keyFragment?.activity?.window?.decorView)))
-            .check(matches(isDisplayed()))
+        if (Build.VERSION.SDK_INT <= 29) {
+            onView(withText(timeIsOver))
+                .inRoot(RootMatchers.withDecorView(not(keyFragment?.activity?.window?.decorView)))
+                .check(matches(isDisplayed()))
+        }
 
         Thread.sleep(4000)
 
@@ -356,10 +359,11 @@ class KeyboardFragmentTest {
         onView(withId(R.id.textViewKeySave)).perform(click())
         Thread.sleep(1000)
 
-        onView(withText(timeSpecialDateisOver))
-            .inRoot(RootMatchers.withDecorView(not(keyFragment?.activity?.window?.decorView)))
-            .check(matches(isDisplayed()))
-
+        if (Build.VERSION.SDK_INT <= 29) {
+            onView(withText(timeSpecialDateisOver))
+                .inRoot(RootMatchers.withDecorView(not(keyFragment?.activity?.window?.decorView)))
+                .check(matches(isDisplayed()))
+        }
     }
 
     @Test

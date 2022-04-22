@@ -2,7 +2,9 @@ package com.comanch.valley_wind_awake.frontListFragment
 
 import android.app.Activity
 import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
@@ -38,6 +40,7 @@ import org.junit.runner.RunWith
 import java.util.Calendar
 import javax.inject.Inject
 
+
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest
@@ -65,10 +68,10 @@ class ListFragmentAndroidTest {
 
     @After
     fun end() {
-        val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
-        mCoroutineScope.launch {
-            database.clear()
-        }
+           val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
+           mCoroutineScope.launch {
+               database.clear()
+           }
     }
 
     @Test
@@ -235,7 +238,6 @@ class ListFragmentAndroidTest {
 
         var listFragment: Fragment? = null
         val mCoroutineScope = CoroutineScope(Job() + Dispatchers.IO)
-        var item: TimeData?
         var active: Boolean? = true
         var activeActual: Boolean? = false
         var toastOff = ""
@@ -243,7 +245,7 @@ class ListFragmentAndroidTest {
         var days = ""
         var hours = ""
         var min = ""
-        var nearestDate: Long?
+        var nearestDate: Long? = 0L
 
         launchFragmentInHiltContainer<ListFragment>(Bundle(), R.style.Theme_AppCompat) {
             listFragment = this
@@ -261,8 +263,7 @@ class ListFragmentAndroidTest {
             onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is off. "))))
         }
         mCoroutineScope.launch {
-            item = database.getItem()
-            active = item?.active
+            active = database.getItem()?.active
         }
         Thread.sleep(2000)
         assertEquals(false, active)
@@ -281,22 +282,24 @@ class ListFragmentAndroidTest {
             onView(withId(R.id.list)).check(matches(hasDescendant(withContentDescription(" the alarm is on. "))))
         }
         mCoroutineScope.launch {
-            item = database.getItem()
-            activeActual = item?.active
-            nearestDate = item?.nearestDate
+            activeActual = database.getItem()?.active
+            nearestDate = database.getItem()?.nearestDate
+        }
+        Thread.sleep(2000)
 
-            toastOn = DateDifference().getResultString(
-                nearestDate?.minus(Calendar.getInstance().timeInMillis) ?: 0,
-                days,
-                hours,
-                min
-            )
+        toastOn = DateDifference().getResultString(
+            nearestDate?.minus(Calendar.getInstance().timeInMillis) ?: 0,
+            days,
+            hours,
+            min
+        )
 
+        if (Build.VERSION.SDK_INT <= 29) {
             onView(withText(toastOn))
                 .inRoot(withDecorView(not(listFragment?.activity?.window?.decorView)))
                 .check(matches(isDisplayed()))
         }
-        Thread.sleep(2000)
+        Thread.sleep(1000)
 
         assertEquals(true, activeActual)
         onView(withId(R.id.toolbar_title)).check(matches(withEffectiveVisibility(Visibility.VISIBLE)))
@@ -309,10 +312,11 @@ class ListFragmentAndroidTest {
                     clickElementOnView(R.id.switch_active)
                 )
             )
-
-        onView(withText(toastOff))
-            .inRoot(withDecorView(not(listFragment?.activity?.window?.decorView)))
-            .check(matches(isDisplayed()))
+        if (Build.VERSION.SDK_INT <= 29) {
+            onView(withText(toastOff))
+                .inRoot(withDecorView(not(listFragment?.activity?.window?.decorView)))
+                .check(matches(isDisplayed()))
+        }
     }
 
     @Test

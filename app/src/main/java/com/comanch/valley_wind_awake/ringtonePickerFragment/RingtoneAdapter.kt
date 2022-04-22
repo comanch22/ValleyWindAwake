@@ -27,7 +27,7 @@ class RingtoneAdapter(
 ) :
     ListAdapter<RingtoneData, RecyclerView.ViewHolder>(RingtoneItemDiffCallback()) {
 
-    fun setData(list: List<RingtoneData>, startPos: Int = 0) {
+    fun setData(list: List<RingtoneData>) {
         submitList(list + _ringtoneList)
     }
 

@@ -2,7 +2,6 @@ package com.comanch.valley_wind_awake.frontListFragment
 
 import android.annotation.SuppressLint
 import android.graphics.Typeface
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -211,10 +210,8 @@ class ListItemAdapter(
 
             if (item.delayTime > 0L && item.delayTime > timeInstance) {
                 binding.isDelayed.visibility = View.VISIBLE
-                Log.e("dsfbdfgdgfww", "refresh adapter 1 ${item.delayTime}")
             } else {
                 binding.isDelayed.visibility = View.INVISIBLE
-                Log.e("dsfbdfgdgfww", "refresh adapter 2 ${item.delayTime}")
             }
         }
 

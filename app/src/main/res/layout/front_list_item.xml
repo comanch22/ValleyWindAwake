@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
@@ -35,7 +36,8 @@
 
         <TextView
             android:id="@+id/textViewNumberOne"
-            android:layout_marginStart="36dp"
+            style="@style/front_list_item_numbers"
+            android:layout_marginStart="18dp"
             android:gravity="end"
             app:layout_constraintBottom_toTopOf="@id/barrier5"
             app:layout_constraintEnd_toStartOf="@id/textViewNumberTwo"
@@ -43,8 +45,7 @@
             app:layout_constraintHorizontal_chainStyle="spread"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toStartOf="@id/guideline9"
-            app:layout_constraintTop_toBottomOf="@id/guideline6"
-            style="@style/front_list_item_numbers" />
+            app:layout_constraintTop_toBottomOf="@id/guideline6" />
 
         <TextView
             android:id="@+id/textViewNumberTwo"
@@ -290,6 +291,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:layout_constraintGuide_end="224dp" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="right"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="38dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

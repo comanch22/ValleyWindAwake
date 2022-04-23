@@ -50,5 +50,4 @@ class DetailViewModel @Inject constructor(val database: TimeDataDao) : ViewModel
             _stopPlay.value = LiveDataEvent(1)
         }
     }
-
 }

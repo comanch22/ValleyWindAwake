@@ -38,7 +38,6 @@ import javax.inject.Inject
 class RingtoneService : Service(),
     OnPreparedListener,
     OnErrorListener,
-    OnCompletionListener,
     OnAudioFocusChangeListener {
 
     @Inject
@@ -170,6 +169,11 @@ class RingtoneService : Service(),
     override fun onPrepared(mediaPlayer: MediaPlayer) {
 
         if (requestAudioFocus()) {
+
+            mediaPlayer.setOnCompletionListener {
+                mediaPlayer.start()
+            }
+
             if (isRotation) {
                 pausePosition?.let { mediaPlayer.seekTo(it) }
                 mediaPlayer.start()
@@ -224,11 +228,12 @@ class RingtoneService : Service(),
         return false
     }
 
-    override fun onCompletion(p0: MediaPlayer?) {
+/*    override fun onCompletion(p0: MediaPlayer?) {
 
+        Log.e("fgbnfghfghf", "onCompletion")
         stopPlay()
         stopSelf()
-    }
+    }*/
 
     override fun onDestroy() {
 

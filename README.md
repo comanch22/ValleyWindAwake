@@ -15,7 +15,7 @@ You can clear the alarm list individually or select the "delete all" option in t
   <img src="https://github.com/comanch22/ValleyWindAwake_additional/blob/main/Screenshot_20220425-165632_Valley%20wind%20awake.jpg" width="144" height="256">
 </p>
 
-there is support for two languages (eng and ru), 12/24-hour time formats, the choice of a ringtone, both from the list of standard ringtones and from the melodies stored on the device, screen rotation is supported, settings will allow you to select the default ringtone and its volume, the duration of the signal, the duration of the pause for the signal, turn on vibration and determine the style of the application.
+There is support for two languages (eng and ru), 12/24-hour time formats, the choice of a ringtone, both from the list of standard ringtones and from the melodies stored on the device, screen rotation is supported, settings will allow you to select the default ringtone and its volume, the duration of the signal, the duration of the pause for the signal, turn on vibration and determine the style of the application.
 
 <p align="left">
   <img src="https://github.com/comanch22/ValleyWindAwake_additional/blob/main/Screenshot_20220425-165500_Valley%20wind%20awake.jpg" width="144" height="256">

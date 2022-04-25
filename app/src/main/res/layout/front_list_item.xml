@@ -37,7 +37,7 @@
         <TextView
             android:id="@+id/textViewNumberOne"
             style="@style/front_list_item_numbers"
-            android:layout_marginStart="18dp"
+            android:layout_marginStart="38dp"
             android:gravity="end"
             app:layout_constraintBottom_toTopOf="@id/barrier5"
             app:layout_constraintEnd_toStartOf="@id/textViewNumberTwo"
@@ -283,7 +283,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_end="124dp" />
+            app:layout_constraintGuide_end="120dp" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline15"

@@ -315,7 +315,6 @@ class RingtoneService : Service(),
 
     fun setUri(_stringUri: String) {
         stringUri = _stringUri
-        Log.e("stringUri", "$stringUri")
     }
 
     fun setUri(musicId: Long) {
@@ -325,7 +324,6 @@ class RingtoneService : Service(),
             musicId
         )
         stringUri = contentUri.toString()
-        Log.e("stringUri", "$stringUri")
     }
 
     private fun setUriOnMediaPlayer() {

@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.comanch.valley_wind_awake.LiveDataEvent
 
-
 class StateViewModel : ViewModel() {
 
     private var setS1: String? = null

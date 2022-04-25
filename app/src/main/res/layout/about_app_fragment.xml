@@ -82,13 +82,13 @@
                 android:textColor="?attr/colorSecondary"
                 android:textSize="18sp"
                 android:textIsSelectable="true"
-                app:layout_constraintBottom_toTopOf="@id/diveder"
+                app:layout_constraintBottom_toTopOf="@id/divider"
                 app:layout_constraintEnd_toStartOf="@id/guideline23"
                 app:layout_constraintStart_toStartOf="@id/guideline21"
                 app:layout_constraintTop_toBottomOf="@id/oss_license" />
 
             <TextView
-                android:id="@+id/diveder"
+                android:id="@+id/divider"
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:background="@drawable/divider_about_app"
@@ -109,7 +109,7 @@
                 android:textIsSelectable="true"
                 app:layout_constraintEnd_toStartOf="@id/guideline23"
                 app:layout_constraintStart_toStartOf="@id/guideline21"
-                app:layout_constraintTop_toBottomOf="@id/diveder" />
+                app:layout_constraintTop_toBottomOf="@id/divider" />
 
             <androidx.constraintlayout.widget.Guideline
                 android:id="@+id/guideline21"

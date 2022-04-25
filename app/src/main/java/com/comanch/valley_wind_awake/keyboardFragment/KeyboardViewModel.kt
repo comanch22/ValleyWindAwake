@@ -6,7 +6,7 @@ import com.comanch.valley_wind_awake.dataBase.TimeData
 import com.comanch.valley_wind_awake.dataBase.TimeDataDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Calendar
 import javax.inject.Inject
 
 @HiltViewModel
@@ -101,6 +101,10 @@ class KeyboardViewModel @Inject constructor(
     private var _newAlarm = MutableLiveData<LiveDataEvent<TimeData?>>()
     val newAlarm: LiveData<LiveDataEvent<TimeData?>>
         get() = _newAlarm
+
+    private var _deleteAlarm = MutableLiveData<LiveDataEvent<TimeData?>>()
+    val deleteAlarm: LiveData<LiveDataEvent<TimeData?>>
+        get() = _deleteAlarm
 
     private var _timeToast = MutableLiveData<LiveDataEvent<TimeData?>>()
     val timeToast: LiveData<LiveDataEvent<TimeData?>>
@@ -273,6 +277,15 @@ class KeyboardViewModel @Inject constructor(
             } else {
                 _save.value = LiveDataEvent(2)
             }
+        }
+
+    }
+
+    fun prepareSaveTimer() {
+
+        viewModelScope.launch {
+            val item = database.get(localItemId) ?: return@launch
+            _deleteAlarm.value = LiveDataEvent(item)
         }
     }
 

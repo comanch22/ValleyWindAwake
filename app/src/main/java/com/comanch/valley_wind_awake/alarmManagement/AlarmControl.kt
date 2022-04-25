@@ -125,15 +125,7 @@ class AlarmControl @Inject constructor(
                 calendar.timeInMillis = item.specialDate
                 calendar.clear(Calendar.MILLISECOND)
                 calendarList.add(calendar)
-                /* if (calendarList.find {
-                    it.clear(Calendar.MILLISECOND)
-                    it.time.compareTo(calendar.time) == 0
-                } == null && calendar.timeInMillis > Calendar.getInstance().timeInMillis) {
-                calendarList.add(calendar)
-            }*/
             }else{
-               /* clearSpecialDate(item)
-                clearNearestDate(item)*/
                 return calendarList.clear()
             }
         }
@@ -238,6 +230,63 @@ class AlarmControl @Inject constructor(
         item.oneInstance = calendarList.size <= 1 && !isRepeat
     }
 
+    private fun createOffListCalendars(
+        item: TimeData
+    ): MutableList<Int> {
+        val offList: MutableList<Int> = mutableListOf()
+
+        var simpleCondition = true
+        if (item.specialDate > 0L) {
+            simpleCondition = false
+            offList.add(1)
+        }
+
+        if (item.mondayOn) {
+            offList.add(1)
+            simpleCondition = false
+        }
+
+        if (item.tuesdayOn) {
+            offList.add(1)
+            simpleCondition = false
+        }
+
+        if (item.wednesdayOn) {
+            offList.add(1)
+            simpleCondition = false
+        }
+
+        if (item.thursdayOn) {
+            offList.add(1)
+            simpleCondition = false
+        }
+
+        if (item.fridayOn) {
+            offList.add(1)
+            simpleCondition = false
+        }
+
+        if (item.saturdayOn) {
+            offList.add(1)
+            simpleCondition = false
+        }
+
+        if (item.sundayOn) {
+            offList.add(1)
+            simpleCondition = false
+        }
+
+        if (item.delayTime != 0L) {
+            offList.add(1)
+            simpleCondition = false
+        }
+
+        if (simpleCondition) {
+            offList.add(1)
+        }
+        return offList
+    }
+
     private fun setDayOfWeek(day: Int, item: TimeData, calendarList: MutableList<Calendar>) {
 
         val calendar = Calendar.getInstance()
@@ -277,20 +326,21 @@ class AlarmControl @Inject constructor(
                 if (item.oneInstance) {
                     item.active = false
                 } else {
+                    offAlarm(item)
+                    clearSpecialDate(item)
                     onAlarm(item)
                 }
-                clearSpecialDate(item)
-                clearDelayTime(item)
                 database.update(item)
             }
 
             AlarmTypeOperation.DELETE -> {
                 offAlarm(item)
+                clearSpecialDate(item)
             }
             AlarmTypeOperation.SWITCH -> {
                 if (item.active) {
-                    clearSpecialDate(item)
                     offAlarm(item)
+                    clearSpecialDate(item)
                     item.active = false
                     database.update(item)
                     return OperationKey.successOff
@@ -305,8 +355,8 @@ class AlarmControl @Inject constructor(
                 }
             }
             AlarmTypeOperation.PAUSE -> {
-                clearSpecialDate(item)
                 offAlarm(item)
+                clearSpecialDate(item)
                 item.active = false
                 delaySignal(item)
                 onAlarm(item)
@@ -348,10 +398,10 @@ class AlarmControl @Inject constructor(
     private fun offAlarm(item: TimeData) {
 
         item.delayTime = 0L
-        val calendarList = createCalendarList(item)
+        val offList = createOffListCalendars(item)
         val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         var count = 1
-        calendarList.forEach { _ ->
+        offList.forEach { _ ->
             val requestCode = "${item.requestCode}$count".toInt()
             val requestCodeInfo = "${item.requestCode}$count$count".toInt()
             val pendingIntent = createPendingIntent(requestCode)

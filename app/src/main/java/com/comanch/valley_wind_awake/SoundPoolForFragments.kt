@@ -15,7 +15,6 @@ class SoundPoolForFragments @Inject constructor(
     val soundStart = soundPool.load(context, R.raw.navigation_forward_selection, 1)
     val soundButtonTap = soundPool.load(context, R.raw.navigation_forward_selection_minimal, 1)
     val soundUiTap = soundPool.load(context, R.raw.ui_refresh_feed, 1)
-    val soundNavigation = soundPool.load(context, R.raw.navigation_transition_right, 1)
     val soundStateUp = soundPool.load(context, R.raw.state_change_confirm_up, 1)
     val soundStateDown = soundPool.load(context, R.raw.state_change_confirm_down, 1)
     val appContext = context

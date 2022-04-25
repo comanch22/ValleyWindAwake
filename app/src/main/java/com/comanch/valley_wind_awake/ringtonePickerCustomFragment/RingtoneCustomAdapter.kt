@@ -15,7 +15,6 @@ class ItemListener(val clickListener: (ringtoneData: RingtoneData) -> Unit) {
     fun onClick(ringtone: RingtoneData) {
         return clickListener(ringtone)
     }
-
 }
 
 class RingtoneCustomAdapter(

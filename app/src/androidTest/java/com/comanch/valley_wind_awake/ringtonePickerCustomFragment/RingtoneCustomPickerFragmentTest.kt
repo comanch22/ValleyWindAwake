@@ -18,7 +18,6 @@ import androidx.test.espresso.matcher.ViewMatchers.withContentDescription
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.comanch.valley_wind_awake.R
-import com.comanch.valley_wind_awake.aboutFragment.AboutAppFragment
 import com.comanch.valley_wind_awake.launchFragmentInHiltContainer
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest

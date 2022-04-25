@@ -295,5 +295,4 @@ class RingtoneCustomPickerFragment : Fragment() {
         isPlaying = savedInstanceState?.getBoolean("isPlaying") ?: false
         isSaveState = savedInstanceState?.getBoolean("isSaveState") ?: false
     }
-
 }

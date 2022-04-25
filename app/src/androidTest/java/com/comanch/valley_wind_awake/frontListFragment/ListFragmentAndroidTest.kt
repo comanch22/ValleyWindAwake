@@ -39,7 +39,6 @@ import org.junit.runner.RunWith
 import java.util.Calendar
 import javax.inject.Inject
 
-
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest

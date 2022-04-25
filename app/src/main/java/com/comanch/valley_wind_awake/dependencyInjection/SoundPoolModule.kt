@@ -1,14 +1,11 @@
 package com.comanch.valley_wind_awake.dependencyInjection
 
-import android.content.Context
 import android.media.AudioAttributes
 import android.media.SoundPool
-import com.comanch.valley_wind_awake.R
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.FragmentComponent
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.FragmentScoped
 
 @Module
@@ -26,6 +23,5 @@ class SoundPoolModule {
                     .build()
             ).setMaxStreams(1)
             .build()
-
     }
 }

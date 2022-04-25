@@ -2,7 +2,7 @@ package com.comanch.valley_wind_awake
 
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 class DateFormatter(_hhmm: String, _ampm: String?) {
 

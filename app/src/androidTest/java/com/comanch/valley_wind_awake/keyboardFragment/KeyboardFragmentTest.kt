@@ -42,7 +42,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
-
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest

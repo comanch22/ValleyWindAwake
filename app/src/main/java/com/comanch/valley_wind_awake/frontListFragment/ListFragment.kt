@@ -31,7 +31,6 @@ import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
-
 @AndroidEntryPoint
 class ListFragment : Fragment() {
 

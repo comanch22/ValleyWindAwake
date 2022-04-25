@@ -105,7 +105,5 @@ class KeyboardViewModelTest{
 
         val actualS4 = viewModel.s4.getOrAwaitValue()
         assertEquals("4", actualS4)
-
     }
-
 }

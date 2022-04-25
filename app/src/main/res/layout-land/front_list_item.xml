@@ -35,8 +35,8 @@
 
         <TextView
             android:id="@+id/textViewNumberOne"
-            android:layout_marginStart="180dp"
-            android:gravity="end"
+            android:layout_marginStart="208dp"
+            android:gravity="center"
             android:text="@string/key_one"
             app:layout_constraintBottom_toTopOf="@id/barrier5"
             app:layout_constraintEnd_toStartOf="@id/textViewNumberTwo"
@@ -86,7 +86,7 @@
         <TextView
             android:id="@+id/textViewNumberFour"
             android:layout_marginEnd="4dp"
-            android:gravity="start"
+            android:gravity="center"
             android:text="@string/key_four"
             style="@style/front_list_item_numbers"
             app:layout_constraintBottom_toTopOf="@id/barrier5"

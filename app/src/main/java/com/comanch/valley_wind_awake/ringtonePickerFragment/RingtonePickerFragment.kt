@@ -64,7 +64,6 @@ class RingtonePickerFragment : Fragment() {
     private var currentVolume: Int? = null
     private var maxVolume: Int? = null
     private var minVolume: Int = 1
-    private var selectedPlayerVolume = 10
 
     private var isPlaying: Boolean = false
     private var isSaveState: Boolean = false

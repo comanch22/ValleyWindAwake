@@ -1,6 +1,5 @@
 package com.comanch.valley_wind_awake.ringtonePickerFragment
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,9 +16,9 @@ class RingtonePickerViewModel @Inject constructor(val database: RingtoneDataDao)
 
     var items: LiveData<List<RingtoneData>> = database.getAllItems()
 
-    var currentRingToneId: Long? = null
-    var currentRingToneIsCustom: Int? = null
-    var setRestorePlayerFlag: Boolean = false
+    private var currentRingToneId: Long? = null
+    private var currentRingToneIsCustom: Int? = null
+    private var setRestorePlayerFlag: Boolean = false
 
     private val _currentRingTone = MutableLiveData<RingtoneData?>()
     val currentRingTone: LiveData<RingtoneData?>

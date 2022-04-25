@@ -6,6 +6,7 @@ import android.graphics.Typeface
 import android.media.RingtoneManager
 import android.os.Bundle
 import android.text.format.DateFormat
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -32,7 +33,8 @@ import com.comanch.valley_wind_awake.viewTags.ViewTags
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -77,7 +79,8 @@ class KeyboardFragment : Fragment() {
         val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
             navigation.navigateToDestination(
                 this@KeyboardFragment,
-                action)
+                action
+            )
         }
         callback.isEnabled = true
 
@@ -124,11 +127,11 @@ class KeyboardFragment : Fragment() {
 
         savedInstanceState?.putBoolean("isRotation", false)
 
-      /*  if (args.correspondent != Correspondent.ListFragment) {
-            stateViewModel.restoreStateForKeyboardFragment()
-        } else {
-            stateViewModel.restoreSpecialDateAndTimer()
-        }*/
+        /*  if (args.correspondent != Correspondent.ListFragment) {
+              stateViewModel.restoreStateForKeyboardFragment()
+          } else {
+              stateViewModel.restoreSpecialDateAndTimer()
+          }*/
 
         keyboardViewModel.setTimeIsReady.observe(viewLifecycleOwner) { content ->
             content.getContentIfNotHandled()?.let {
@@ -171,17 +174,26 @@ class KeyboardFragment : Fragment() {
 
         keyboardViewModel.specialDateStr.observe(viewLifecycleOwner) { specialDate ->
             specialDate?.let {
-               /* if (!stateViewModel.getSpecialDate().isNullOrEmpty()) {
-                    binding.selectedDate.text = stateViewModel.getSpecialDate()?.substring(0..9)
-                    stateViewModel.setSpecialDate(stateViewModel.getSpecialDate()!!)
-                } else {
-                    binding.selectedDate.text = if (specialDate.isEmpty())
-                        ""
-                    else specialDate.substring(0..9)
-                    stateViewModel.setSpecialDate(specialDate)
-                }*/
                 stateViewModel.setSpecialDate(it)
                 binding.selectedDate.text = it
+            }
+        }
+
+        keyboardViewModel.deleteAlarm.observe(viewLifecycleOwner) { content ->
+            content.getContentIfNotHandled()?.let {
+                alarmControl.timeData = it
+                lifecycleScope.launch {
+                    if (alarmControl.schedulerAlarm(AlarmTypeOperation.DELETE)
+                        ==  OperationKey.success){
+                        keyboardViewModel.saveTimer()
+                    }else{
+                        Toast.makeText(
+                            context,
+                            resources.getString(R.string.restart),
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
             }
         }
 
@@ -226,6 +238,7 @@ class KeyboardFragment : Fragment() {
         keyboardViewModel.timeToast.observe(viewLifecycleOwner) { timeData ->
 
             timeData.getContentIfNotHandled()?.let {
+                Log.e("fdgdfgbgdg", "222 id = ${it.timeId}")
                 Toast.makeText(
                     context,
                     DateDifference().getResultString(
@@ -239,7 +252,8 @@ class KeyboardFragment : Fragment() {
             }
             navigation.navigateToDestination(
                 this,
-                KeyboardFragmentDirections.actionKeyboardFragmentToListFragment())
+                KeyboardFragmentDirections.actionKeyboardFragmentToListFragment()
+            )
         }
 
         keyboardViewModel.errorForUser.observe(viewLifecycleOwner) {
@@ -265,7 +279,8 @@ class KeyboardFragment : Fragment() {
             it.getContentIfNotHandled()?.let {
                 navigation.navigateToDestination(
                     this,
-                    KeyboardFragmentDirections.actionKeyboardFragmentToListFragment())
+                    KeyboardFragmentDirections.actionKeyboardFragmentToListFragment()
+                )
                 stateViewModel.resetStateStoreForKeyboardFragment()
             }
         }
@@ -288,13 +303,14 @@ class KeyboardFragment : Fragment() {
                 s1 = it
                 stateViewModel.getNumbersTimer()?.let { s ->
                     stateViewModel.setNumbersTimer("$it${s.substring(1..5)}")
-                    binding.textViewNumberOne.contentDescription = resources.getString(R.string.first_hour) +
-                            it +
-                            resources.getString(R.string.time_displayed) +
-                            s.substring(1..2) +
-                            resources.getString(R.string.hours_keyboard) +
-                            s.substring(3..4) +
-                            resources.getString(R.string.minutes)
+                    binding.textViewNumberOne.contentDescription =
+                        resources.getString(R.string.first_hour) +
+                                it +
+                                resources.getString(R.string.time_displayed) +
+                                s.substring(1..2) +
+                                resources.getString(R.string.hours_keyboard) +
+                                s.substring(3..4) +
+                                resources.getString(R.string.minutes)
                 }
             }
         }
@@ -306,15 +322,16 @@ class KeyboardFragment : Fragment() {
                 s2 = it
                 stateViewModel.getNumbersTimer()?.let { s ->
                     stateViewModel.setNumbersTimer("${s[0]}$it${s.substring(2..5)}}")
-                    binding.textViewNumberTwo.contentDescription = resources.getString(R.string.second_hour) +
-                            it +
-                            resources.getString(R.string.time_displayed) +
-                            s.substring(1..2) +
-                            resources.getString(R.string.hours_keyboard) +
-                            s.substring(3..4) +
-                            resources.getString(R.string.minutes) +
-                            resources.getString(R.string.activated) +
-                            resources.getString(R.string.first_hour)
+                    binding.textViewNumberTwo.contentDescription =
+                        resources.getString(R.string.second_hour) +
+                                it +
+                                resources.getString(R.string.time_displayed) +
+                                s.substring(1..2) +
+                                resources.getString(R.string.hours_keyboard) +
+                                s.substring(3..4) +
+                                resources.getString(R.string.minutes) +
+                                resources.getString(R.string.activated) +
+                                resources.getString(R.string.first_hour)
                 }
             }
         }
@@ -326,13 +343,14 @@ class KeyboardFragment : Fragment() {
                 s3 = it
                 stateViewModel.getNumbersTimer()?.let { s ->
                     stateViewModel.setNumbersTimer("${s.substring(0..1)}$it${s.substring(3..5)}")
-                    binding.textViewNumberThree.contentDescription = resources.getString(R.string.first_minute) +
-                            it +
-                            resources.getString(R.string.time_displayed) +
-                            s.substring(1..2) +
-                            resources.getString(R.string.hours_keyboard) +
-                            s.substring(3..4) +
-                            resources.getString(R.string.minutes)
+                    binding.textViewNumberThree.contentDescription =
+                        resources.getString(R.string.first_minute) +
+                                it +
+                                resources.getString(R.string.time_displayed) +
+                                s.substring(1..2) +
+                                resources.getString(R.string.hours_keyboard) +
+                                s.substring(3..4) +
+                                resources.getString(R.string.minutes)
                 }
             }
         }
@@ -344,15 +362,16 @@ class KeyboardFragment : Fragment() {
                 s4 = it
                 stateViewModel.getNumbersTimer()?.let { s ->
                     stateViewModel.setNumbersTimer("${s.substring(0..2)}$it${s.substring(4..5)}")
-                    binding.textViewNumberFour.contentDescription = resources.getString(R.string.second_minute) +
-                            it +
-                            resources.getString(R.string.time_displayed) +
-                            s.substring(1..2) +
-                            resources.getString(R.string.hours_keyboard) +
-                            s.substring(3..4) +
-                            resources.getString(R.string.minutes) +
-                            resources.getString(R.string.activated) +
-                            resources.getString(R.string.first_minute)
+                    binding.textViewNumberFour.contentDescription =
+                        resources.getString(R.string.second_minute) +
+                                it +
+                                resources.getString(R.string.time_displayed) +
+                                s.substring(1..2) +
+                                resources.getString(R.string.hours_keyboard) +
+                                s.substring(3..4) +
+                                resources.getString(R.string.minutes) +
+                                resources.getString(R.string.activated) +
+                                resources.getString(R.string.first_minute)
                 }
             }
         }
@@ -437,7 +456,8 @@ class KeyboardFragment : Fragment() {
                                 ampm,
                                 dateFormatter.format12from24(),
                                 it.substring(0, 4),
-                                dateFormatter.format12from24())
+                                dateFormatter.format12from24()
+                            )
                         } else {
                             setUpDateTimeView(
                                 ampm,
@@ -498,7 +518,7 @@ class KeyboardFragment : Fragment() {
                     keyboardViewModel.setHhmm12(it)
                     keyboardViewModel.setHhmm24(dateFormatter.format24from12())
                 }
-                keyboardViewModel.saveTimer()
+                keyboardViewModel.prepareSaveTimer()
             }
         }
 
@@ -653,7 +673,8 @@ class KeyboardFragment : Fragment() {
             stateViewModel.resetStateStoreForKeyboardFragment()
             navigation.navigateToDestination(
                 this,
-                KeyboardFragmentDirections.actionKeyboardFragmentToListFragment())
+                KeyboardFragmentDirections.actionKeyboardFragmentToListFragment()
+            )
         }
 
         binding.textViewSelectTrack.setOnClickListener {
@@ -691,8 +712,7 @@ class KeyboardFragment : Fragment() {
                             calendar.set(Calendar.MINUTE, "$s3$s4".toInt())
                             calendar.set(Calendar.SECOND, 0)
                             calendar.clear(Calendar.MILLISECOND)
-                        }
-                        else {
+                        } else {
                             calendar.set(Calendar.HOUR, "$s1$s2".toInt())
                             calendar.set(Calendar.MINUTE, "$s3$s4".toInt())
                             calendar.set(
@@ -757,13 +777,19 @@ class KeyboardFragment : Fragment() {
             soundPoolContainer.playSoundIfEnable(soundPoolContainer.soundButtonTap)
             navigation.navigateToDestination(
                 this,
-                KeyboardFragmentDirections.actionKeyboardFragmentToListFragment())
+                KeyboardFragmentDirections.actionKeyboardFragmentToListFragment()
+            )
         }
 
         return binding.root
     }
 
-    private fun setUpDateTimeView(ampm: String?, hhmm12: String?, hhmm24: String?, timeView: String?){
+    private fun setUpDateTimeView(
+        ampm: String?,
+        hhmm12: String?,
+        hhmm24: String?,
+        timeView: String?
+    ) {
 
         keyboardViewModel.setAMPM(ampm)
         keyboardViewModel.setHhmm12(hhmm12)
@@ -876,5 +902,4 @@ class KeyboardFragment : Fragment() {
             }
         }
     }
-
 }

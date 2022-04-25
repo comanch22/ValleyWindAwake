@@ -26,7 +26,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import javax.inject.Inject
 
-
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @HiltAndroidTest

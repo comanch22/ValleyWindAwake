@@ -65,7 +65,9 @@
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@+id/guideline11"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/guideline12"
             app:layout_constraintEnd_toStartOf="@+id/guideline6"
             app:layout_constraintStart_toEndOf="@+id/guideline2"
             app:layout_constraintTop_toBottomOf="@+id/guideline8">
@@ -112,6 +114,16 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline9"
             style="@style/ringtone_picker_fab_button"/>
 
+        <TextView
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/divider_about_app"
+            app:layout_constraintEnd_toStartOf="@+id/guideline3"
+            app:layout_constraintStart_toEndOf="@+id/guideline2"
+            app:layout_constraintTop_toBottomOf="@+id/guideline12"
+            app:layout_constraintBottom_toTopOf="@+id/guideline11" />
+
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"
             android:layout_width="wrap_content"
@@ -152,7 +164,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_end="128dp" />
+            app:layout_constraintGuide_end="136dp" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline9"
@@ -167,6 +179,13 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintGuide_end="64dp" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline12"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_end="68dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

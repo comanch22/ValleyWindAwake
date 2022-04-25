@@ -4,9 +4,9 @@ ValleyWindAwake is a simple alarm clock with the necessary functionality
 
 In each alarm added to the list, you can define a specific date of a single alarm, days of the week for a periodic alarm, or simply specify the time for the nearest alarm.
 
-<p align="center">
-  <img src="https://github.com/comanch22/ValleyWindAwake_additional/blob/main/Screenshot_20220425-165610_Valley%20wind%20awake.jpg" width="256" height="455">
-  <img src="https://github.com/comanch22/ValleyWindAwake_additional/blob/main/Screenshot_20220425-165400_Valley%20wind%20awake.jpg" width="256" height="455">
+<p align="left">
+  <img src="https://github.com/comanch22/ValleyWindAwake_additional/blob/main/Screenshot_20220425-165610_Valley%20wind%20awake.jpg" width="180" height="319">
+  <img src="https://github.com/comanch22/ValleyWindAwake_additional/blob/main/Screenshot_20220425-165400_Valley%20wind%20awake.jpg" width="180" height="319">
 </p>
 
 You can clear the alarm list individually or select the "delete all" option in the application menu.

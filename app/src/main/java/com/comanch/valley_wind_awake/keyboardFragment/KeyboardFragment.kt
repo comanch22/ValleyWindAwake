@@ -127,12 +127,6 @@ class KeyboardFragment : Fragment() {
 
         savedInstanceState?.putBoolean("isRotation", false)
 
-        /*  if (args.correspondent != Correspondent.ListFragment) {
-              stateViewModel.restoreStateForKeyboardFragment()
-          } else {
-              stateViewModel.restoreSpecialDateAndTimer()
-          }*/
-
         keyboardViewModel.setTimeIsReady.observe(viewLifecycleOwner) { content ->
             content.getContentIfNotHandled()?.let {
                 keyboardViewModel.refreshViewDateFormat()

@@ -21,6 +21,7 @@ package com.comanch.valley_wind_awake
 
 import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.annotation.StyleRes
 import androidx.core.util.Preconditions
@@ -49,11 +50,17 @@ inline fun <reified T : Fragment> launchFragmentInHiltContainer(
             T::class.java.name
         )
         fragment.arguments = fragmentArgs
-        activity.supportFragmentManager
-            .beginTransaction()
-            .add(android.R.id.content, fragment)
-            .commitNow()
-
+        if (Build.VERSION.SDK_INT <= 29) {
+            activity.supportFragmentManager
+                .beginTransaction()
+                .add(android.R.id.content, fragment)
+                .commitNow()
+        }else {
+            activity.supportFragmentManager
+                .beginTransaction()
+                .add(android.R.id.content, fragment)
+                .commitNowAllowingStateLoss()
+        }
         fragment.action()
     }
 }

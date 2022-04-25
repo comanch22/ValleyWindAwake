@@ -19,7 +19,6 @@ there is support for two languages (eng and ru), 12/24-hour time formats, the ch
 
 <p align="left">
   <img src="https://github.com/comanch22/ValleyWindAwake_additional/blob/main/Screenshot_20220425-165500_Valley%20wind%20awake.jpg" width="180" height="319">
-  <img src="https://github.com/comanch22/ValleyWindAwake_additional/blob/main/Screenshot_20220425-165653_Valley%20wind%20awake.jpg" width="180" height="319">
   <img src="https://github.com/comanch22/ValleyWindAwake_additional/blob/main/Screenshot_20220425-165712_Valley%20wind%20awake.jpg" width="180" height="319">
   <img src="https://github.com/comanch22/ValleyWindAwake_additional/blob/main/Screenshot_20220425-165737_Valley%20wind%20awake.jpg" width="180" height="319">
   <img src="https://github.com/comanch22/ValleyWindAwake_additional/blob/main/Screenshot_20220425-165802_Valley%20wind%20awake.jpg" width="180" height="319">

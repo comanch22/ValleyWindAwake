@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="NONE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3dfcc89f-8602-4621-93b8-188aea72dae2" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/../.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Screenshot_20220425-165400_Valley wind awake.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Screenshot_20220425-165500_Valley wind awake.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Screenshot_20220425-165610_Valley wind awake.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Screenshot_20220425-165632_Valley wind awake.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Screenshot_20220425-165653_Valley wind awake.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Screenshot_20220425-165712_Valley wind awake.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Screenshot_20220425-165737_Valley wind awake.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Screenshot_20220425-165802_Valley wind awake.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Screenshot_20220425-173353_Valley wind.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/proguard-rules.pro" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/androidTest/java/com/comanch/valley_wind_awake/CustomTestRunner.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/androidTest/java/com/comanch/valley_wind_awake/HiltExt.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/androidTest/java/com/comanch/valley_wind_awake/aboutFragment/AboutAppFragmentTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/androidTest/java/com/comanch/valley_wind_awake/alarmFragment/DetailFragmentAndroidTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/androidTest/java/com/comanch/valley_wind_awake/frontListFragment/ListFragmentAndroidTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/androidTest/java/com/comanch/valley_wind_awake/keyboardFragment/KeyboardFragmentTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/androidTest/java/com/comanch/valley_wind_awake/ringtonePickerCustomFragment/RingtoneCustomPickerFragmentTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/androidTest/java/com/comanch/valley_wind_awake/ringtonePickerFragment/RingtonePickerFragmentTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/androidTest/java/com/comanch/valley_wind_awake/settingsFragment/SettingsFragmentTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/debug/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/debug/java/com/comanch/valley_wind_awake/HiltTestActivity.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/AndroidManifest.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/ic_launcher-playstore.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/ic_launcher_10_test-playstore.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/ic_launcher_9-playstore.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/DateDifference.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/DateFormatter.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/DefaultPreference.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/LiveDataEvent.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/MainActivity.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/NavigationBetweenFragments.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/SoundPoolForFragments.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/ValleyWindApplication.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/aboutFragment/AboutAppFragment.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/aboutFragment/AboutAppViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/alarmFragment/DetailFragment.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/alarmFragment/DetailViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/alarmManagement/AlarmControl.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/alarmManagement/AlarmTypeOperation.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/alarmManagement/RingtoneService.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/broadcastreceiver/AlarmReceiver.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/dataBase/DataControl.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/dataBase/RingtoneData.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/dataBase/RingtoneDataDao.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/dataBase/TimeData.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/dataBase/TimeDataDao.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/dependencyInjection/DataBaseModule.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/dependencyInjection/PreferenceModule.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/dependencyInjection/SoundPoolModule.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/dialogFragments/DialogDatePicker.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/dialogFragments/DialogDeleteAllAlarms.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/dialogFragments/DialogRestartActivity.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/frontListFragment/ListFragment.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/frontListFragment/ListItemAdapter.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/frontListFragment/ListOfCustomRingtones.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/frontListFragment/ListViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/keyboardFragment/KeyboardFragment.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/keyboardFragment/KeyboardViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/keyboardFragment/Сorrespondents.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/ringtonePickerCustomFragment/RingtoneCustomAdapter.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/ringtonePickerCustomFragment/RingtoneCustomPickerFragment.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/ringtonePickerCustomFragment/RingtoneCustomPickerViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/ringtonePickerFragment/RingtoneAdapter.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/ringtonePickerFragment/RingtonePickerFragment.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/ringtonePickerFragment/RingtonePickerViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/settingsFragment/SettingsFragment.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/stateViewModel/StateViewModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/stringKeys/AppStyleKey.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/stringKeys/FragmentResultKey.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/stringKeys/IntentKeys.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/stringKeys/OperationKey.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/stringKeys/PreferenceKeys.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/comanch/valley_wind_awake/viewTags/ViewTags.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/animator/keyboard_scale_anim.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable-v24/rectangle_for_license_button.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable-v24/rectangle_for_ringtone_list.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable-v24/rectangle_keyboard_key.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable-v24/rectangle_list_background_day.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/divider_about_app.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_access_alarm_24_blue.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_add_24.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_add_alarm_24.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_alarm_24.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_alarm_on_48.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_alarm_on_64.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_calendar_month_24.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_delete_forever_24.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_delete_forever_64.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_delete_forever_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_keyboard_arrow_left_24.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_keyboard_arrow_left_36.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_baseline_keyboard_backspace_8.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_launcher_background.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_logosvg.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/ic_outline_library_music_48.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/launch_screen.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/license_activity_back_arrow.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/rectangle.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/rectangle_detail.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/rectangle_for_list.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/rectangle_for_list_white.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/drawable/rectangle_ringtone_adapter.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout-land/about_app_fragment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout-land/detail_fragment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout-land/front_list_fragment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout-land/front_list_item.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout-land/keyboard_fragment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout-land/ringtone_custom_picker_fragment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout-land/ringtone_picker_fragment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/about_app_fragment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/activity_main.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/detail_fragment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/front_list_fragment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/front_list_item.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/keyboard_fragment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/preference_custom_layout.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/ringtone_custom_picker_fragment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/ringtone_custom_picker_item.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/ringtone_picker_fragment.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/ringtone_picker_item.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/layout/switch_custom.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/menu/app_menu.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-hdpi/ic_launcher_foreground.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-hdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-mdpi/ic_launcher_foreground.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-mdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xhdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xxhdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/navigation/nav_graph.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/raw/navigation_cancel.ogg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/raw/navigation_forward_selection.ogg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/raw/navigation_forward_selection_minimal.ogg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/raw/navigation_transition_right.ogg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/raw/state_change_confirm_down.wav" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/raw/state_change_confirm_up.wav" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/raw/ui_refresh_feed.ogg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values-night/strings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values-night/themes.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values-ru-rRU/strings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values/app_style.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values/attrs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values/colors.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values/language_choice.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values/pause_duration.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values/signal_duration.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values/strings.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values/styles.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/res/values/themes.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/comanch/valley_wind_awake/DateDifferenceTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/comanch/valley_wind_awake/DateFormatterTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/comanch/valley_wind_awake/LiveDataTestUtil.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/comanch/valley_wind_awake/MainCoroutineRule.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/comanch/valley_wind_awake/aboutFragment/AboutAppViewModelTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/comanch/valley_wind_awake/alarmFragment/DetailViewModelTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/comanch/valley_wind_awake/frontListFragment/ListViewModelTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/comanch/valley_wind_awake/keyboardFragment/KeyboardViewModelTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/comanch/valley_wind_awake/ringtonePickerCustomFragment/RingtoneCustomPickerViewModelTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/comanch/valley_wind_awake/ringtonePickerFragment/RingtonePickerViewModelTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/comanch/valley_wind_awake/stateViewModel/StateViewModelTest.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../build.gradle" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../dump.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gradle.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gradle/wrapper/gradle-wrapper.jar" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gradlew" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../gradlew.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../settings.gradle" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="28Qzz3MYlDL7ZM8kVq3sodSm4EN" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
+    <property name="cidr.known.project.marker" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../ValleyWindAwake" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3dfcc89f-8602-4621-93b8-188aea72dae2" name="Default Changelist" comment="" />
+      <created>1651163863385</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1651163863385</updated>
+    </task>
+    <servers />
+  </component>
+</project>

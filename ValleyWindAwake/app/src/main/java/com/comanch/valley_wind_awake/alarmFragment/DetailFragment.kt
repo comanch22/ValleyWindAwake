@@ -67,6 +67,7 @@ class DetailFragment : Fragment() {
         detailViewModel.navigateToList.observe(viewLifecycleOwner) { content ->
             content.getContentIfNotHandled()?.let {
                 stopPlayRingtone()
+                //
                 activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 activity?.finishAndRemoveTask()
             }

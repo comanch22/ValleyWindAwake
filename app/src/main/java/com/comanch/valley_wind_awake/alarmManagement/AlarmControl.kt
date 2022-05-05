@@ -130,91 +130,91 @@ class AlarmControl @Inject constructor(
             }
         }
 
-            if (item.mondayOn) {
-                setDayOfWeek(Calendar.MONDAY, item, calendarList)
-                setContentDescriptionPart2(
-                    item,
-                    " понедельник. ",
-                    " monday. "
-                )
-                simpleCondition = false
-                isRepeat = true
-    }
+        if (item.mondayOn) {
+            setDayOfWeek(Calendar.MONDAY, item, calendarList)
+            setContentDescriptionPart2(
+                item,
+                " понедельник. ",
+                " monday. "
+            )
+            simpleCondition = false
+            isRepeat = true
+        }
 
-            if (item.tuesdayOn) {
-                setDayOfWeek(Calendar.TUESDAY, item, calendarList)
-                setContentDescriptionPart2(
-                    item,
-                    " вторник. ",
-                    " tuesday. "
-                )
+        if (item.tuesdayOn) {
+            setDayOfWeek(Calendar.TUESDAY, item, calendarList)
+            setContentDescriptionPart2(
+                item,
+                " вторник. ",
+                " tuesday. "
+            )
+            simpleCondition = false
+            isRepeat = true
+        }
+
+        if (item.wednesdayOn) {
+            setDayOfWeek(Calendar.WEDNESDAY, item, calendarList)
+            setContentDescriptionPart2(
+                item,
+                " среда. ",
+                " wednesday. "
+            )
+            simpleCondition = false
+            isRepeat = true
+        }
+
+        if (item.thursdayOn) {
+            setDayOfWeek(Calendar.THURSDAY, item, calendarList)
+            setContentDescriptionPart2(
+                item,
+                " четверг. ",
+                " thursday. "
+            )
+            simpleCondition = false
+            isRepeat = true
+        }
+
+        if (item.fridayOn) {
+            setDayOfWeek(Calendar.FRIDAY, item, calendarList)
+            setContentDescriptionPart2(
+                item,
+                " пятница. ",
+                " friday. "
+            )
+            simpleCondition = false
+            isRepeat = true
+        }
+
+        if (item.saturdayOn) {
+            setDayOfWeek(Calendar.SATURDAY, item, calendarList)
+            setContentDescriptionPart2(
+                item,
+                " суббота. ",
+                " saturday. "
+            )
+            simpleCondition = false
+            isRepeat = true
+        }
+
+        if (item.sundayOn) {
+            setDayOfWeek(Calendar.SUNDAY, item, calendarList)
+            setContentDescriptionPart2(
+                item,
+                " воскресенье. ",
+                " sunday. "
+            )
+            simpleCondition = false
+            isRepeat = true
+        }
+
+        if (item.delayTime != 0L) {
+            val calendar = Calendar.getInstance()
+            if (calendar.timeInMillis <= item.delayTime) {
+                calendar.timeInMillis = item.delayTime
+                calendar.clear(Calendar.MILLISECOND)
+                calendarList.add(calendar)
                 simpleCondition = false
-                isRepeat = true
             }
-
-            if (item.wednesdayOn) {
-                setDayOfWeek(Calendar.WEDNESDAY, item, calendarList)
-                setContentDescriptionPart2(
-                    item,
-                    " среда. ",
-                    " wednesday. "
-                )
-                simpleCondition = false
-                isRepeat = true
-            }
-
-            if (item.thursdayOn) {
-                setDayOfWeek(Calendar.THURSDAY, item, calendarList)
-                setContentDescriptionPart2(
-                    item,
-                    " четверг. ",
-                    " thursday. "
-                )
-                simpleCondition = false
-                isRepeat = true
-            }
-
-            if (item.fridayOn) {
-                setDayOfWeek(Calendar.FRIDAY, item, calendarList)
-                setContentDescriptionPart2(
-                    item,
-                    " пятница. ",
-                    " friday. "
-                )
-                simpleCondition = false
-                isRepeat = true
-            }
-
-            if (item.saturdayOn) {
-                setDayOfWeek(Calendar.SATURDAY, item, calendarList)
-                setContentDescriptionPart2(
-                    item,
-                    " суббота. ",
-                    " saturday. "
-                )
-                simpleCondition = false
-                isRepeat = true
-            }
-
-            if (item.sundayOn) {
-                setDayOfWeek(Calendar.SUNDAY, item, calendarList)
-                setContentDescriptionPart2(
-                    item,
-                    " воскресенье. ",
-                    " sunday. "
-                )
-                simpleCondition = false
-                isRepeat = true
-            }
-
-            if (item.delayTime != 0L) {
-                val calendar = Calendar.getInstance()
-                if (calendar.timeInMillis <= item.delayTime) {
-                    calendar.timeInMillis = item.delayTime
-                    calendar.clear(Calendar.MILLISECOND)
-                    calendarList.add(calendar)
-                    simpleCondition = false
-                }
 
         }
 
@@ -428,13 +428,6 @@ class AlarmControl @Inject constructor(
                 item.specialDate = 0L
                 item.specialDateStr = ""
             }
-        }
-    }
-
-    private fun clearDelayTime(item: TimeData) {
-
-        if (item.delayTime > 0L) {
-                item.delayTime = 0L
         }
     }
 

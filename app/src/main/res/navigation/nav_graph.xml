@@ -43,6 +43,9 @@
             app:destination="@id/listFragment"
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_detailFragment_to_endFragment"
+            app:destination="@id/endFragment" />
     </fragment>
     <fragment
         android:id="@+id/keyboardFragment"
@@ -142,4 +145,8 @@
             app:popUpTo="@id/nav_graph"
             app:popUpToInclusive="true" />
     </fragment>
+    <fragment
+        android:id="@+id/endFragment"
+        android:name="com.comanch.valley_wind_awake.endFragment.EndFragment"
+        android:label="EndFragment" />
 </navigation>
